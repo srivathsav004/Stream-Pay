@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Bot, ShieldCheck, BarChart3, Globe, Coins } from 'lucide-react';
-import Card from './ui/Card';
-import { FeatureProps } from '../types';
+import Card from '../ui/Card';
+import { FeatureProps } from '../../types';
 
 const features: FeatureProps[] = [
   {

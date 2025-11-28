@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Menu, X, Wallet } from 'lucide-react';
-import Button from './ui/Button';
+import Button from '../ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar: React.FC = () => {

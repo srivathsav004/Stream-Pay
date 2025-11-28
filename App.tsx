@@ -1,12 +1,12 @@
 import React from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import ProblemSolution from './components/ProblemSolution';
-import HowItWorks from './components/HowItWorks';
-import Features from './components/Features';
-import LiveDemo from './components/LiveDemo';
-import Stats from './components/Stats';
-import Footer from './components/Footer';
+import Navbar from './components/landing/Navbar';
+import Hero from './components/landing/Hero';
+import ProblemSolution from './components/landing/ProblemSolution';
+import HowItWorks from './components/landing/HowItWorks';
+import Features from './components/landing/Features';
+import LiveDemo from './components/landing/LiveDemo';
+import Stats from './components/landing/Stats';
+import Footer from './components/landing/Footer';
 
 function App() {
   return (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { XCircle, CheckCircle, MonitorPlay, Dumbbell, Music, HardDrive, Cpu, Cloud } from 'lucide-react';
-import Card from './ui/Card';
+import Card from '../ui/Card';
 
 const ProblemSolution: React.FC = () => {
   return (

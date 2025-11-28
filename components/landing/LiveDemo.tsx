@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw } from 'lucide-react';
-import Button from './ui/Button';
-import Card from './ui/Card';
+import Button from '../ui/Button';
+import Card from '../ui/Card';
 
 const COST_PER_SECOND = 0.00042; // Example cost
 

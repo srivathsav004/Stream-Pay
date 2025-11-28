@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Play, ArrowRight, Zap, Layers } from 'lucide-react';
-import Button from './ui/Button';
+import Button from '../ui/Button';
 
 const Hero: React.FC = () => {
   return (
