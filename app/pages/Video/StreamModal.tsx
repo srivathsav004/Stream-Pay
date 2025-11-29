@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Progress from '@/components/ui/Progress';
 import { Video } from './types';
+import { loadYouTubeIframeAPI } from './youtube';
 
 interface StreamModalProps {
   video: Video | null;
@@ -15,6 +16,8 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [cost, setCost] = useState(0);
+  const playerRef = useRef<any>(null);
+  const playerContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isOpen || !video) return;
@@ -37,8 +40,49 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
       setIsPlaying(false);
       setDuration(0);
       setCost(0);
+      try { playerRef.current?.stopVideo?.(); } catch {}
     }
   }, [isOpen]);
+
+  // Initialize YouTube Player without autoplay
+  useEffect(() => {
+    let destroyed = false;
+    const init = async () => {
+      if (!isOpen || !video) return;
+      await loadYouTubeIframeAPI();
+      if (destroyed) return;
+      // Destroy previous player if any
+      try { playerRef.current?.destroy?.(); } catch {}
+      playerRef.current = new (window as any).YT.Player(playerContainerRef.current!, {
+        videoId: video.id,
+        width: '100%',
+        height: '100%',
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+          color: 'white',
+        },
+        events: {
+          onStateChange: (event: any) => {
+            // Sync isPlaying if user interacts via keyboard (unlikely since controls=0)
+            const YT = (window as any).YT;
+            if (!YT) return;
+            if (event.data === YT.PlayerState.PLAYING) setIsPlaying(true);
+            if (event.data === YT.PlayerState.PAUSED) setIsPlaying(false);
+            if (event.data === YT.PlayerState.ENDED) setIsPlaying(false);
+          },
+        },
+      });
+    };
+    init();
+    return () => {
+      destroyed = true;
+      try { playerRef.current?.destroy?.(); } catch {}
+      playerRef.current = null;
+    };
+  }, [isOpen, video]);
 
   if (!isOpen || !video) return null;
 
@@ -49,8 +93,15 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const [minutes, secs] = video.duration.split(':').map(Number);
-  const totalSeconds = minutes * 60 + secs;
+  const parts = video.duration.split(':').map(Number);
+  let totalSeconds = 0;
+  if (parts.length === 3) {
+    const [h, m, s] = parts;
+    totalSeconds = h * 3600 + m * 60 + s;
+  } else if (parts.length === 2) {
+    const [m, s] = parts;
+    totalSeconds = m * 60 + s;
+  }
   const progress = (duration / totalSeconds) * 100;
 
   return (
@@ -70,10 +121,9 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
 
         <div className="p-6">
           {/* Video Player */}
-          <Card className="mb-6 bg-[#262626] aspect-video flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-4xl mb-4">▶️</div>
-              <div className="text-sm text-[#a1a1a1]">Video Player Placeholder</div>
+          <Card className="mb-6 bg-[#262626] overflow-hidden">
+            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+              <div ref={playerContainerRef} className="absolute inset-0 w-full h-full" />
             </div>
           </Card>
 
@@ -107,7 +157,13 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
               <Button
                 variant={isPlaying ? 'secondary' : 'primary'}
                 size="sm"
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={() => {
+                  try {
+                    if (!isPlaying) playerRef.current?.playVideo?.();
+                    else playerRef.current?.pauseVideo?.();
+                  } catch {}
+                  setIsPlaying(!isPlaying);
+                }}
               >
                 {isPlaying ? '⏸ Pause' : '▶ Play'}
               </Button>
