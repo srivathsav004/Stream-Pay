@@ -1,0 +1,6 @@
+# Netlify redirects file
+# This file should be in the public directory and will be copied to the build output
+
+# Redirect all routes to index.html for SPA routing
+/*    /index.html   200
+

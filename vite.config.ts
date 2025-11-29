@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
       },
+      preview: {
+        port: 3000,
+        host: '0.0.0.0',
+      },
       plugins: [
         {
           name: 'spa-fallback',
@@ -24,6 +28,28 @@ export default defineConfig(({ mode }) => {
               if (
                 url.startsWith('/@') ||
                 url.startsWith('/node_modules') ||
+                url.match(/\.[a-zA-Z0-9]+$/) ||
+                url.startsWith('/api') ||
+                url === '/index.html' ||
+                url === '/'
+              ) {
+                return next();
+              }
+              
+              // For all SPA routes, rewrite to index.html
+              req.url = '/index.html';
+              next();
+            });
+          },
+          configurePreviewServer(server) {
+            // Same middleware for preview server (production)
+            server.middlewares.use((req, res, next) => {
+              if (!req.url) return next();
+              
+              const url = req.url.split('?')[0];
+              
+              // Skip static assets and API routes
+              if (
                 url.match(/\.[a-zA-Z0-9]+$/) ||
                 url.startsWith('/api') ||
                 url === '/index.html' ||
