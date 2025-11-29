@@ -1,20 +1,26 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface CardProps {
   children: React.ReactNode;
   className?: string;
-  hoverEffect?: boolean;
+  hoverEffect?: boolean | string;
 }
 
 const Card: React.FC<CardProps> = ({ children, className = '', hoverEffect = false }) => {
+  const getHoverClass = () => {
+    if (!hoverEffect) return '';
+    if (hoverEffect === true || hoverEffect === 'blue') return 'hover:border-blue-600';
+    if (hoverEffect === 'purple') return 'hover:border-[#8b5cf6]';
+    if (hoverEffect === 'cyan') return 'hover:border-[#06b6d4]';
+    return '';
+  };
+  
   return (
-    <motion.div
-      whileHover={hoverEffect ? { y: -4 } : {}}
-      className={`bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/80 rounded-xl overflow-hidden ${className}`}
+    <div
+      className={`bg-[#141414] border border-[#262626] rounded-lg overflow-hidden transition-colors ${getHoverClass()} ${className}`}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 
