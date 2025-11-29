@@ -63,8 +63,8 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-3xl font-semibold text-white">{usedGB} GB</div>
-              <div className="text-sm text-[#a1a1a1]">of {maxGB} GB</div>
+              <div className="text-3xl font-semibold text-white">{usedGB.toFixed(2)} GB</div>
+              <div className="text-sm text-[#a1a1a1]">of {maxGB.toFixed(2)} GB</div>
               <div className="text-xs text-[#a1a1a1] mt-1">{percentage.toFixed(1)}% used</div>
             </div>
           </div>
@@ -75,15 +75,15 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
           <div className="space-y-4 mb-6">
             <div>
               <div className="text-sm text-[#a1a1a1] mb-1">Hourly</div>
-              <div className="text-xl font-semibold text-white font-mono">{hourlyCost} AVAX</div>
+              <div className="text-xl font-semibold text-white font-mono">{hourlyCost.toFixed(6)} AVAX</div>
             </div>
             <div>
               <div className="text-sm text-[#a1a1a1] mb-1">Daily</div>
-              <div className="text-xl font-semibold text-white font-mono">{dailyCost} AVAX</div>
+              <div className="text-xl font-semibold text-white font-mono">{dailyCost.toFixed(6)} AVAX</div>
             </div>
             <div>
               <div className="text-sm text-[#a1a1a1] mb-1">Monthly</div>
-              <div className="text-xl font-semibold text-white font-mono">~{monthlyCost} AVAX</div>
+              <div className="text-xl font-semibold text-white font-mono">~{monthlyCost.toFixed(6)} AVAX</div>
             </div>
           </div>
           {daysRemaining < 10 && (
