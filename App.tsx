@@ -12,7 +12,6 @@ import Dashboard from '@/app/pages/Dashboard';
 import Video from '@/app/pages/Video';
 import AI from '@/app/pages/AI';
 import Storage from '@/app/pages/Storage';
-import Live from '@/app/pages/Live';
 import Balance from '@/app/pages/Balance';
 import Profile from '@/app/pages/Profile';
 import { WalletProvider } from '@/app/state/WalletContext';
@@ -43,7 +42,6 @@ function App() {
           <Route path="/app/video" element={<Video />} />
           <Route path="/app/ai" element={<AI />} />
           <Route path="/app/storage" element={<Storage />} />
-          <Route path="/app/live" element={<Live />} />
           <Route path="/app/balance" element={<Balance />} />
           <Route path="/app/profile" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -12,7 +12,6 @@ const items = [
   { label: 'Video Stream', icon: Video, to: '/app/video', section: 'SERVICES', key: 'video', requires: 'balance' as const },
   { label: 'AI Assistant', icon: Bot, to: '/app/ai', section: 'SERVICES', key: 'ai', requires: 'balance' as const },
   { label: 'Cloud Storage', icon: Database, to: '/app/storage', section: 'SERVICES', key: 'storage', requires: 'balance' as const },
-  { label: 'Live Streaming', icon: Radio, to: '/app/live', section: 'SERVICES', key: 'live', requires: 'balance' as const },
   { label: 'Profile', icon: User, to: '/app/profile', section: 'ACCOUNT', key: 'profile', requires: 'connected' as const },
   { label: 'Balance', icon: WalletIcon, to: '/app/balance', section: 'ACCOUNT', key: 'balance', requires: 'connected' as const },
 ];
