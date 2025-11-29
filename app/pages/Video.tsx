@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
 import {
-  availableVideos,
-  ownedVideos,
   usageHistory,
   analyticsData,
   videoStats,
 } from './Video/data';
-import { Video } from './Video/types';
+import { Video, OwnedVideo } from './Video/types';
 import VideoHeader from './Video/VideoHeader';
 import PricingBanner from './Video/PricingBanner';
 import VideoStats from './Video/VideoStats';
@@ -17,15 +15,15 @@ import UsageHistory from './Video/UsageHistory';
 import VideoAnalytics from './Video/VideoAnalytics';
 import StreamModal from './Video/StreamModal';
 import PurchaseModal from './Video/PurchaseModal';
+import VideoPlayerModal from './Video/VideoPlayerModal';
 
 const VideoPage: React.FC = () => {
   const [balance] = useState(2.47);
   const [streamModalVideo, setStreamModalVideo] = useState<Video | null>(null);
   const [purchaseModalVideo, setPurchaseModalVideo] = useState<Video | null>(null);
-  const [userOwnedVideos, setUserOwnedVideos] = useState(ownedVideos);
-  const [userAvailableVideos, setUserAvailableVideos] = useState(
-    availableVideos.filter(v => !userOwnedVideos.some(ov => ov.id === v.id))
-  );
+  const [watchVideo, setWatchVideo] = useState<Video | null>(null);
+  const [userOwnedVideos, setUserOwnedVideos] = useState<OwnedVideo[]>([]);
+  const [userAvailableVideos, setUserAvailableVideos] = useState<Video[]>([]);
 
   const handleStream = (video: Video) => {
     setStreamModalVideo(video);
@@ -61,28 +59,27 @@ const VideoPage: React.FC = () => {
     setPurchaseModalVideo(video);
   };
 
-  const handleWatch = (videoId: string) => {
-    // In a real app, this would open a video player
-    console.log('Watching video:', videoId);
+  const handleWatch = (video: Video) => {
+    setWatchVideo(video);
   };
 
   return (
     <DashboardLayout>
       <VideoHeader balance={balance} />
-      <PricingBanner />
+      {/* <PricingBanner /> */}
       <VideoStats
         totalSpent={videoStats.totalSpent}
         videosOwned={videoStats.videosOwned}
         totalWatched={videoStats.totalWatched}
         sessions={videoStats.sessions}
       />
-      {userOwnedVideos.length > 0 && (
-        <YourLibrary videos={userOwnedVideos} onWatch={handleWatch} />
-      )}
+      <YourLibrary videos={userOwnedVideos} onWatch={handleWatch} />
       <AvailableVideos
         videos={userAvailableVideos}
         onStream={handleStream}
         onPurchase={handlePurchase}
+        hiddenIds={userOwnedVideos.map(v => v.id)}
+        onWatch={handleWatch}
       />
       <UsageHistory history={usageHistory} />
       <VideoAnalytics data={analyticsData} />
@@ -100,6 +97,12 @@ const VideoPage: React.FC = () => {
         balance={balance}
         onClose={() => setPurchaseModalVideo(null)}
         onConfirm={handleConfirmPurchase}
+      />
+
+      <VideoPlayerModal
+        video={watchVideo}
+        isOpen={watchVideo !== null}
+        onClose={() => setWatchVideo(null)}
       />
     </DashboardLayout>
   );
