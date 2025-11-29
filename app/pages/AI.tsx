@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
 import {
   chatMessages,
@@ -24,6 +24,11 @@ const AI: React.FC = () => {
   const [balance] = useState(2.47);
   const [messages, setMessages] = useState<ChatMessage[]>(chatMessages);
   const [session, setSession] = useState(currentSession);
+
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleSendMessage = (content: string) => {
     if (balance < 0.001) return;
@@ -98,7 +103,7 @@ const AI: React.FC = () => {
   return (
     <DashboardLayout>
       <AIHeader />
-      <PricingBanner balance={balance} />
+      {/* <PricingBanner balance={balance} /> */}
       <AIStats
         totalSpent={aiStats.totalSpent}
         totalCalls={aiStats.totalCalls}

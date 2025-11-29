@@ -74,7 +74,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
       </Card>
 
       {/* Quick Actions */}
-      <Card className="p-6">
+      {/* <Card className="p-6">
         <h3 className="text-base font-semibold text-white mb-4">Quick Actions</h3>
         <div className="space-y-2">
           <Button variant="outline" size="sm" className="w-full" onClick={onClearChat}>
@@ -87,10 +87,10 @@ const SessionStats: React.FC<SessionStatsProps> = ({
             Deposit AVAX
           </Button>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Recent Topics */}
-      <Card className="p-6">
+      {/* <Card className="p-6">
         <h3 className="text-base font-semibold text-white mb-4">Recent Topics</h3>
         <div className="space-y-2">
           {session.topics.length > 0 ? (
@@ -106,7 +106,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
         <Button variant="ghost" size="sm" className="mt-4 w-full">
           View All Topics →
         </Button>
-      </Card>
+      </Card> */}
     </div>
   );
 };
