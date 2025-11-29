@@ -82,7 +82,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
       const q = search.toLowerCase();
       data = data.filter(i => 
         i.sessionNumber.toString().includes(q) || 
-        (i.topics && i.topics.some(topic => topic.toLowerCase().includes(q)))
+        (i.txHash && i.txHash.toLowerCase().includes(q))
       );
     }
     return data;
@@ -104,7 +104,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
         <input
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          placeholder="Search sessions or topics..."
+          placeholder="Search sessions or tx hash..."
           className="bg-[#0a0a0a] border border-[#262626] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
         />
         <Dropdown
@@ -136,8 +136,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
               <th className="text-left font-medium px-4 py-3">Session</th>
               <th className="text-left font-medium px-4 py-3">Date/Time</th>
               <th className="text-left font-medium px-4 py-3">Calls</th>
-              <th className="text-left font-medium px-4 py-3">Topics</th>
-              <th className="text-left font-medium px-4 py-3">Duration</th>
+              <th className="text-left font-medium px-4 py-3">Tx Hash</th>
               <th className="text-right font-medium px-4 py-3">Cost (AVAX)</th>
             </tr>
           </thead>
@@ -156,32 +155,18 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.date}</td>
-                <td className="px-4 py-3 text-white">{item.calls}</td>
+                <td className="px-4 py-3 text-[#a1a1a1]">{item.calls}</td>
                 <td className="px-4 py-3">
-                  {item.topics && item.topics.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
-                      {item.topics.slice(0, 2).map((topic, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {topic}
-                        </Badge>
-                      ))}
-                      {item.topics.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{item.topics.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-[#a1a1a1]">-</span>
-                  )}
+                  <div className="font-mono text-xs text-blue-400 hover:text-blue-300 cursor-pointer">
+                    {item.txHash ? `${item.txHash.slice(0, 8)}...${item.txHash.slice(-6)}` : '-'}
+                  </div>
                 </td>
-                <td className="px-4 py-3 text-[#a1a1a1]">{item.duration || '-'}</td>
                 <td className="px-4 py-3 text-right text-white">{item.cost}</td>
               </tr>
             ))}
             {pageData.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-[#a1a1a1]">No history found.</td>
+                <td colSpan={5} className="px-4 py-8 text-center text-[#a1a1a1]">No history found.</td>
               </tr>
             )}
           </tbody>
