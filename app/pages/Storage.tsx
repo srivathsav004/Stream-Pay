@@ -91,7 +91,7 @@ const Storage: React.FC = () => {
   return (
     <DashboardLayout>
       <StorageHeader />
-      <PricingBanner balance={balance} />
+      {/* <PricingBanner balance={balance} /> */}
       <StorageStats
         totalSpent={storageStats.totalSpent}
         totalStored={storageStats.totalStored}
