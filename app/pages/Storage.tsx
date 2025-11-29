@@ -1,54 +1,133 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import {
+  storageFiles,
+  usageHistory,
+  analyticsData,
+  fileTypeData,
+  costBreakdown,
+  storageStats,
+  maxStorage,
+} from './Storage/data';
+import { StorageFile } from './Storage/types';
+import StorageHeader from './Storage/StorageHeader';
+import PricingBanner from './Storage/PricingBanner';
+import StorageStats from './Storage/StorageStats';
+import StorageOverview from './Storage/StorageOverview';
+import FileManager from './Storage/FileManager';
+import UploadArea from './Storage/UploadArea';
+import UsageHistory from './Storage/UsageHistory';
+import Analytics from './Storage/Analytics';
+import StorageOptimizationTips from './Storage/StorageOptimizationTips';
 
 const Storage: React.FC = () => {
+  const [balance] = useState(2.47);
+  const [files, setFiles] = useState<StorageFile[]>(storageFiles);
+  const [showUpload, setShowUpload] = useState(false);
+
+  // Calculate current costs
+  const totalSizeMB = files
+    .filter(f => f.type === 'file' && f.status === 'active')
+    .reduce((sum, f) => sum + f.size, 0);
+  const totalSizeGB = totalSizeMB / 1024;
+  const ratePerMBPerHour = 0.00001;
+  const hourlyCost = totalSizeMB * ratePerMBPerHour;
+  const dailyCost = hourlyCost * 24;
+  const monthlyCost = hourlyCost * 24 * 30;
+
+  const handleUpload = (file: File) => {
+    const fileSizeMB = file.size / (1024 * 1024);
+    const newFile: StorageFile = {
+      id: `file-${Date.now()}`,
+      name: file.name,
+      size: fileSizeMB,
+      type: 'file',
+      fileType: 'other',
+      uploadedAt: 'Just now',
+      duration: 0,
+      costPerHour: fileSizeMB * ratePerMBPerHour,
+      totalCost: 0,
+      status: 'active',
+    };
+    setFiles([...files, newFile]);
+    setShowUpload(false);
+  };
+
+  const handleDelete = (fileId: string) => {
+    setFiles(files.filter(f => f.id !== fileId));
+  };
+
+  const handleDownload = (fileId: string) => {
+    const file = files.find(f => f.id === fileId);
+    if (file) {
+      console.log('Downloading file:', file.name);
+      // In a real app, this would download from IPFS
+    }
+  };
+
+  const handleViewDetails = (file: StorageFile) => {
+    console.log('Viewing details for:', file.name);
+    // In a real app, this would open a modal with file details
+  };
+
+  const handleNewFolder = () => {
+    const newFolder: StorageFile = {
+      id: `folder-${Date.now()}`,
+      name: 'New Folder',
+      size: 0,
+      type: 'folder',
+      uploadedAt: 'Just now',
+      status: 'active',
+      costPerHour: 0,
+      totalCost: 0,
+    };
+    setFiles([...files, newFolder]);
+  };
+
+  const handleDeposit = () => {
+    console.log('Opening deposit modal...');
+  };
+
   return (
     <DashboardLayout>
-      <h1 className="text-xl md:text-2xl font-semibold mb-4">Cloud Storage</h1>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card className="p-4">
-          <div className="font-medium mb-2">Your Stats</div>
-          <ul className="text-sm text-zinc-400 space-y-2 list-disc pl-5">
-            <li>Total Stored: 1.2 GB</li>
-            <li>Total Spent: 0.288 AVAX</li>
-            <li>Active Files: 47</li>
-            <li>Storage Time: 240 hours</li>
-          </ul>
-        </Card>
-        <Card className="p-4">
-          <div className="font-medium mb-2">Pricing</div>
-          <div className="text-sm text-zinc-400">Rate: 0.00001 AVAX/MB/hour (~$0.024/GB/day)</div>
-        </Card>
-      </div>
+      <StorageHeader />
+      <PricingBanner balance={balance} />
+      <StorageStats
+        totalSpent={storageStats.totalSpent}
+        totalStored={storageStats.totalStored}
+        activeFiles={storageStats.activeFiles}
+        storageTime={storageStats.storageTime}
+      />
+      <StorageOverview
+        usedGB={totalSizeGB}
+        maxGB={maxStorage}
+        hourlyCost={hourlyCost}
+        dailyCost={dailyCost}
+        monthlyCost={monthlyCost}
+        balance={balance}
+        onDeposit={handleDeposit}
+      />
+      
+      {showUpload ? (
+        <UploadArea onUpload={handleUpload} balance={balance} />
+      ) : (
+        <FileManager
+          files={files}
+          onUpload={() => setShowUpload(true)}
+          onNewFolder={handleNewFolder}
+          onDelete={handleDelete}
+          onDownload={handleDownload}
+          onViewDetails={handleViewDetails}
+        />
+      )}
 
-      <Card className="p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="font-medium">Your Files</div>
-          <Button variant="primary">Upload File</Button>
-        </div>
-        <div className="mt-3 text-sm text-zinc-300 space-y-2">
-          <div>📄 document.pdf — 2.5 MB — 2d ago — 0.0012 AVAX</div>
-          <div>🖼️ image.png — 1.2 MB — 5d ago — 0.0014 AVAX</div>
-          <div>📊 data.csv — 5.0 MB — 1w ago — 0.0084 AVAX</div>
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="p-4">
-          <div className="font-medium mb-2">Current Costs</div>
-          <div className="text-sm text-zinc-400 space-y-1">
-            <div>Hourly: 0.012 AVAX</div>
-            <div>Daily: 0.288 AVAX</div>
-            <div>Monthly: 8.64 AVAX</div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="font-medium mb-2">Storage Usage Over Time</div>
-          <div className="h-40 grid place-items-center text-zinc-500 text-sm">Line Chart Placeholder</div>
-        </Card>
-      </div>
+      <UsageHistory history={usageHistory} />
+      <Analytics
+        storageData={analyticsData}
+        fileTypeData={fileTypeData}
+        costBreakdown={costBreakdown}
+      />
+      <StorageOptimizationTips />
     </DashboardLayout>
   );
 };
