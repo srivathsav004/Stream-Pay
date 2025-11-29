@@ -1,54 +1,108 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import PageHeader from '@/app/layout/PageHeader';
+import {
+  availableVideos,
+  ownedVideos,
+  usageHistory,
+  analyticsData,
+  videoStats,
+} from './Video/data';
+import { Video } from './Video/types';
+import VideoHeader from './Video/VideoHeader';
+import PricingBanner from './Video/PricingBanner';
+import VideoStats from './Video/VideoStats';
+import YourLibrary from './Video/YourLibrary';
+import AvailableVideos from './Video/AvailableVideos';
+import UsageHistory from './Video/UsageHistory';
+import VideoAnalytics from './Video/VideoAnalytics';
+import StreamModal from './Video/StreamModal';
+import PurchaseModal from './Video/PurchaseModal';
 
-const Video: React.FC = () => {
+const VideoPage: React.FC = () => {
+  const [balance] = useState(2.47);
+  const [streamModalVideo, setStreamModalVideo] = useState<Video | null>(null);
+  const [purchaseModalVideo, setPurchaseModalVideo] = useState<Video | null>(null);
+  const [userOwnedVideos, setUserOwnedVideos] = useState(ownedVideos);
+  const [userAvailableVideos, setUserAvailableVideos] = useState(
+    availableVideos.filter(v => !userOwnedVideos.some(ov => ov.id === v.id))
+  );
+
+  const handleStream = (video: Video) => {
+    setStreamModalVideo(video);
+  };
+
+  const handlePurchase = (video: Video) => {
+    setPurchaseModalVideo(video);
+  };
+
+  const handleConfirmPurchase = (video: Video) => {
+    // Add video to owned videos
+    const newOwnedVideo = {
+      ...video,
+      watchCount: 0,
+      lastWatched: undefined,
+    };
+    setUserOwnedVideos([...userOwnedVideos, newOwnedVideo]);
+    
+    // Remove from available videos
+    setUserAvailableVideos(userAvailableVideos.filter(v => v.id !== video.id));
+    
+    // Close modal
+    setPurchaseModalVideo(null);
+    
+    // In a real app, you'd also update balance and make API call
+  };
+
+  const handleUpgrade = (video: Video) => {
+    // Close stream modal
+    setStreamModalVideo(null);
+    
+    // Open purchase modal
+    setPurchaseModalVideo(video);
+  };
+
+  const handleWatch = (videoId: string) => {
+    // In a real app, this would open a video player
+    console.log('Watching video:', videoId);
+  };
+
   return (
     <DashboardLayout>
-      <PageHeader title="Video Streaming" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card className="p-4">
-          <div className="font-medium mb-2">Your Stats</div>
-          <ul className="text-sm text-zinc-400 space-y-2 list-disc pl-5">
-            <li>Total Watched: 12.5 hours</li>
-            <li>Total Spent: 4.5 AVAX</li>
-            <li>Avg Session: 45 min</li>
-            <li>Last Used: 2 hours ago</li>
-          </ul>
-        </Card>
-        <Card className="p-4">
-          <div className="font-medium mb-2">Pricing</div>
-          <div className="text-sm text-zinc-400">Rate: 0.0001 AVAX/sec (~$0.24/hr)</div>
-        </Card>
-      </div>
-
-      <Card className="p-4 mb-6">
-        <div className="h-64 grid place-items-center text-zinc-500">Demo Video Player</div>
-        <div className="mt-3 flex items-center gap-2">
-          <Button variant="secondary">▶️ Play</Button>
-          <Button variant="outline">⏸️ Pause</Button>
-          <Button variant="outline">⏹️ Stop</Button>
-        </div>
-      </Card>
-
-      <Card className="p-4 mb-6">
-        <div className="font-medium mb-2">Current Session</div>
-        <div className="text-sm text-zinc-400">Status: ⚫ Not Started</div>
-        <div className="mt-3"><Button variant="primary">Start Watching</Button></div>
-      </Card>
-
-      <Card className="p-4">
-        <div className="font-medium mb-2">Usage History (Last 10 Sessions)</div>
-        <div className="text-sm text-zinc-300 space-y-2">
-          <div>2h ago — 00:42:15 — 0.0425 AVAX — Sample Video 1</div>
-          <div>1d ago — 00:31:12 — 0.0312 AVAX — Sample Video 2</div>
-          <div>2d ago — 01:05:33 — 0.0655 AVAX — Sample Video 1</div>
-        </div>
-      </Card>
+      <VideoHeader balance={balance} />
+      <PricingBanner />
+      <VideoStats
+        totalSpent={videoStats.totalSpent}
+        videosOwned={videoStats.videosOwned}
+        totalWatched={videoStats.totalWatched}
+        sessions={videoStats.sessions}
+      />
+      {userOwnedVideos.length > 0 && (
+        <YourLibrary videos={userOwnedVideos} onWatch={handleWatch} />
+      )}
+      <AvailableVideos
+        videos={userAvailableVideos}
+        onStream={handleStream}
+        onPurchase={handlePurchase}
+      />
+      <UsageHistory history={usageHistory} />
+      <VideoAnalytics data={analyticsData} />
+      
+      <StreamModal
+        video={streamModalVideo}
+        isOpen={streamModalVideo !== null}
+        onClose={() => setStreamModalVideo(null)}
+        onUpgrade={handleUpgrade}
+      />
+      
+      <PurchaseModal
+        video={purchaseModalVideo}
+        isOpen={purchaseModalVideo !== null}
+        balance={balance}
+        onClose={() => setPurchaseModalVideo(null)}
+        onConfirm={handleConfirmPurchase}
+      />
     </DashboardLayout>
   );
 };
 
-export default Video;
+export default VideoPage;
