@@ -135,7 +135,7 @@ const AI: React.FC = () => {
 
       <UsageHistory history={usageHistory} />
       <Analytics callsData={analyticsData} topicData={topicData} />
-      <CostBreakdown data={costBreakdown} />
+      {/* <CostBreakdown data={costBreakdown} /> */}
     </DashboardLayout>
   );
 };
