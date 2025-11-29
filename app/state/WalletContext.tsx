@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
+import { useAccount, useBalance, useConnect, useDisconnect } from 'wagmi';
+import { avalancheFuji } from 'wagmi/chains';
 
 export type WalletState = {
   connected: boolean;
@@ -11,21 +13,29 @@ export type WalletState = {
 const WalletContext = createContext<WalletState | undefined>(undefined);
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [connected, setConnected] = useState(false);
-  const [balanceAvax, setBalanceAvax] = useState(0);
+  const { isConnected, address } = useAccount();
+  const { connectors, connectAsync, status: connectStatus } = useConnect();
+  const { disconnect: wagmiDisconnect } = useDisconnect();
+  const { data: balance } = useBalance({
+    address,
+    chainId: avalancheFuji.id,
+    query: { enabled: !!address },
+  });
 
   const value = useMemo(
     () => ({
-      connected,
-      balanceAvax,
-      connect: () => setConnected(true),
-      disconnect: () => {
-        setConnected(false);
-        setBalanceAvax(0);
+      connected: isConnected,
+      balanceAvax: balance ? Number(balance.formatted) : 0,
+      connect: () => {
+        const injected = connectors.find(c => c.id === 'injected') || connectors[0];
+        if (injected) void connectAsync({ connector: injected });
       },
-      setBalance: (val: number) => setBalanceAvax(val),
+      disconnect: () => {
+        wagmiDisconnect();
+      },
+      setBalance: (_val: number) => {},
     }),
-    [connected, balanceAvax]
+    [isConnected, balance, connectors, connectAsync, wagmiDisconnect]
   );
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
