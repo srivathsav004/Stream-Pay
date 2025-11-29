@@ -70,10 +70,10 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-8">
-      <Card className="p-6 xl:col-span-3">
+    <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-8 items-stretch">
+      <Card className="p-6 xl:col-span-3 h-full flex flex-col">
         <h2 className="text-lg font-semibold text-white mb-6">Service Usage</h2>
-        <div className="h-64">
+        <div className="flex-1 min-h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -82,8 +82,8 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
                 cy="50%"
                 labelLine={false}
                 label={CustomLabel}
-                outerRadius={100}
-                innerRadius={60}
+                outerRadius="78%"
+                innerRadius="55%"
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -110,30 +110,30 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
         </div>
       </Card>
 
-      <Card className="p-6 xl:col-span-2">
+      <Card className="p-6 xl:col-span-2 h-full flex flex-col">
         <h2 className="text-lg font-semibold text-white mb-6">Usage Metrics</h2>
-        <div className="space-y-6">
+        <div className="flex flex-1 flex-col gap-6">
           <div>
-            <div className="text-xs text-[#a1a1a1] uppercase mb-1">Total Spent (All Time)</div>
-            <div className="text-2xl font-semibold text-white">{totalAmount.toFixed(2)} AVAX</div>
+            <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Total Spent (All Time)</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">{totalAmount.toFixed(2)} AVAX</div>
             <div className="text-sm text-[#a1a1a1]">${(totalAmount * 40).toFixed(2)} USD</div>
           </div>
           <Separator />
           <div>
-            <div className="text-xs text-[#a1a1a1] uppercase mb-1">Average Per Session</div>
-            <div className="text-2xl font-semibold text-white">0.058 AVAX</div>
+            <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Average Per Session</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">0.058 AVAX</div>
             <div className="text-sm text-[#a1a1a1]">$2.32 USD</div>
           </div>
           <Separator />
           <div>
-            <div className="text-xs text-[#a1a1a1] uppercase mb-1">Most Used Service</div>
-            <div className="text-2xl font-semibold text-white">Video Streaming</div>
+            <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Most Used Service</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">Video Streaming</div>
             <div className="text-sm text-[#a1a1a1]">60% of total usage</div>
           </div>
           <Separator />
           <div>
-            <div className="text-xs text-[#a1a1a1] uppercase mb-1">Active Days</div>
-            <div className="text-2xl font-semibold text-white">23 days</div>
+            <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Active Days</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">23 days</div>
             <div className="text-sm text-[#a1a1a1]">76% activity rate</div>
           </div>
         </div>
