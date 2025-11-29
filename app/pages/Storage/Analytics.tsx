@@ -141,7 +141,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
       </div>
 
       {/* Cost Analysis */}
-      <Card className="p-6">
+      {/* <Card className="p-6">
         <h2 className="text-lg font-semibold text-white mb-6">Cost Analysis</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
@@ -192,7 +192,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
             </div>
           </Card>
         </div>
-      </Card>
+      </Card> */}
     </div>
   );
 };

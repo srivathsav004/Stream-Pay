@@ -127,7 +127,7 @@ const Storage: React.FC = () => {
         fileTypeData={fileTypeData}
         costBreakdown={costBreakdown}
       />
-      <StorageOptimizationTips />
+      {/* <StorageOptimizationTips /> */}
     </DashboardLayout>
   );
 };
