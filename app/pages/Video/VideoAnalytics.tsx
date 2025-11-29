@@ -41,10 +41,10 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
   const purchaseVideos = 8;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+    <div className="flex flex-col gap-6 mb-8">
       <Card className="p-6">
         <h2 className="text-lg font-semibold text-white mb-6">Spending Over Time</h2>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorStreaming" x1="0" y1="0" x2="0" y2="1">
@@ -83,14 +83,14 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
         </ResponsiveContainer>
       </Card>
 
-      <div className="grid grid-cols-1 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card className="p-6 h-full">
           <h3 className="text-base font-semibold text-white mb-4">Streaming</h3>
           <div className="mb-4">
             <div className="text-2xl font-semibold text-white mb-1">
               {streamingTotal.toFixed(2)} AVAX
             </div>
-            <div className="text-sm text-[#a1a1a1">Sessions: {streamingSessions}</div>
+            <div className="text-sm text-[#a1a1a1]">Sessions: {streamingSessions}</div>
           </div>
           <ResponsiveContainer width="100%" height={150}>
             <BarChart data={data}>
@@ -99,13 +99,13 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
           </ResponsiveContainer>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 h-full">
           <h3 className="text-base font-semibold text-white mb-4">Purchases</h3>
           <div className="mb-4">
             <div className="text-2xl font-semibold text-white mb-1">
               {purchaseTotal.toFixed(2)} AVAX
             </div>
-            <div className="text-sm text-[#a1a1a1">Videos: {purchaseVideos}</div>
+            <div className="text-sm text-[#a1a1a1]">Videos: {purchaseVideos}</div>
           </div>
           <ResponsiveContainer width="100%" height={150}>
             <BarChart data={data}>
