@@ -142,10 +142,16 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
                 <tr className="border-t border-[#262626] hover:bg-[#121212]">
                   <td className="px-4 py-3 text-white">{activity.service}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTypeBadgeColor(activity.type) }} />
-                      <span className="text-[#c9c9c9] capitalize">{activity.type}</span>
-                    </span>
+                    <div className="inline-flex items-center">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: `${getTypeBadgeColor(activity.type)}15`,
+                          color: getTypeBadgeColor(activity.type),
+                          border: `1px solid ${getTypeBadgeColor(activity.type)}40`
+                        }}>
+                        {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-[#a1a1a1]">{activity.time}</td>
                   <td className="px-4 py-3 text-[#a1a1a1]">
