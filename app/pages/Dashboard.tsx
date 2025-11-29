@@ -26,7 +26,7 @@ const Dashboard: React.FC = () => {
       <SpendingOverTime data={spendingData} />
       <ServiceBreakdown serviceData={serviceUsageData} />
       <ServiceDetails />
-      <ActiveStreams streams={activeStreams} />
+      {/* <ActiveStreams streams={activeStreams} /> */}
       <ActivityTimeline activities={activityData} />
       <QuickInsights spendingData={spendingData} serviceUsageData={serviceUsageData} />
     </DashboardLayout>
