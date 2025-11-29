@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Menu, X, Wallet } from 'lucide-react';
 import Button from '../ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -52,15 +53,18 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons */
+          }
           <div className="hidden md:flex items-center space-x-4">
              <Button variant="ghost" size="sm" className="hidden lg:flex gap-2 text-zinc-400">
                 <Wallet className="w-4 h-4" />
                 Connect Wallet
              </Button>
-             <Button variant="primary" size="sm">
-                Launch App
-             </Button>
+             <Link to="/app">
+               <Button variant="primary" size="sm">
+                  Launch App
+               </Button>
+             </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -97,9 +101,11 @@ const Navbar: React.FC = () => {
                  <Button variant="outline" className="w-full justify-center gap-2">
                     <Wallet className="w-4 h-4" /> Connect Wallet
                  </Button>
-                 <Button variant="primary" className="w-full justify-center">
-                    Launch App
-                 </Button>
+                 <Link to="/app" onClick={() => setIsMobileMenuOpen(false)}>
+                   <Button variant="primary" className="w-full justify-center">
+                      Launch App
+                   </Button>
+                 </Link>
               </div>
             </div>
           </motion.div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Play, ArrowRight, Zap, Layers } from 'lucide-react';
 import Button from '../ui/Button';
+import { Link } from 'react-router-dom';
 
 const Hero: React.FC = () => {
   return (
@@ -45,10 +46,12 @@ const Hero: React.FC = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="group">
-                Launch App
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <Link to="/app">
+                <Button size="lg" className="group">
+                  Launch App
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
               <Button size="lg" variant="outline" className="group">
                 <Play className="mr-2 w-4 h-4 fill-current" />
                 Watch Demo
