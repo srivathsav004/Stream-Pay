@@ -21,7 +21,7 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
       <h2 className="text-lg font-semibold text-white mb-6">Insights</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-4 border-blue-600">
-          <div className="text-sm font-medium text-white mb-2">📊 Spending Trend</div>
+          <div className="text-sm font-medium text-white mb-2"> Spending Trend</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
             You've spent 1.23 AVAX this month so far. At this rate, you'll spend ~3.47 AVAX by month end.
           </p>
@@ -35,7 +35,7 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
         </Card>
 
         <Card className="p-4">
-          <div className="text-sm font-medium text-white mb-2">📈 Usage Pattern</div>
+          <div className="text-sm font-medium text-white mb-2"> Usage Pattern</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
             Your most active time: Weekday evenings (6-10 PM). Your most used service: Video Streaming (60%).
           </p>
@@ -49,7 +49,7 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
         </Card>
 
         <Card className="p-4 border-amber-600">
-          <div className="text-sm font-medium text-white mb-2">⚠️ Balance Alert</div>
+          <div className="text-sm font-medium text-white mb-2"> Balance Alert</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
             Your current balance (2.47 AVAX) will last approximately 8 days at your current usage rate.
           </p>
