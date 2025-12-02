@@ -15,6 +15,12 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ sidebarWidth = '56px' }) => {
     chainId: avalancheFuji.id,
     query: { enabled: !!address },
   });
+  const { data: usdcBalance } = useBalance({
+    address,
+    chainId: avalancheFuji.id,
+    token: '0x5425890298aed601595a70ab815c96711a31bc65',
+    query: { enabled: !!address },
+  });
   const { disconnect } = useDisconnect();
 
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -49,8 +55,19 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ sidebarWidth = '56px' }) => {
         <div className="flex items-center gap-3">
           {isConnected ? (
             <>
-              <div className="text-sm font-medium px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-200">
-                {balance ? `${Number(balance.formatted).toFixed(3)} ${balance.symbol}` : '— AVAX'}
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-medium pl-2 pr-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-200 flex items-center gap-2">
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full overflow-hidden">
+                    <img src="/avax-icon.svg" alt="AVAX" className="h-5 w-5" />
+                  </span>
+                  {balance ? `${Number(balance.formatted).toFixed(3)} ${balance.symbol}` : '— AVAX'}
+                </div>
+                <div className="text-sm font-medium pl-2 pr-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-200 flex items-center gap-2">
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full overflow-hidden">
+                    <img src="/usdc-icon.svg" alt="USDC" className="h-5 w-5" />
+                  </span>
+                  {usdcBalance ? `${Number(usdcBalance.formatted).toFixed(2)} USDC` : '— USDC'}
+                </div>
               </div>
               <div className="relative">
                 <button
