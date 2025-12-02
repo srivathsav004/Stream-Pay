@@ -143,11 +143,11 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
               </div>
               <div>
                 <div className="text-xs text-[#a1a1a1] mb-1">Cost</div>
-                <div className="text-sm font-medium text-white">{cost.toFixed(4)} AVAX</div>
+                <div className="text-sm font-medium text-white">{cost.toFixed(4)} USDC</div>
               </div>
               <div>
                 <div className="text-xs text-[#a1a1a1] mb-1">Rate</div>
-                <div className="text-sm font-medium text-white">{video.streamPrice} AVAX/sec</div>
+                <div className="text-sm font-medium text-white">{video.streamPrice} USDC/sec</div>
               </div>
             </div>
             <div className="mb-4">
@@ -178,7 +178,7 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-medium text-white mb-1">
-                  💡 Like this video? Buy for {video.purchasePrice} AVAX and own forever
+                  💡 Like this video? Buy for {video.purchasePrice} USDC and own forever
                 </div>
                 <div className="text-xs text-[#a1a1a1]">
                   Streaming cost will be deducted from purchase price

@@ -7,7 +7,7 @@ const steps: StepProps[] = [
   {
     number: 1,
     title: "Connect Wallet",
-    description: "Connect your Web3 wallet and deposit AVAX to your StreamPay balance.",
+    description: "Connect your Web3 wallet and deposit USDC to your StreamPay balance.",
     icon: Wallet
   },
   {

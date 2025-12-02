@@ -14,7 +14,7 @@ const SpendingInsights: React.FC<SpendingInsightsProps> = ({ insights }) => {
         <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
           <div className="text-xs text-[#a1a1a1] uppercase mb-2">Average Daily Spending</div>
           <div className="text-2xl font-semibold text-white font-mono mb-1">
-            {insights.avgDailySpending} AVAX
+            {insights.avgDailySpending} USDC
           </div>
           <div className="text-sm text-[#a1a1a1]">
             ${(insights.avgDailySpending * 40).toFixed(2)} USD
@@ -24,7 +24,7 @@ const SpendingInsights: React.FC<SpendingInsightsProps> = ({ insights }) => {
         <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
           <div className="text-xs text-[#a1a1a1] uppercase mb-2">Largest Transaction</div>
           <div className="text-2xl font-semibold text-white font-mono mb-1">
-            {insights.largestTransaction.amount} AVAX
+            {insights.largestTransaction.amount} USDC
           </div>
           <div className="text-sm text-[#a1a1a1]">
             {insights.largestTransaction.type} • {insights.largestTransaction.date}
@@ -37,7 +37,7 @@ const SpendingInsights: React.FC<SpendingInsightsProps> = ({ insights }) => {
             {insights.mostActiveDay}
           </div>
           <div className="text-sm text-[#a1a1a1]">
-            {insights.avgOnMostActiveDay} AVAX avg
+            {insights.avgOnMostActiveDay} USDC avg
           </div>
         </Card>
 

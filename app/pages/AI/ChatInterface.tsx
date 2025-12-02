@@ -134,7 +134,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     {message.cost && (
                       <div className="mt-2">
                         <Badge variant="secondary" className="text-xs">
-                          Cost: {message.cost} AVAX
+                          Cost: {message.cost} USDC
                         </Badge>
                       </div>
                     )}
@@ -179,7 +179,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </Button>
           </div>
           <div className="mt-2 text-xs text-[#a1a1a1]">
-            💡 Each message costs 0.001 AVAX (~$0.04)
+            💡 Each message costs 0.001 USDC (~$0.04)
           </div>
         </div>
       </Card>

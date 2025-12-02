@@ -33,13 +33,13 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
         <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 shadow-lg">
           <p className="text-sm font-semibold text-white mb-1">{data.name}</p>
           <p className="text-sm text-[#a1a1a1]">
-            Total spent: {data.value} AVAX
+            Total spent: {data.value} USDC
           </p>
           {service && (
             <>
               <p className="text-xs text-[#a1a1a1] mt-1">Sessions: {service.sessions}</p>
               <p className="text-xs text-[#a1a1a1]">
-                Avg per session: {(service.amount / service.sessions).toFixed(3)} AVAX
+                Avg per session: {(service.amount / service.sessions).toFixed(3)} USDC
               </p>
             </>
           )}
@@ -106,7 +106,7 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
           </ResponsiveContainer>
         </div>
         <div className="pt-4 border-t border-[#262626]">
-          <div className="text-sm text-[#a1a1a1]">Total: {totalAmount.toFixed(2)} AVAX</div>
+          <div className="text-sm text-[#a1a1a1]">Total: {totalAmount.toFixed(2)} USDC</div>
         </div>
       </Card>
 
@@ -115,13 +115,13 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
         <div className="flex flex-1 flex-col gap-6">
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Total Spent (All Time)</div>
-            <div className="text-2xl md:text-[28px] font-semibold text-white">{totalAmount.toFixed(2)} AVAX</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">{totalAmount.toFixed(2)} USDC</div>
             <div className="text-sm text-[#a1a1a1]">${(totalAmount * 40).toFixed(2)} USD</div>
           </div>
           <Separator />
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Average Per Session</div>
-            <div className="text-2xl md:text-[28px] font-semibold text-white">0.058 AVAX</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">0.058 USDC</div>
             <div className="text-sm text-[#a1a1a1]">$2.32 USD</div>
           </div>
           <Separator />

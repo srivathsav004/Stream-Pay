@@ -10,7 +10,7 @@ const StorageOptimizationTips: React.FC = () => {
         <Card className="p-4 bg-amber-600/10 border-amber-600/50">
           <div className="text-sm font-medium text-white mb-2">📊 Large Files Detected</div>
           <div className="text-sm text-[#a1a1a1] mb-3">
-            video.mp4 (25 MB) is costing you 0.00025 AVAX/hour. Consider deleting if no longer needed.
+            video.mp4 (25 MB) is costing you 0.00025 USDC/hour. Consider deleting if no longer needed.
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">View File</Button>
@@ -29,9 +29,9 @@ const StorageOptimizationTips: React.FC = () => {
         <Card className="p-4 bg-amber-600/10 border-amber-600/50">
           <div className="text-sm font-medium text-white mb-2">💰 Cost Projection</div>
           <div className="text-sm text-[#a1a1a1] mb-3">
-            At current usage (1.2 GB), you'll spend ~8.64 AVAX/month. Your balance will last ~8.5 days.
+            At current usage (1.2 GB), you'll spend ~8.64 USDC/month. Your balance will last ~8.5 days.
           </div>
-          <Button variant="primary" size="sm">Deposit AVAX</Button>
+          <Button variant="primary" size="sm">Deposit USDC</Button>
         </Card>
       </div>
     </Card>

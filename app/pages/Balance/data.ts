@@ -39,7 +39,7 @@ export const transactions: Transaction[] = [
     gasPrice: 25,
     streamId: 'stream_abc123xyz',
     duration: '00:42:15',
-    rate: '0.0001 AVAX/sec',
+    rate: '0.0001 USDC/sec',
   },
   {
     id: '3',

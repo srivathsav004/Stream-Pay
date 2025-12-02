@@ -2,7 +2,7 @@ import React from 'react';
 import { StatProps } from '../types';
 
 const stats: StatProps[] = [
-  { label: "Cost Per Second", value: "0.001 AVAX" },
+  { label: "Cost Per Second", value: "0.001 USDC" },
   { label: "Settlement Time", value: "< 1s" },
   { label: "Transparent Pricing", value: "100%" },
   { label: "Hidden Fees", value: "$0" },

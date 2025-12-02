@@ -118,7 +118,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
                 <div key={index}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-white">{item.name}</span>
-                    <span className="text-sm text-[#a1a1a1] font-mono">{item.cost} AVAX</span>
+                    <span className="text-sm text-[#a1a1a1] font-mono">{item.cost} USDC</span>
                   </div>
                   <div className="h-6 bg-[#262626] rounded overflow-hidden">
                     <div
@@ -147,7 +147,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
           <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
             <div className="text-xs text-[#a1a1a1] uppercase mb-2">This Week</div>
             <div className="text-2xl font-semibold text-white font-mono mb-1">
-              {costBreakdown.thisWeek.cost} AVAX
+              {costBreakdown.thisWeek.cost} USDC
             </div>
             <div className="text-sm text-[#a1a1a1] mb-3">
               ${(costBreakdown.thisWeek.cost * 40).toFixed(2)} USD
@@ -160,7 +160,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
           <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
             <div className="text-xs text-[#a1a1a1] uppercase mb-2">This Month</div>
             <div className="text-2xl font-semibold text-white font-mono mb-1">
-              {costBreakdown.thisMonth.cost} AVAX
+              {costBreakdown.thisMonth.cost} USDC
             </div>
             <div className="text-sm text-[#a1a1a1] mb-3">
               ${(costBreakdown.thisMonth.cost * 40).toFixed(2)} USD
@@ -178,7 +178,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
               {costBreakdown.mostExpensiveFile.name}
             </div>
             <div className="text-sm text-[#a1a1a1]">
-              {costBreakdown.mostExpensiveFile.size} MB • {costBreakdown.mostExpensiveFile.cost} AVAX
+              {costBreakdown.mostExpensiveFile.size} MB • {costBreakdown.mostExpensiveFile.cost} USDC
             </div>
           </Card>
 

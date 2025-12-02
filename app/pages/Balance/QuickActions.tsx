@@ -27,7 +27,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
           <div className="text-center">
             <div className="text-2xl mb-2">💰</div>
             <div className="text-sm font-medium text-white mb-1">Deposit</div>
-            <div className="text-xs text-[#a1a1a1]">Add AVAX</div>
+            <div className="text-xs text-[#a1a1a1]">Add USDC</div>
           </div>
         </Card>
 
@@ -35,7 +35,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
           <div className="text-center">
             <div className="text-2xl mb-2">💵</div>
             <div className="text-sm font-medium text-white mb-1">Withdraw</div>
-            <div className="text-xs text-[#a1a1a1]">Remove AVAX</div>
+            <div className="text-xs text-[#a1a1a1]">Remove USDC</div>
           </div>
         </Card>
 
@@ -66,7 +66,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
               size="sm"
               onClick={() => onQuickDeposit(amount)}
             >
-              {amount} AVAX
+              {amount} USDC
             </Button>
           ))}
           <Button variant="outline" size="sm" onClick={onDeposit}>

@@ -112,7 +112,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
                   <td className="py-3 px-2 text-sm text-white">{tx.service || '-'}</td>
                   <td className="py-3 px-2 text-sm text-[#a1a1a1]">{tx.date}</td>
                   <td className={`py-3 px-2 text-sm font-mono ${getTransactionColor(tx.type)}`}>
-                    {tx.amount > 0 ? '+' : ''}{tx.amount} AVAX
+                    {tx.amount > 0 ? '+' : ''}{tx.amount} USDC
                   </td>
                   <td className="py-3 px-2">
                     <Badge variant={tx.status === 'complete' ? 'success' : 'secondary'}>
@@ -139,7 +139,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
                           <div className="space-y-2 text-sm text-[#a1a1a1]">
                             <div>• Type: {tx.type === 'payment' ? 'Service Payment' : tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</div>
                             {tx.service && <div>• Service: {tx.service}</div>}
-                            <div>• Amount: {tx.amount} AVAX (${(Math.abs(tx.amount) * 40).toFixed(2)})</div>
+                            <div>• Amount: {tx.amount} USDC (${(Math.abs(tx.amount) * 40).toFixed(2)})</div>
                             <div>• Date: {tx.date}</div>
                             <div>• Status: {tx.status === 'complete' ? '✓ Confirmed' : tx.status === 'pending' ? '⏳ Pending' : '✗ Failed'}</div>
                             {tx.confirmations && <div>• Confirmations: {tx.confirmations}</div>}
@@ -153,7 +153,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
                               <div>• Tx Hash: {tx.txHash.slice(0, 20)}... <Button variant="ghost" size="sm" className="ml-2 h-auto p-0 text-xs" onClick={() => handleViewExplorer(tx.txHash)}>View on Explorer</Button></div>
                               <div>• Block: {tx.block.toLocaleString()}</div>
                               {tx.gasUsed && <div>• Gas Used: {tx.gasUsed.toLocaleString()}</div>}
-                              {tx.gasPrice && <div>• Gas Price: {tx.gasPrice} nAVAX</div>}
+                              {tx.gasPrice && <div>• Gas Price: {tx.gasPrice} nUSDC</div>}
                             </div>
                           </div>
                         )}

@@ -34,7 +34,7 @@ const ActiveStreams: React.FC<ActiveStreamsProps> = ({ streams }) => {
                     </div>
                     <div>
                       <div className="text-[#a1a1a1]">Cost</div>
-                      <div className="text-white font-medium">{stream.cost} AVAX</div>
+                      <div className="text-white font-medium">{stream.cost} USDC</div>
                     </div>
                     <div>
                       <div className="text-[#a1a1a1]">Rate</div>
@@ -56,7 +56,7 @@ const ActiveStreams: React.FC<ActiveStreamsProps> = ({ streams }) => {
                     </div>
                     <div>
                       <div className="text-[#a1a1a1]">Cost</div>
-                      <div className="text-white font-medium">{stream.cost} AVAX</div>
+                      <div className="text-white font-medium">{stream.cost} USDC</div>
                     </div>
                     <div>
                       <div className="text-[#a1a1a1]">Rate</div>

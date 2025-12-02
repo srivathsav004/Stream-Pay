@@ -4,7 +4,7 @@ import { avalancheFuji } from 'wagmi/chains';
 
 export type WalletState = {
   connected: boolean;
-  balanceAvax: number; // in AVAX
+  balanceUSDC: number; // in USDC
   connect: () => void;
   disconnect: () => void;
   setBalance: (val: number) => void;
@@ -25,7 +25,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const value = useMemo(
     () => ({
       connected: isConnected,
-      balanceAvax: balance ? Number(balance.formatted) : 0,
+      balanceUSDC: balance ? Number(balance.formatted) : 0,
       connect: () => {
         const injected = connectors.find(c => c.id === 'injected') || connectors[0];
         if (injected) void connectAsync({ connector: injected });

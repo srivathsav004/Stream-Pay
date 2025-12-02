@@ -23,7 +23,7 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
         <Card className="p-4 border-blue-600">
           <div className="text-sm font-medium text-white mb-2"> Spending Trend</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
-            You've spent 1.23 AVAX this month so far. At this rate, you'll spend ~3.47 AVAX by month end.
+            You've spent 1.23 USDC this month so far. At this rate, you'll spend ~3.47 USDC by month end.
           </p>
           <div className="h-16 mb-3">
             <ResponsiveContainer width="100%" height="100%">
@@ -51,9 +51,9 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
         <Card className="p-4 border-amber-600">
           <div className="text-sm font-medium text-white mb-2"> Balance Alert</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
-            Your current balance (2.47 AVAX) will last approximately 8 days at your current usage rate.
+            Your current balance (2.47 USDC) will last approximately 8 days at your current usage rate.
           </p>
-          <Button variant="outline" size="sm" className="w-full mt-2">Deposit AVAX</Button>
+          <Button variant="outline" size="sm" className="w-full mt-2">Deposit USDC</Button>
         </Card>
       </div>
     </Card>

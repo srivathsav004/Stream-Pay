@@ -15,11 +15,11 @@ const PricingBanner: React.FC<PricingBannerProps> = ({ balance }) => {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <span className="text-sm font-medium text-white">
-            💰 Pricing: 0.00001 AVAX/MB/hour • ~$0.024/GB/day
+            💰 Pricing: 0.00001 USDC/MB/hour • ~$0.024/GB/day
           </span>
         </div>
         <div className="text-sm text-[#a1a1a1]">
-          Your Balance: <span className="font-semibold text-white">{balance} AVAX</span> (enough for ~{gbPerDay} GB for 1 day)
+          Your Balance: <span className="font-semibold text-white">{balance} USDC</span> (enough for ~{gbPerDay} GB for 1 day)
         </div>
       </div>
     </Card>

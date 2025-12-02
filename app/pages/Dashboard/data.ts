@@ -58,7 +58,7 @@ export const activityData: ActivityData[] = [
       streamId: 'stream_abc123xyz',
       started: 'Nov 27, 2024 at 2:30 PM',
       ended: 'Nov 27, 2024 at 3:12 PM',
-      rate: '0.0001 AVAX/sec',
+      rate: '0.0001 USDC/sec',
       txHash: '0x7a2b...',
     },
   },
@@ -102,7 +102,7 @@ export const activeStreams: ActiveStream[] = [
     service: 'Video Streaming',
     duration: '00:42:15',
     cost: 0.0425,
-    rate: '0.0001 AVAX/sec',
+    rate: '0.0001 USDC/sec',
     progress: 70,
   },
   {
@@ -110,7 +110,7 @@ export const activeStreams: ActiveStream[] = [
     service: 'API Calls',
     calls: 47,
     cost: 0.047,
-    rate: '0.001 AVAX/call',
+    rate: '0.001 USDC/call',
     lastCall: '2 minutes ago',
   },
 ];

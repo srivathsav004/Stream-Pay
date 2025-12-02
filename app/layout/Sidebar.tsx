@@ -20,7 +20,7 @@ type Props = { collapsed?: boolean; setCollapsed?: (v: boolean) => void };
 
 const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
   const { pathname } = useLocation();
-  const { connected, balanceAvax } = useWallet();
+  const { connected, balanceUSDC } = useWallet();
   const location = useLocation();
 
   // Auto-close sidebar when route changes

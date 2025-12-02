@@ -48,7 +48,7 @@ const ServiceDetails: React.FC = () => {
         <h3 className="text-base font-semibold text-white mb-4">Video Streaming</h3>
         <div className="mb-4">
           <div className="text-xs text-[#a1a1a1] mb-1">Total Spent</div>
-          <div className="text-2xl font-semibold text-white">4.45 AVAX</div>
+          <div className="text-2xl font-semibold text-white">4.45 USDC</div>
         </div>
         <div className="h-20 mb-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -66,7 +66,7 @@ const ServiceDetails: React.FC = () => {
         <div className="space-y-2 text-sm text-[#a1a1a1] mb-4">
           <div>• 47 sessions</div>
           <div>• 12.5 hours watched</div>
-          <div>• Avg: 0.095 AVAX/session</div>
+          <div>• Avg: 0.095 USDC/session</div>
         </div>
         <Button variant="ghost" size="sm" className="text-blue-600 w-full">View Details →</Button>
       </Card>
@@ -75,7 +75,7 @@ const ServiceDetails: React.FC = () => {
         <h3 className="text-base font-semibold text-white mb-4">API Calls</h3>
         <div className="mb-4">
           <div className="text-xs text-[#a1a1a1] mb-1">Total Spent</div>
-          <div className="text-2xl font-semibold text-white">2.22 AVAX</div>
+          <div className="text-2xl font-semibold text-white">2.22 USDC</div>
         </div>
         <div className="h-20 mb-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -87,7 +87,7 @@ const ServiceDetails: React.FC = () => {
         <div className="space-y-2 text-sm text-[#a1a1a1] mb-4">
           <div>• 247 total calls</div>
           <div>• 35 calls/day avg</div>
-          <div>• Avg: 0.009 AVAX/call</div>
+          <div>• Avg: 0.009 USDC/call</div>
         </div>
         <Button variant="ghost" size="sm" className="text-purple-600 w-full">View Details →</Button>
       </Card>
@@ -96,7 +96,7 @@ const ServiceDetails: React.FC = () => {
         <h3 className="text-base font-semibold text-white mb-4">Cloud Storage</h3>
         <div className="mb-4">
           <div className="text-xs text-[#a1a1a1] mb-1">Total Spent</div>
-          <div className="text-2xl font-semibold text-white">0.74 AVAX</div>
+          <div className="text-2xl font-semibold text-white">0.74 USDC</div>
         </div>
         <div className="h-20 mb-4">
           <ResponsiveContainer width="100%" height="100%">

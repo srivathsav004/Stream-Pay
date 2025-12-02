@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         <p className="text-sm text-[#a1a1a1] mb-1">{payload[0].payload.date}</p>
         {payload.map((item: any, index: number) => (
           <p key={index} className="text-sm font-semibold text-white">
-            {item.name === 'streamingCost' ? 'Streaming' : 'Purchases'}: {item.value.toFixed(4)} AVAX
+            {item.name === 'streamingCost' ? 'Streaming' : 'Purchases'}: {item.value.toFixed(4)} USDC
           </p>
         ))}
       </div>
@@ -88,7 +88,7 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
           <h3 className="text-base font-semibold text-white mb-4">Streaming</h3>
           <div className="mb-4">
             <div className="text-2xl font-semibold text-white mb-1">
-              {streamingTotal.toFixed(2)} AVAX
+              {streamingTotal.toFixed(2)} USDC
             </div>
             <div className="text-sm text-[#a1a1a1]">Sessions: {streamingSessions}</div>
           </div>
@@ -103,7 +103,7 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
           <h3 className="text-base font-semibold text-white mb-4">Purchases</h3>
           <div className="mb-4">
             <div className="text-2xl font-semibold text-white mb-1">
-              {purchaseTotal.toFixed(2)} AVAX
+              {purchaseTotal.toFixed(2)} USDC
             </div>
             <div className="text-sm text-[#a1a1a1]">Videos: {purchaseVideos}</div>
           </div>

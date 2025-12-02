@@ -8,7 +8,7 @@ const PricingBanner: React.FC = () => {
         <div>
           <div className="text-sm font-medium text-white mb-1">Pricing Information</div>
           <div className="text-xs text-[#a1a1a1]">
-            Stream Rate: 0.0001 AVAX/sec (~$0.24/hr) • Purchase prices vary by video
+            Stream Rate: 0.0001 USDC/sec (~$0.24/hr) • Purchase prices vary by video
           </div>
         </div>
       </div>

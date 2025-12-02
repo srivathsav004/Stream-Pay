@@ -4,8 +4,8 @@ export interface Video {
   duration: string;
   quality: string;
   thumbnail: string;
-  streamPrice: number; // AVAX per second
-  purchasePrice: number; // AVAX one-time
+  streamPrice: number; // USDC per second
+  purchasePrice: number; // USDC one-time
   description?: string;
 }
 

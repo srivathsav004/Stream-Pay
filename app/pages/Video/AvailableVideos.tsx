@@ -113,10 +113,10 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
                     <span className="text-sm font-medium text-white">Stream</span>
                   </div>
                   <div className="text-xs text-[#a1a1a1] mb-1">
-                    {video.streamPrice} AVAX/sec
+                    {video.streamPrice} USDC/sec
                   </div>
                   <div className="text-xs text-[#a1a1a1] mb-3">
-                    ~{streamCost.toFixed(4)} AVAX total
+                    ~{streamCost.toFixed(4)} USDC total
                   </div>
                   <Button
                     variant="outline"
@@ -135,7 +135,7 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
                     <span className="text-sm font-medium text-white">Buy Once</span>
                   </div>
                   <div className="text-xs text-[#a1a1a1] mb-1">
-                    {video.purchasePrice} AVAX
+                    {video.purchasePrice} USDC
                   </div>
                   <div className="text-xs text-[#a1a1a1] mb-3">
                     Own forever

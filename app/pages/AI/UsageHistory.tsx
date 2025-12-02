@@ -137,7 +137,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
               <th className="text-left font-medium px-4 py-3">Date/Time</th>
               <th className="text-left font-medium px-4 py-3">Calls</th>
               <th className="text-left font-medium px-4 py-3">Tx Hash</th>
-              <th className="text-right font-medium px-4 py-3">Cost (AVAX)</th>
+              <th className="text-right font-medium px-4 py-3">Cost (USDC)</th>
             </tr>
           </thead>
           <tbody>

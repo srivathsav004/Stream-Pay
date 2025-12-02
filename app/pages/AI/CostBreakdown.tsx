@@ -16,7 +16,7 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
         <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
           <div className="text-xs text-[#a1a1a1] uppercase mb-2">This Week</div>
           <div className="text-2xl font-semibold text-white font-mono mb-1">
-            {data.thisWeek.cost} AVAX
+            {data.thisWeek.cost} USDC
           </div>
           <div className="text-sm text-[#a1a1a1] mb-3">
             ${(data.thisWeek.cost * 40).toFixed(2)} USD
@@ -28,7 +28,7 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
         <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
           <div className="text-xs text-[#a1a1a1] uppercase mb-2">This Month</div>
           <div className="text-2xl font-semibold text-white font-mono mb-1">
-            {data.thisMonth.cost} AVAX
+            {data.thisMonth.cost} USDC
           </div>
           <div className="text-sm text-[#a1a1a1] mb-3">
             ${(data.thisMonth.cost * 40).toFixed(2)} USD
@@ -44,7 +44,7 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
         <Card className="p-4 bg-[#0a0a0a] border-[#262626]">
           <div className="text-xs text-[#a1a1a1] uppercase mb-2">Average Cost/Session</div>
           <div className="text-2xl font-semibold text-white font-mono mb-1">
-            {data.avgCostPerSession} AVAX
+            {data.avgCostPerSession} USDC
           </div>
           <div className="text-sm text-[#a1a1a1]">
             ${(data.avgCostPerSession * 40).toFixed(2)} USD

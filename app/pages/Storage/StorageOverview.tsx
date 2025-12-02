@@ -85,15 +85,15 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
           <div className="space-y-4 mb-6">
             <div className="p-3 bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] hover:border-[#3a3a3a] transition-colors">
               <div className="text-sm text-[#a1a1a1] mb-1">Hourly</div>
-              <div className="text-xl font-semibold text-white font-mono">{hourlyCost.toFixed(6)} AVAX</div>
+              <div className="text-xl font-semibold text-white font-mono">{hourlyCost.toFixed(6)} USDC</div>
             </div>
             <div className="p-3 bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] hover:border-[#3a3a3a] transition-colors">
               <div className="text-sm text-[#a1a1a1] mb-1">Daily</div>
-              <div className="text-xl font-semibold text-white font-mono">{dailyCost.toFixed(6)} AVAX</div>
+              <div className="text-xl font-semibold text-white font-mono">{dailyCost.toFixed(6)} USDC</div>
             </div>
             <div className="p-3 bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] hover:border-[#3a3a3a] transition-colors">
               <div className="text-sm text-[#a1a1a1] mb-1">Monthly</div>
-              <div className="text-xl font-semibold text-white font-mono">~{monthlyCost.toFixed(6)} AVAX</div>
+              <div className="text-xl font-semibold text-white font-mono">~{monthlyCost.toFixed(6)} USDC</div>
             </div>
           </div>
           {daysRemaining < 10 && (
@@ -106,7 +106,7 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
             </div>
           )}
           <Button variant="primary" size="sm" className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-lg shadow-blue-900/30 border-blue-400/50" onClick={onDeposit}>
-            Deposit AVAX
+            Deposit USDC
           </Button>
         </div>
       </div>

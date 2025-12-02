@@ -33,7 +33,7 @@ const ConnectedServices: React.FC<ConnectedServicesProps> = ({ services }) => {
                 Last Used: <span className="text-white">{service.lastUsed}</span>
               </div>
               <div className="text-sm text-[#a1a1a1]">
-                Total Spent: <span className="text-white font-mono">{service.totalSpent} AVAX</span>
+                Total Spent: <span className="text-white font-mono">{service.totalSpent} USDC</span>
               </div>
             </div>
             <Button

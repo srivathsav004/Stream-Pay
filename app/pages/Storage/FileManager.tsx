@@ -151,10 +151,10 @@ const FileManager: React.FC<FileManagerProps> = ({
                   </td>
                   <td className="py-3 px-2 text-sm text-[#a1a1a1]">{file.uploadedAt}</td>
                   <td className="py-3 px-2 text-sm font-mono text-[#a1a1a1]">
-                    {file.type === 'folder' ? '-' : `${file.costPerHour} AVAX`}
+                    {file.type === 'folder' ? '-' : `${file.costPerHour} USDC`}
                   </td>
                   <td className="py-3 px-2 text-sm font-mono text-white">
-                    {file.type === 'folder' ? '-' : `${file.totalCost} AVAX`}
+                    {file.type === 'folder' ? '-' : `${file.totalCost} USDC`}
                   </td>
                   <td className="py-3 px-2" onClick={(e) => e.stopPropagation()}>
                     <div className="flex gap-2">
@@ -190,7 +190,7 @@ const FileManager: React.FC<FileManagerProps> = ({
               {file.type === 'file' && (
                 <>
                   <div className="text-xs text-[#a1a1a1] mb-1">{file.size} MB</div>
-                  <div className="text-xs font-mono text-white mb-3">{file.totalCost} AVAX</div>
+                  <div className="text-xs font-mono text-white mb-3">{file.totalCost} USDC</div>
                 </>
               )}
               <div className="flex gap-1 justify-center" onClick={(e) => e.stopPropagation()}>

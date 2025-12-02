@@ -53,7 +53,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                   <td className="py-3 px-2 text-sm text-[#a1a1a1]">
                     {item.duration ? `${item.duration}h` : '-'}
                   </td>
-                  <td className="py-3 px-2 text-sm font-mono text-white">{item.cost} AVAX</td>
+                  <td className="py-3 px-2 text-sm font-mono text-white">{item.cost} USDC</td>
                 </tr>
                 {expandedItem === item.id && (
                   <tr>
@@ -64,7 +64,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                           <div>• File: {item.fileName} {item.fileSize && `(${item.fileSize} MB)`}</div>
                           <div>• Date: {item.date}</div>
                           <div>• Duration: {item.duration ? `${item.duration} hours` : 'N/A'}</div>
-                          <div>• Total Cost: {item.cost} AVAX (${(item.cost * 40).toFixed(2)})</div>
+                          <div>• Total Cost: {item.cost} USDC (${(item.cost * 40).toFixed(2)})</div>
                           {item.ipfsCid && <div>• IPFS CID: {item.ipfsCid}</div>}
                           {item.txHash && (
                             <div>• Tx Hash: {item.txHash} <Button variant="ghost" size="sm" className="ml-2 h-auto p-0 text-xs">View on Explorer</Button></div>

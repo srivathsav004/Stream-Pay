@@ -54,7 +54,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
               <div className="flex justify-between">
                 <span className="text-sm text-[#a1a1a1]">One-Time Cost:</span>
                 <span className="text-sm font-semibold text-white">
-                  {video.purchasePrice} AVAX (${(video.purchasePrice * 40).toFixed(2)})
+                  {video.purchasePrice} USDC (${(video.purchasePrice * 40).toFixed(2)})
                 </span>
               </div>
             </div>
@@ -79,11 +79,11 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
           <div className="border-t border-[#262626] pt-6 mb-6">
             <div className="flex justify-between mb-2">
               <span className="text-sm text-[#a1a1a1]">Your Balance:</span>
-              <span className="text-sm font-semibold text-white">{balance} AVAX</span>
+              <span className="text-sm font-semibold text-white">{balance} USDC</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-[#a1a1a1]">After Purchase:</span>
-              <span className="text-sm font-semibold text-white">{afterPurchase.toFixed(2)} AVAX</span>
+              <span className="text-sm font-semibold text-white">{afterPurchase.toFixed(2)} USDC</span>
             </div>
           </div>
 
@@ -98,7 +98,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
               onClick={() => onConfirm(video)}
               disabled={balance < video.purchasePrice}
             >
-              Confirm Purchase - {video.purchasePrice} AVAX
+              Confirm Purchase - {video.purchasePrice} USDC
             </Button>
           </div>
         </div>

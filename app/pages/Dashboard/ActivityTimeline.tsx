@@ -132,7 +132,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
               <th className="text-left font-medium px-4 py-3">Type</th>
               <th className="text-left font-medium px-4 py-3">Time</th>
               <th className="text-left font-medium px-4 py-3">Summary</th>
-              <th className="text-right font-medium px-4 py-3">Cost (AVAX)</th>
+              <th className="text-right font-medium px-4 py-3">Cost (USDC)</th>
               <th className="text-right font-medium px-4 py-3">Actions</th>
             </tr>
           </thead>

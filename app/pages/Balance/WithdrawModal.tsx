@@ -37,7 +37,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={onClose}>
       <div className="bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-6 border-b border-[#262626]">
-          <h2 className="text-lg font-semibold text-white">Withdraw AVAX</h2>
+          <h2 className="text-lg font-semibold text-white">Withdraw USDC</h2>
           <button
             onClick={onClose}
             className="text-[#a1a1a1] hover:text-white text-2xl"
@@ -48,7 +48,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
 
         <div className="p-6">
           <div className="mb-6">
-            <label className="block text-sm text-[#a1a1a1] mb-2">Amount (AVAX)</label>
+            <label className="block text-sm text-[#a1a1a1] mb-2">Amount (USDC)</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -59,7 +59,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
                 min="0"
                 max={availableBalance}
               />
-              <span className="text-lg text-white font-mono">AVAX</span>
+              <span className="text-lg text-white font-mono">USDC</span>
             </div>
             <div className="text-sm text-[#a1a1a1] mt-2">
               ≈ ${(amount * 40).toFixed(2)} USD
@@ -77,7 +77,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
           <div className="mb-6 p-4 bg-amber-600/10 border border-amber-600/50 rounded-lg">
             <div className="text-sm font-medium text-amber-300 mb-2">⚠️ Important:</div>
             <div className="space-y-1 text-sm text-[#a1a1a1]">
-              <div>• You have {lockedBalance} AVAX locked in active streams</div>
+              <div>• You have {lockedBalance} USDC locked in active streams</div>
               <div>• Stop streams first to withdraw locked funds</div>
               <div>• Withdrawal may take a few minutes to process</div>
             </div>
@@ -88,11 +88,11 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
           <div className="mb-6">
             <div className="flex justify-between mb-2">
               <span className="text-sm text-[#a1a1a1]">Available Balance:</span>
-              <span className="text-sm font-semibold text-white">{availableBalance} AVAX</span>
+              <span className="text-sm font-semibold text-white">{availableBalance} USDC</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-[#a1a1a1]">After Withdrawal:</span>
-              <span className="text-sm font-semibold text-white">{availableBalance - amount} AVAX</span>
+              <span className="text-sm font-semibold text-white">{availableBalance - amount} USDC</span>
             </div>
           </div>
 

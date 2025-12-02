@@ -57,7 +57,7 @@ const Preferences: React.FC<PreferencesProps> = ({
                 onChange={(e) => setNotifications({ ...notifications, lowBalanceAlerts: e.target.checked })}
                 className="rounded border-[#262626]"
               />
-              <span className="text-sm text-white">Low balance alerts (&lt; 0.1 AVAX)</span>
+              <span className="text-sm text-white">Low balance alerts (&lt; 0.1 USDC)</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -117,7 +117,7 @@ const Preferences: React.FC<PreferencesProps> = ({
                   className="w-24 bg-[#0a0a0a] border border-[#262626] rounded-lg px-3 py-2 text-sm text-white"
                   step="0.1"
                 />
-                <span className="text-sm text-white">AVAX</span>
+                <span className="text-sm text-white">USDC</span>
               </div>
             </div>
             <div>
@@ -130,7 +130,7 @@ const Preferences: React.FC<PreferencesProps> = ({
                   className="w-24 bg-[#0a0a0a] border border-[#262626] rounded-lg px-3 py-2 text-sm text-white"
                   step="0.1"
                 />
-                <span className="text-sm text-white">AVAX</span>
+                <span className="text-sm text-white">USDC</span>
               </div>
             </div>
             <label className="flex items-center gap-3 cursor-pointer">
@@ -149,7 +149,7 @@ const Preferences: React.FC<PreferencesProps> = ({
                 onChange={(e) => setSpending({ ...spending, requireConfirmation: e.target.checked })}
                 className="rounded border-[#262626]"
               />
-              <span className="text-sm text-white">Require confirmation for transactions &gt; {spending.confirmationThreshold} AVAX</span>
+              <span className="text-sm text-white">Require confirmation for transactions &gt; {spending.confirmationThreshold} USDC</span>
             </label>
           </div>
         </div>

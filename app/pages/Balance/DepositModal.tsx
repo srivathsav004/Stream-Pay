@@ -34,11 +34,11 @@ const DepositModal: React.FC<DepositModalProps> = ({
     onClose();
   };
 
-  const estimateUsage = (avax: number) => {
+  const estimateUsage = (USDC: number) => {
     return {
-      videoHours: Math.floor(avax / 0.0001 / 3600),
-      aiCalls: Math.floor(avax / 0.001),
-      storageDays: Math.floor(avax / (0.00001 * 1024 * 24)),
+      videoHours: Math.floor(USDC / 0.0001 / 3600),
+      aiCalls: Math.floor(USDC / 0.001),
+      storageDays: Math.floor(USDC / (0.00001 * 1024 * 24)),
     };
   };
 
@@ -48,7 +48,7 @@ const DepositModal: React.FC<DepositModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={onClose}>
       <div className="bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-6 border-b border-[#262626]">
-          <h2 className="text-lg font-semibold text-white">Deposit AVAX</h2>
+          <h2 className="text-lg font-semibold text-white">Deposit USDC</h2>
           <button
             onClick={onClose}
             className="text-[#a1a1a1] hover:text-white text-2xl"
@@ -59,7 +59,7 @@ const DepositModal: React.FC<DepositModalProps> = ({
 
         <div className="p-6">
           <div className="mb-6">
-            <label className="block text-sm text-[#a1a1a1] mb-2">Amount (AVAX)</label>
+            <label className="block text-sm text-[#a1a1a1] mb-2">Amount (USDC)</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -69,7 +69,7 @@ const DepositModal: React.FC<DepositModalProps> = ({
                 step="0.1"
                 min="0"
               />
-              <span className="text-lg text-white font-mono">AVAX</span>
+              <span className="text-lg text-white font-mono">USDC</span>
             </div>
             <div className="text-sm text-[#a1a1a1] mt-2">
               ≈ ${(amount * 40).toFixed(2)} USD
@@ -109,11 +109,11 @@ const DepositModal: React.FC<DepositModalProps> = ({
           <div className="mb-6">
             <div className="flex justify-between mb-2">
               <span className="text-sm text-[#a1a1a1]">Current Balance:</span>
-              <span className="text-sm font-semibold text-white">{currentBalance} AVAX</span>
+              <span className="text-sm font-semibold text-white">{currentBalance} USDC</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-[#a1a1a1]">After Deposit:</span>
-              <span className="text-sm font-semibold text-white">{currentBalance + amount} AVAX</span>
+              <span className="text-sm font-semibold text-white">{currentBalance + amount} USDC</span>
             </div>
           </div>
 

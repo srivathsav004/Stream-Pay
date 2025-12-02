@@ -124,19 +124,19 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Hour:</span>
-                <span className="text-white font-mono">{costs.perHour.toFixed(6)} AVAX (~${(costs.perHour * 40).toFixed(3)})</span>
+                <span className="text-white font-mono">{costs.perHour.toFixed(6)} USDC (~${(costs.perHour * 40).toFixed(3)})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Day:</span>
-                <span className="text-white font-mono">{costs.perDay.toFixed(6)} AVAX (~${(costs.perDay * 40).toFixed(3)})</span>
+                <span className="text-white font-mono">{costs.perDay.toFixed(6)} USDC (~${(costs.perDay * 40).toFixed(3)})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Week:</span>
-                <span className="text-white font-mono">{costs.perWeek.toFixed(6)} AVAX (~${(costs.perWeek * 40).toFixed(3)})</span>
+                <span className="text-white font-mono">{costs.perWeek.toFixed(6)} USDC (~${(costs.perWeek * 40).toFixed(3)})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Month:</span>
-                <span className="text-white font-mono">{costs.perMonth.toFixed(6)} AVAX (~${(costs.perMonth * 40).toFixed(2)})</span>
+                <span className="text-white font-mono">{costs.perMonth.toFixed(6)} USDC (~${(costs.perMonth * 40).toFixed(2)})</span>
               </div>
             </div>
           )}
@@ -150,10 +150,10 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
         <div className="border-t border-[#262626] pt-6 mb-6">
           <div className="flex justify-between mb-2">
             <span className="text-sm text-[#a1a1a1]">Your Balance:</span>
-            <span className="text-sm font-semibold text-white">{balance} AVAX</span>
+            <span className="text-sm font-semibold text-white">{balance} USDC</span>
           </div>
           <div className="text-xs text-[#a1a1a1]">
-            After Upload: {balance} AVAX (charges start immediately)
+            After Upload: {balance} USDC (charges start immediately)
           </div>
         </div>
 

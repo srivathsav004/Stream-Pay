@@ -48,7 +48,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
           
           <div>
             <div className="text-xs text-[#a1a1a1] uppercase mb-1">Cost This Session</div>
-            <div className="text-2xl font-semibold text-white font-mono">{session.cost} AVAX</div>
+            <div className="text-2xl font-semibold text-white font-mono">{session.cost} USDC</div>
             <div className="text-sm text-[#a1a1a1]">${(session.cost * 40).toFixed(2)} USD</div>
           </div>
           
@@ -56,7 +56,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
           
           <div>
             <div className="text-xs text-[#a1a1a1] uppercase mb-1">Remaining Balance</div>
-            <div className="text-2xl font-semibold text-white font-mono">{balance.toFixed(3)} AVAX</div>
+            <div className="text-2xl font-semibold text-white font-mono">{balance.toFixed(3)} USDC</div>
             <div className="text-sm text-[#a1a1a1]">~{callsRemaining} calls left</div>
           </div>
           
@@ -84,7 +84,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
             Save Conversation
           </Button>
           <Button variant="primary" size="sm" className="w-full" onClick={onDeposit}>
-            Deposit AVAX
+            Deposit USDC
           </Button>
         </div>
       </Card> */}

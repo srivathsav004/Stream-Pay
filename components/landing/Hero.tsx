@@ -61,7 +61,7 @@ const Hero: React.FC = () => {
             <div className="flex items-center gap-6 pt-4 text-sm text-zinc-500 font-medium">
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-blue-500" />
-                <span>0.001 AVAX/sec</span>
+                <span>0.001 USDC/sec</span>
               </div>
               <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
               <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ const Hero: React.FC = () => {
                         <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Total Cost</p>
                         <div className="flex items-baseline gap-1">
                         <span className="text-2xl font-semibold text-white tracking-tight">0.0425</span>
-                        <span className="text-xs font-medium text-zinc-500">AVAX</span>
+                        <span className="text-xs font-medium text-zinc-500">USDC</span>
                         </div>
                     </div>
                     <div className="text-right">

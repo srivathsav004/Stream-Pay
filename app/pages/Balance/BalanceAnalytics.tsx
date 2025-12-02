@@ -28,7 +28,7 @@ const CustomTooltip = ({ active, payload }: any) => {
       <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 shadow-lg">
         <p className="text-sm text-[#a1a1a1] mb-1">{payload[0].payload.date}</p>
         <p className="text-sm font-semibold text-white">
-          Balance: {payload[0].value} AVAX
+          Balance: {payload[0].value} USDC
         </p>
       </div>
     );
