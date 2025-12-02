@@ -19,11 +19,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 }) => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = messagesContainerRef.current;
+    if (el) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
@@ -66,11 +69,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-[600px] mb-8">
-      <Card className="flex-1 flex flex-col p-6 overflow-hidden">
+    <div className="flex flex-col h-[600px] min-h-0 mb-8">
+      <Card className="flex-1 flex flex-col p-6 overflow-hidden min-h-0">
         <div className="text-sm font-semibold text-white mb-4">AI Chat</div>
         
-        <div className="flex-1 overflow-y-auto mb-4 space-y-4 pr-2">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto mb-4 space-y-4 pr-2 min-h-0">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="text-6xl mb-4">🤖</div>
@@ -152,7 +155,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   </div>
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </>
           )}
         </div>
