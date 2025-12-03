@@ -3,7 +3,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { OwnedVideo } from './types';
-import { fetchOEmbed, fetchYouTubeDuration, getYouTubeId } from './youtube';
+import { fetchOEmbed, getYouTubeId } from './youtube';
 
 interface YourLibraryProps {
   videos: OwnedVideo[];
@@ -19,6 +19,16 @@ const YT_URLS = [
   'https://youtu.be/flxZd7EFhSo',
 ];
 
+// Simple placeholder duration generator (2:00 to 18:00)
+const randomDuration = (): string => {
+  const min = 2 * 60; // 2 minutes
+  const max = 18 * 60; // 18 minutes
+  const totalSeconds = Math.floor(Math.random() * (max - min + 1)) + min;
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+};
+
 const YourLibrary: React.FC<YourLibraryProps> = ({ videos, onWatch }) => {
   const [fetched, setFetched] = useState<OwnedVideo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +42,7 @@ const YourLibrary: React.FC<YourLibraryProps> = ({ videos, onWatch }) => {
         YT_URLS.map(async (url) => {
           const id = getYouTubeId(url) ?? url;
           const meta = await fetchOEmbed(url);
-          const duration = (id && (await fetchYouTubeDuration(id))) || '4:00';
+          const duration = randomDuration();
           return {
             id,
             title: meta?.title ?? 'YouTube Video',
