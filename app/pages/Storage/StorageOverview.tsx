@@ -2,6 +2,12 @@ import React from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { useAccount, useReadContract, useWriteContract, useConfig } from 'wagmi';
+import { avalancheFuji } from 'wagmi/chains';
+import { formatUnits, parseUnits } from 'viem';
+import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
+import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
+import { ERC20_ABI, FUJI_USDC_ADDRESS } from '@/app/shared/contracts/erc20';
 
 interface StorageOverviewProps {
   usedGB: number;
@@ -24,6 +30,24 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
 }) => {
   const percentage = (usedGB / maxGB) * 100;
   const daysRemaining = Math.floor(balance / dailyCost);
+  const { address, chainId } = (useAccount?.() as any) || { address: undefined, chainId: undefined };
+  const escrowAddress = STREAMPAY_ESCROW_ADDRESS;
+  const usdcAddress = FUJI_USDC_ADDRESS;
+  const { data: escrowBalanceData, refetch: refetchEscrow } = (useReadContract as any)({
+    address: escrowAddress || undefined,
+    abi: STREAMPAY_ESCROW_ABI,
+    functionName: 'getBalance',
+    args: address ? [address] : undefined,
+    chainId: avalancheFuji.id,
+    query: { enabled: !!address && !!escrowAddress },
+  });
+  const formattedEscrow = escrowBalanceData ? `${Number((formatUnits as any)(escrowBalanceData as bigint, 6)).toFixed(2)} USDC` : '— USDC';
+  const [depositOpen, setDepositOpen] = React.useState(false);
+  const [amount, setAmount] = React.useState('');
+  const [depStatus, setDepStatus] = React.useState<'idle' | 'approving' | 'depositing' | 'success' | 'error'>('idle');
+  const [depError, setDepError] = React.useState('');
+  const { writeContractAsync } = (useWriteContract as any)();
+  const config = (useConfig as any)();
 
   const chartData = [
     { name: 'Used', value: usedGB },
@@ -46,7 +70,59 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
 
   return (
     <Card className="p-6 mb-8 bg-gradient-to-br from-[#141414] to-[#1a1a1a] border-[#2a2a2a] shadow-xl">
-      <h2 className="text-lg font-semibold text-white mb-6 bg-gradient-to-r from-white to-[#a1a1a1] bg-clip-text text-transparent">Storage Overview</h2>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-white to-[#a1a1a1] bg-clip-text text-transparent">Storage Overview</h2>
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-[#a1a1a1]">Escrow</div>
+          <div className="text-sm font-mono text-white">{formattedEscrow}</div>
+          {!depositOpen ? (
+            <Button variant="outline" size="sm" onClick={() => setDepositOpen(true)}>Deposit USDC</Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <input
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Amount"
+                className="w-28 rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                inputMode="decimal"
+              />
+              <Button
+                variant="outline" size="sm"
+                onClick={async () => {
+                  setDepError('');
+                  if (!address) { setDepError('Connect your wallet'); return; }
+                  if (!escrowAddress) { setDepError('Escrow not configured'); return; }
+                  if (!amount || Number(amount) <= 0) { setDepError('Enter a valid amount'); return; }
+                  if (chainId !== avalancheFuji.id) { setDepError('Switch to Avalanche Fuji'); return; }
+                  try {
+                    const value = (parseUnits as any)(amount, 6);
+                    setDepStatus('approving');
+                    const approveHash = await writeContractAsync({ address: usdcAddress, abi: ERC20_ABI, functionName: 'approve', args: [escrowAddress as `0x${string}`, value] });
+                    await (await import('wagmi/actions')).waitForTransactionReceipt(config, { hash: approveHash });
+                    setDepStatus('depositing');
+                    const depositHash = await writeContractAsync({ address: escrowAddress, abi: STREAMPAY_ESCROW_ABI, functionName: 'deposit', args: [value] });
+                    await (await import('wagmi/actions')).waitForTransactionReceipt(config, { hash: depositHash });
+                    await refetchEscrow();
+                    setDepStatus('success');
+                    setAmount('');
+                    setTimeout(() => { setDepStatus('idle'); setDepositOpen(false); }, 1000);
+                  } catch (err: any) {
+                    setDepStatus('error');
+                    setDepError(err?.shortMessage || err?.message || 'Transaction failed');
+                  }
+                }}
+                disabled={depStatus === 'approving' || depStatus === 'depositing'}
+              >
+                {depStatus === 'approving' ? 'Approving…' : depStatus === 'depositing' ? 'Depositing…' : 'Confirm'}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => { if (depStatus==='idle') { setDepositOpen(false); setAmount(''); setDepError(''); }}}>Cancel</Button>
+            </div>
+          )}
+        </div>
+      </div>
+      {depositOpen && depError && (
+        <div className="-mt-4 mb-4 text-xs text-red-500">{depError}</div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="flex flex-col items-center justify-center md:col-span-2">
           <div className="relative w-72 h-72 mb-4">
@@ -105,9 +181,9 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
               <div className="text-sm font-medium text-white">~{daysRemaining} days</div>
             </div>
           )}
-          <Button variant="primary" size="sm" className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-lg shadow-blue-900/30 border-blue-400/50" onClick={onDeposit}>
+          {/* <Button variant="primary" size="sm" className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-lg shadow-blue-900/30 border-blue-400/50" onClick={onDeposit}>
             Deposit USDC
-          </Button>
+          </Button> */}
         </div>
       </div>
     </Card>

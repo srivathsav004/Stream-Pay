@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { StorageFile } from './types';
+import { useAccount, useReadContract, useSignTypedData } from 'wagmi';
+import { avalancheFuji } from 'wagmi/chains';
+import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
+import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
+import { formatUnits, parseUnits, keccak256, toHex } from 'viem';
 
 interface FileManagerProps {
   files: StorageFile[];
@@ -38,6 +43,23 @@ const FileManager: React.FC<FileManagerProps> = ({
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [confirmFile, setConfirmFile] = useState<StorageFile | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const { address } = (useAccount?.() as any) || { address: undefined };
+  const { data: escBal } = (useReadContract as any)({
+    address: STREAMPAY_ESCROW_ADDRESS || undefined,
+    abi: STREAMPAY_ESCROW_ABI,
+    functionName: 'getBalance',
+    args: address ? [address] : undefined,
+    chainId: avalancheFuji.id,
+    query: { enabled: !!address && !!STREAMPAY_ESCROW_ADDRESS },
+  });
+  const escrowBalanceUSDC = useMemo(() => escBal ? Number((formatUnits as any)(escBal as bigint, 6)) : 0, [escBal]);
+  const formattedEscrow = useMemo(() => (escrowBalanceUSDC ? escrowBalanceUSDC.toFixed(2) : '0.00') + ' USDC', [escrowBalanceUSDC]);
+  const apiBase = (process as any).env?.NEXT_PUBLIC_STREAMPAY_API || 'http://localhost:3001/api';
+  const { signTypedDataAsync } = (useSignTypedData as any)();
 
   const filteredFiles = files.filter(file =>
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -60,24 +82,41 @@ const FileManager: React.FC<FileManagerProps> = ({
   };
 
   const handleBulkDelete = () => {
-    selectedFiles.forEach(id => onDelete(id));
-    setSelectedFiles([]);
+    const first = filteredFiles.find(f => selectedFiles.includes(f.id));
+    if (first) setConfirmFile(first);
   };
 
   const handleBulkDownload = () => {
     selectedFiles.forEach(id => onDownload(id));
   };
 
+  const calcElapsedMinutes = (f: StorageFile) => {
+    const now = new Date();
+    const t = new Date(f.uploadedAt as any);
+    const mins = Math.max(5, Math.floor((now.getTime() - (isNaN(t.getTime()) ? now.getTime() - 12 * 60 * 1000 : t.getTime())) / 60000));
+    return Math.min(mins, 30);
+  };
+  const calcOwed = (f: StorageFile) => {
+    const mins = calcElapsedMinutes(f);
+    const perMin = (f.costPerHour || 0) / 60;
+    const owed = mins * perMin;
+    return Number.isFinite(owed) ? Math.min(owed, 0.25) : 0.05;
+  };
+
   return (
     <Card className="p-6 mb-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-white">Your Files ({files.length})</h2>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-[#a1a1a1]">Escrow:</div>
+          <div className="text-sm font-mono text-white mr-2">{formattedEscrow}</div>
           <Button variant="outline" size="sm" onClick={() => setViewMode(viewMode === 'table' ? 'grid' : 'table')}>
             {viewMode === 'table' ? 'Grid' : 'Table'}
           </Button>
           <Button variant="outline" size="sm" onClick={onNewFolder}>New Folder</Button>
-          <Button variant="primary" size="sm" onClick={onUpload}>Upload File</Button>
+          <Button variant="primary" size="sm" onClick={onUpload} disabled={escrowBalanceUSDC <= 0}>
+            {escrowBalanceUSDC > 0 ? 'Upload File' : 'Deposit to Upload'}
+          </Button>
         </div>
       </div>
 
@@ -163,7 +202,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDownload(file.id)}>
                             ⬇
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDelete(file.id)}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setConfirmFile(file)}>
                             🗑️
                           </Button>
                         </>
@@ -199,7 +238,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDownload(file.id)}>
                       ⬇
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDelete(file.id)}>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setConfirmFile(file)}>
                       🗑️
                     </Button>
                   </>
@@ -207,6 +246,127 @@ const FileManager: React.FC<FileManagerProps> = ({
               </div>
             </Card>
           ))}
+        </div>
+      )}
+
+      {confirmFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => !submitting && setConfirmFile(null)}>
+          <div className="relative bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-xl max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-[#262626]">
+              <h3 className="text-base font-semibold text-white">Delete File & Settle</h3>
+              <button className="text-[#a1a1a1] hover:text-white text-xl" onClick={() => !submitting && setConfirmFile(null)}>✕</button>
+            </div>
+            <div className="p-5 overflow-y-auto">
+              <div className="mb-4">
+                <div className="text-sm text-white font-medium">{confirmFile.name}</div>
+                <div className="text-xs text-[#a1a1a1]">Uploaded: {confirmFile.uploadedAt} • Now: {new Date().toLocaleString()}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Elapsed</div><div className="text-sm text-white">{calcElapsedMinutes(confirmFile)} min</div></Card>
+                <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Rate</div><div className="text-sm text-white">{confirmFile.costPerHour} USDC/hr</div></Card>
+                <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Size</div><div className="text-sm text-white">{confirmFile.size} MB</div></Card>
+                <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Owed Now</div><div className="text-sm text-white">{calcOwed(confirmFile).toFixed(4)} USDC</div></Card>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <Card className="p-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Escrow Balance</div><div className="text-sm font-mono text-white">{formattedEscrow}</div></Card>
+                <Card className="p-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">After Settlement</div><div className="text-sm font-mono text-white">{Math.max(0, escrowBalanceUSDC - calcOwed(confirmFile)).toFixed(2)} USDC</div></Card>
+              </div>
+              <Card className="p-3 mb-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1]">Gas is paid by the relayer. You will only pay the settlement from your escrow.</div></Card>
+              {status && (<Card className="p-3 mb-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1]">{status}</div></Card>)}
+            </div>
+            <div className="p-5 border-t border-[#262626] flex gap-2">
+              <Button variant="outline" size="sm" className="flex-1" disabled={submitting} onClick={() => setConfirmFile(null)}>Cancel</Button>
+              <Button
+                variant="primary" size="sm" className="flex-1"
+                disabled={submitting}
+                onClick={async () => {
+                  if (!confirmFile || !address) return;
+                  try {
+                    setSubmitting(true);
+                    const owed = calcOwed(confirmFile);
+                    const amount = (parseUnits as any)(String(owed.toFixed(6)), 6);
+                    setStatus('Fetching nonce...');
+                    const nonceRes = await fetch(`${apiBase}/nonce/${address}`);
+                    const { nonce } = await nonceRes.json();
+
+                    const sessionId = (keccak256 as any)((toHex as any)(confirmFile.id));
+                    const deadline = BigInt(Math.floor(Date.now() / 1000) + 15 * 60);
+
+                    const domain = {
+                      name: 'StreamPay',
+                      version: '1',
+                      chainId: avalancheFuji.id,
+                      verifyingContract: STREAMPAY_ESCROW_ADDRESS as `0x${string}`,
+                    };
+                    const types = {
+                      PaymentIntent: [
+                        { name: 'payer', type: 'address' },
+                        { name: 'sessionId', type: 'bytes32' },
+                        { name: 'amount', type: 'uint256' },
+                        { name: 'deadline', type: 'uint256' },
+                        { name: 'nonce', type: 'uint256' },
+                      ],
+                    } as const;
+                    const message = {
+                      payer: address as `0x${string}`,
+                      sessionId,
+                      amount,
+                      deadline,
+                      nonce: BigInt(nonce),
+                    } as any;
+
+                    setStatus('Please sign to confirm deletion...');
+                    const signature = await (signTypedDataAsync as any)({ domain, types, primaryType: 'PaymentIntent', message });
+
+                    setStatus('Submitting to relayer...');
+                    const resp = await fetch(`${apiBase}/execute-payment`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        paymentIntent: {
+                          payer: address,
+                          sessionId,
+                          amount: amount.toString(),
+                          deadline: deadline.toString(),
+                          nonce: String(nonce),
+                          signature,
+                        },
+                        serviceType: 'storage-delete',
+                        metadata: {
+                          fileId: confirmFile.id,
+                          name: confirmFile.name,
+                          sizeMB: confirmFile.size,
+                          elapsedMinutes: calcElapsedMinutes(confirmFile),
+                        },
+                      }),
+                    });
+
+                    if (!resp.ok) {
+                      const e = await resp.json().catch(() => ({}));
+                      throw new Error(e.error || 'Relayer rejected the transaction');
+                    }
+
+                    const data = await resp.json();
+                    setStatus('Deleting file...');
+                    onDelete(confirmFile.id);
+                    setToast(`Settled ${owed.toFixed(6)} USDC • Tx ${data.txHash.slice(0, 10)}...`);
+                    setTimeout(() => { setToast(null); }, 2000);
+                    setConfirmFile(null);
+                  } catch (err: any) {
+                    setStatus(err?.message || 'Failed to process deletion');
+                  } finally {
+                    setSubmitting(false);
+                    setTimeout(() => setStatus(null), 1500);
+                  }
+                }}
+              >
+                Settle & Delete
+              </Button>
+            </div>
+            {toast && (
+              <div className="absolute top-4 right-4 bg-[#0a0a0a] border border-[#262626] text-white text-sm px-4 py-2 rounded shadow-lg">{toast}</div>
+            )}
+          </div>
         </div>
       )}
     </Card>

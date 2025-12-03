@@ -1,7 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { StorageFile } from './types';
+import { useAccount, useReadContract } from 'wagmi';
+import { avalancheFuji } from 'wagmi/chains';
+import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
+import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
+import { formatUnits } from 'viem';
 
 interface UploadAreaProps {
   onUpload: (file: File) => void;
@@ -14,6 +19,17 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { address } = (useAccount?.() as any) || { address: undefined };
+  const { data: escBal } = (useReadContract as any)({
+    address: STREAMPAY_ESCROW_ADDRESS || undefined,
+    abi: STREAMPAY_ESCROW_ABI,
+    functionName: 'getBalance',
+    args: address ? [address] : undefined,
+    chainId: avalancheFuji.id,
+    query: { enabled: !!address && !!STREAMPAY_ESCROW_ADDRESS },
+  });
+  const escrowBalanceUSDC = useMemo(() => escBal ? Number((formatUnits as any)(escBal as bigint, 6)) : 0, [escBal]);
+  const formattedEscrow = useMemo(() => (escrowBalanceUSDC ? escrowBalanceUSDC.toFixed(2) : '0.00') + ' USDC', [escrowBalanceUSDC]);
 
   const calculateCost = (sizeMB: number) => {
     const ratePerMBPerHour = 0.00001;
@@ -99,6 +115,10 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
       <Card className="p-6 mb-8">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-white">Upload File</h3>
+          <div className="flex items-center gap-3">
+            <div className="text-xs text-[#a1a1a1]">Escrow</div>
+            <div className="text-sm font-mono text-white">{formattedEscrow}</div>
+          </div>
           <button
             onClick={() => setSelectedFile(null)}
             className="text-[#a1a1a1] hover:text-white text-2xl"
@@ -150,10 +170,10 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
         <div className="border-t border-[#262626] pt-6 mb-6">
           <div className="flex justify-between mb-2">
             <span className="text-sm text-[#a1a1a1]">Your Balance:</span>
-            <span className="text-sm font-semibold text-white">{balance} USDC</span>
+            <span className="text-sm font-semibold text-white">{formattedEscrow}</span>
           </div>
           <div className="text-xs text-[#a1a1a1]">
-            After Upload: {balance} USDC (charges start immediately)
+            Charges start immediately. Ensure sufficient escrow before uploading.
           </div>
         </div>
 
