@@ -11,9 +11,10 @@ interface StreamModalProps {
   onClose: () => void;
   onUpgrade: (video: Video) => void;
   balance?: number;
+  onSettled?: () => void;
 }
 
-const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpgrade, balance }) => {
+const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpgrade, balance, onSettled }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [cost, setCost] = useState(0);
@@ -294,6 +295,7 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
                     } catch {}
                     setStatus('Settlement confirmed. Finalizing...');
                     setToast('Stream settlement processed successfully');
+                    try { onSettled && onSettled(); } catch {}
                     setTimeout(() => { setToast(null); onClose(); }, 1000);
                   } catch (e: any) {
                     setStatus(e?.message || 'Settlement failed');
