@@ -16,6 +16,8 @@ interface QuickInsightsProps {
 }
 
 const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsageData }) => {
+  const hasSpending = (spendingData && spendingData.length > 0);
+  const hasService = (serviceUsageData && serviceUsageData.length > 0);
   return (
     <Card className="p-6">
       <h2 className="text-lg font-semibold text-white mb-6">Insights</h2>
@@ -23,11 +25,11 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
         <Card className="p-4 border-blue-600">
           <div className="text-sm font-medium text-white mb-2"> Spending Trend</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
-            You've spent 1.23 USDC this month so far. At this rate, you'll spend ~3.47 USDC by month end.
+            {hasSpending ? 'Recent spending activity' : 'No spending data yet'}
           </p>
           <div className="h-16 mb-3">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={spendingData}>
+              <LineChart data={spendingData || []}>
                 <Line type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -37,11 +39,11 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
         <Card className="p-4">
           <div className="text-sm font-medium text-white mb-2"> Usage Pattern</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
-            Your most active time: Weekday evenings (6-10 PM). Your most used service: Video Streaming (60%).
+            {hasService ? 'Most used services' : 'No service usage yet'}
           </p>
           <div className="h-16 mb-3">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={serviceUsageData}>
+              <BarChart data={serviceUsageData || []}>
                 <Bar dataKey="percentage" fill="#8b5cf6" />
               </BarChart>
             </ResponsiveContainer>
@@ -49,11 +51,11 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
         </Card>
 
         <Card className="p-4 border-amber-600">
-          <div className="text-sm font-medium text-white mb-2"> Balance Alert</div>
+          <div className="text-sm font-medium text-white mb-2"> Balance</div>
           <p className="text-sm text-[#a1a1a1] mb-3">
-            Your current balance (2.47 USDC) will last approximately 8 days at your current usage rate.
+            Manage your escrow balance and deposits.
           </p>
-          <Button variant="outline" size="sm" className="w-full mt-2">Deposit USDC</Button>
+          <Button variant="outline" size="sm" className="w-full mt-2">Manage Balance</Button>
         </Card>
       </div>
     </Card>

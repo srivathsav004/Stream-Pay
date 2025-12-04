@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
 import { TimeFilter } from './Dashboard/types';
-import {
-  spendingData,
-  serviceUsageData,
-  activityData,
-  activeStreams,
-} from './Dashboard/data';
 import DashboardHeader from './Dashboard/DashboardHeader';
 import HeroStats from './Dashboard/HeroStats';
 import SpendingOverTime from './Dashboard/SpendingOverTime';
@@ -18,6 +12,10 @@ import QuickInsights from './Dashboard/QuickInsights';
 
 const Dashboard: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('30D');
+  const spendingData: any[] = [];
+  const serviceUsageData: any[] = [];
+  const activityData: any[] = [];
+  const activeStreams: any[] = [];
 
   return (
     <DashboardLayout>

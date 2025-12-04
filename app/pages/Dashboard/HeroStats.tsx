@@ -140,22 +140,22 @@ const HeroStats: React.FC = () => {
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Spent This Month</div>
-        <div className="text-3xl font-semibold text-white mb-1">1.23 USDC</div>
-        <div className="text-sm text-[#a1a1a1] mb-4">$49.20 USD</div>
-        <div className="text-sm text-[#10b981]">+12% from last month ↑</div>
+        <div className="text-3xl font-semibold text-white mb-1">0 USDC</div>
+        <div className="text-sm text-[#a1a1a1] mb-4">—</div>
+        <div className="text-sm text-[#a1a1a1]">No spending data yet</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Total Sessions</div>
-        <div className="text-3xl font-semibold text-white mb-1">127</div>
-        <div className="text-sm text-[#a1a1a1] mb-4">Across all services</div>
-        <div className="text-sm text-[#a1a1a1]">Avg: 18 sessions/week</div>
+        <div className="text-3xl font-semibold text-white mb-1">0</div>
+        <div className="text-sm text-[#a1a1a1] mb-4">—</div>
+        <div className="text-sm text-[#a1a1a1]">No sessions yet</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Active Streams</div>
-        <div className="text-3xl font-semibold text-white mb-1">2</div>
-        <div className="text-sm text-[#a1a1a1] mb-4">Running now</div>
+        <div className="text-3xl font-semibold text-white mb-1">0</div>
+        <div className="text-sm text-[#a1a1a1] mb-4">—</div>
         <Button variant="ghost" size="sm" className="text-blue-600">View Details →</Button>
       </Card>
     </div>

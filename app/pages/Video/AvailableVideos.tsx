@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Video } from './types';
-import { fetchOEmbed, getYouTubeId } from './youtube';
+ 
 import PurchaseModal from './PurchaseModal';
 import StreamModal from './StreamModal';
 import { readEscrowBalance } from '@/app/shared/contracts/balance';
@@ -14,61 +14,12 @@ interface AvailableVideosProps {
   hiddenIds?: string[];
 }
 
-const YT_URLS = [
-  'https://youtu.be/RVm2Debv_Ic',
-  'https://youtu.be/nTbA7qrEsP0',
-  'https://youtu.be/IE5H0lMLUw8',
-  'https://youtu.be/1__SDbGPUQM',
-];
-
-// Simple placeholder duration generator (2:00 to 18:00)
-const randomDuration = (): string => {
-  const min = 2 * 60; // 2 minutes
-  const max = 18 * 60; // 18 minutes
-  const totalSeconds = Math.floor(Math.random() * (max - min + 1)) + min;
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${m}:${String(s).padStart(2, '0')}`;
-};
-
 const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onPurchase, hiddenIds = [] }) => {
-  const [fetched, setFetched] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState<number>(0);
   const [purchaseVideo, setPurchaseVideo] = useState<Video | null>(null);
   const [streamVideo, setStreamVideo] = useState<Video | null>(null);
-
-  useEffect(() => {
-    let ignore = false;
-    const run = async () => {
-      if (videos && videos.length > 0) return;
-      setLoading(true);
-      const results = await Promise.all(
-        YT_URLS.map(async (url) => {
-          const id = getYouTubeId(url) ?? url;
-          const meta = await fetchOEmbed(url);
-          const duration = randomDuration();
-          return {
-            id,
-            title: meta?.title ?? 'YouTube Video',
-            duration,
-            quality: '1080p',
-            thumbnail: meta?.thumbnail_url ?? `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
-            streamPrice: 0.00005,
-            purchasePrice: 0.25,
-            description: meta?.author_name ? `by ${meta.author_name}` : undefined,
-          } as Video;
-        })
-      );
-      if (!ignore) {
-        setFetched(results);
-        setLoading(false);
-      }
-    };
-    run();
-    return () => { ignore = true; };
-  }, [videos]);
 
   
 
@@ -171,7 +122,7 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
     setPurchaseVideo(video);
   };
 
-  const list = ((videos && videos.length > 0) ? videos : fetched).filter(v => !hiddenIds.includes(v.id));
+  const list = (videos && videos.length > 0 ? videos : []).filter(v => !hiddenIds.includes(v.id));
   const calculateStreamCost = (duration: string, rate: number): number => {
     const parts = duration.split(':').map((n) => Number(n));
     let totalSeconds = 0;
@@ -202,6 +153,13 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
             </div>
           </Card>
         ))}
+        {!loading && list.length === 0 && (
+          <Card className="col-span-full p-8 text-center border-dashed">
+            <div className="text-4xl mb-2">🎞️</div>
+            <div className="text-white font-medium mb-1">No videos available</div>
+            <div className="text-sm text-[#a1a1a1] mb-4">Check back later or add new content.</div>
+          </Card>
+        )}
         {list.map((video) => {
           const streamCost = calculateStreamCost(video.duration, video.streamPrice);
           return (

@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
-import {
-  usageHistory,
-  analyticsData,
-  videoStats,
-} from './Video/data';
 import { Video, OwnedVideo } from './Video/types';
 import VideoHeader from './Video/VideoHeader';
 import PricingBanner from './Video/PricingBanner';
@@ -18,7 +13,7 @@ import PurchaseModal from './Video/PurchaseModal';
 import VideoPlayerModal from './Video/VideoPlayerModal';
 
 const VideoPage: React.FC = () => {
-  const [balance] = useState(2.47);
+  const [balance] = useState(0);
   const [streamModalVideo, setStreamModalVideo] = useState<Video | null>(null);
   const [purchaseModalVideo, setPurchaseModalVideo] = useState<Video | null>(null);
   const [watchVideo, setWatchVideo] = useState<Video | null>(null);
@@ -68,10 +63,10 @@ const VideoPage: React.FC = () => {
       <VideoHeader balance={balance} />
       {/* <PricingBanner /> */}
       <VideoStats
-        totalSpent={videoStats.totalSpent}
-        videosOwned={videoStats.videosOwned}
-        totalWatched={videoStats.totalWatched}
-        sessions={videoStats.sessions}
+        totalSpent={0}
+        videosOwned={userOwnedVideos.length}
+        totalWatched={0}
+        sessions={0}
       />
       <YourLibrary videos={userOwnedVideos} onWatch={handleWatch} />
       <AvailableVideos
@@ -81,8 +76,8 @@ const VideoPage: React.FC = () => {
         hiddenIds={userOwnedVideos.map(v => v.id)}
         onWatch={handleWatch}
       />
-      <UsageHistory history={usageHistory} />
-      <VideoAnalytics data={analyticsData} />
+      <UsageHistory history={[]} />
+      <VideoAnalytics data={[]} />
       
       <StreamModal
         video={streamModalVideo}

@@ -16,10 +16,13 @@ interface ServiceBreakdownProps {
 }
 
 const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
-  const totalAmount = serviceData.reduce((sum, service) => sum + service.amount, 0);
+  const totalAmount = (serviceData || []).reduce((sum, service) => sum + service.amount, 0);
+  const totalSessions = (serviceData || []).reduce((sum, service) => sum + (service.sessions || 0), 0);
+  const avgPerSession = totalSessions > 0 ? (totalAmount / totalSessions) : 0;
+  const mostUsed = (serviceData || []).reduce((max, s) => (max && max.percentage > s.percentage) ? max : s, serviceData?.[0]);
 
   // Prepare data for donut chart
-  const chartData = serviceData.map((service) => ({
+  const chartData = (serviceData || []).map((service) => ({
     name: service.service,
     value: service.amount,
     color: service.color,
@@ -96,7 +99,7 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
                 verticalAlign="bottom"
                 height={36}
                 formatter={(value) => {
-                  const service = serviceData.find((s) => s.service === value);
+                  const service = (serviceData || []).find((s) => s.service === value);
                   return service ? `${value} (${service.percentage}%)` : value;
                 }}
                 wrapperStyle={{ color: '#ffffff', fontSize: '12px' }}
@@ -116,25 +119,25 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Total Spent (All Time)</div>
             <div className="text-2xl md:text-[28px] font-semibold text-white">{totalAmount.toFixed(2)} USDC</div>
-            <div className="text-sm text-[#a1a1a1]">${(totalAmount * 40).toFixed(2)} USD</div>
+            <div className="text-sm text-[#a1a1a1]">—</div>
           </div>
           <Separator />
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Average Per Session</div>
-            <div className="text-2xl md:text-[28px] font-semibold text-white">0.058 USDC</div>
-            <div className="text-sm text-[#a1a1a1]">$2.32 USD</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">{avgPerSession.toFixed(3)} USDC</div>
+            <div className="text-sm text-[#a1a1a1]">—</div>
           </div>
           <Separator />
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Most Used Service</div>
-            <div className="text-2xl md:text-[28px] font-semibold text-white">Video Streaming</div>
-            <div className="text-sm text-[#a1a1a1]">60% of total usage</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">{mostUsed ? mostUsed.service : '—'}</div>
+            <div className="text-sm text-[#a1a1a1]">{mostUsed ? `${mostUsed.percentage}% of total usage` : '—'}</div>
           </div>
           <Separator />
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Active Days</div>
-            <div className="text-2xl md:text-[28px] font-semibold text-white">23 days</div>
-            <div className="text-sm text-[#a1a1a1]">76% activity rate</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">—</div>
+            <div className="text-sm text-[#a1a1a1]">—</div>
           </div>
         </div>
       </Card>

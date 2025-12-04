@@ -143,6 +143,20 @@ const FileManager: React.FC<FileManagerProps> = ({
         </div>
       )}
 
+      {filteredFiles.length === 0 && (
+        <Card className="col-span-full p-12 text-center border-dashed mb-6">
+          <div className="text-5xl mb-3">📂</div>
+          <div className="text-white font-medium mb-1">No files found</div>
+          <div className="text-sm text-[#a1a1a1] mb-4">Upload a file or create a folder to get started.</div>
+          <div className="flex justify-center gap-2">
+            <Button variant="primary" size="sm" onClick={onUpload} disabled={escrowBalanceUSDC <= 0}>
+              {escrowBalanceUSDC > 0 ? 'Upload File' : 'Deposit to Upload'}
+            </Button>
+            <Button variant="outline" size="sm" onClick={onNewFolder}>New Folder</Button>
+          </div>
+        </Card>
+      )}
+
       {viewMode === 'table' ? (
         <div className="overflow-x-auto">
           <table className="w-full">

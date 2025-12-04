@@ -11,35 +11,9 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const videoStreamingTrend = [
-  { day: 'Mon', value: 0.5 },
-  { day: 'Tue', value: 0.6 },
-  { day: 'Wed', value: 0.4 },
-  { day: 'Thu', value: 0.7 },
-  { day: 'Fri', value: 0.8 },
-  { day: 'Sat', value: 0.9 },
-  { day: 'Sun', value: 0.65 },
-];
-
-const apiCallsData = [
-  { day: 'Mon', calls: 30 },
-  { day: 'Tue', calls: 35 },
-  { day: 'Wed', calls: 28 },
-  { day: 'Thu', calls: 40 },
-  { day: 'Fri', calls: 45 },
-  { day: 'Sat', calls: 35 },
-  { day: 'Sun', calls: 34 },
-];
-
-const storageData = [
-  { day: 'Mon', value: 0.1 },
-  { day: 'Tue', value: 0.12 },
-  { day: 'Wed', value: 0.11 },
-  { day: 'Thu', value: 0.13 },
-  { day: 'Fri', value: 0.14 },
-  { day: 'Sat', value: 0.15 },
-  { day: 'Sun', value: 0.14 },
-];
+const videoStreamingTrend: Array<{ day: string; value: number }> = [];
+const apiCallsData: Array<{ day: string; calls: number }> = [];
+const storageData: Array<{ day: string; value: number }> = [];
 
 const ServiceDetails: React.FC = () => {
   return (
@@ -48,7 +22,7 @@ const ServiceDetails: React.FC = () => {
         <h3 className="text-base font-semibold text-white mb-4">Video Streaming</h3>
         <div className="mb-4">
           <div className="text-xs text-[#a1a1a1] mb-1">Total Spent</div>
-          <div className="text-2xl font-semibold text-white">4.45 USDC</div>
+          <div className="text-2xl font-semibold text-white">0 USDC</div>
         </div>
         <div className="h-20 mb-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -64,9 +38,9 @@ const ServiceDetails: React.FC = () => {
           </ResponsiveContainer>
         </div>
         <div className="space-y-2 text-sm text-[#a1a1a1] mb-4">
-          <div>• 47 sessions</div>
-          <div>• 12.5 hours watched</div>
-          <div>• Avg: 0.095 USDC/session</div>
+          <div>• No sessions yet</div>
+          <div>• —</div>
+          <div>• —</div>
         </div>
         <Button variant="ghost" size="sm" className="text-blue-600 w-full">View Details →</Button>
       </Card>
@@ -75,7 +49,7 @@ const ServiceDetails: React.FC = () => {
         <h3 className="text-base font-semibold text-white mb-4">API Calls</h3>
         <div className="mb-4">
           <div className="text-xs text-[#a1a1a1] mb-1">Total Spent</div>
-          <div className="text-2xl font-semibold text-white">2.22 USDC</div>
+          <div className="text-2xl font-semibold text-white">0 USDC</div>
         </div>
         <div className="h-20 mb-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -85,9 +59,9 @@ const ServiceDetails: React.FC = () => {
           </ResponsiveContainer>
         </div>
         <div className="space-y-2 text-sm text-[#a1a1a1] mb-4">
-          <div>• 247 total calls</div>
-          <div>• 35 calls/day avg</div>
-          <div>• Avg: 0.009 USDC/call</div>
+          <div>• No calls yet</div>
+          <div>• —</div>
+          <div>• —</div>
         </div>
         <Button variant="ghost" size="sm" className="text-purple-600 w-full">View Details →</Button>
       </Card>
@@ -96,7 +70,7 @@ const ServiceDetails: React.FC = () => {
         <h3 className="text-base font-semibold text-white mb-4">Cloud Storage</h3>
         <div className="mb-4">
           <div className="text-xs text-[#a1a1a1] mb-1">Total Spent</div>
-          <div className="text-2xl font-semibold text-white">0.74 USDC</div>
+          <div className="text-2xl font-semibold text-white">0 USDC</div>
         </div>
         <div className="h-20 mb-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -112,9 +86,9 @@ const ServiceDetails: React.FC = () => {
           </ResponsiveContainer>
         </div>
         <div className="space-y-2 text-sm text-[#a1a1a1] mb-4">
-          <div>• 1.2 GB currently stored</div>
-          <div>• 47 files</div>
-          <div>• Avg: 240 hours/file</div>
+          <div>• No files yet</div>
+          <div>• —</div>
+          <div>• —</div>
         </div>
         <Button variant="ghost" size="sm" className="text-cyan-600 w-full">View Details →</Button>
       </Card>

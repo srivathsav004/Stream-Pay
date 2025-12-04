@@ -1,15 +1,5 @@
 import React from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
-import {
-  walletInfo,
-  accountStats,
-  notificationSettings,
-  spendingControls,
-  appearanceSettings,
-  securitySettings,
-  connectedServices,
-  activityHistory,
-} from './Profile/data';
 import ProfileHeader from './Profile/ProfileHeader';
 import AccountOverview from './Profile/AccountOverview';
 import AccountStatistics from './Profile/AccountStatistics';
@@ -19,6 +9,14 @@ import ActivitySummary from './Profile/ActivitySummary';
 import DangerZone from './Profile/DangerZone';
 
 const Profile: React.FC = () => {
+  const walletInfo = { address: '', network: '-', memberSince: '-', connectedAt: '-' };
+  const accountStats = { totalSpent: 0, servicesUsed: 0, activeDays: 0, transactions: 0 };
+  const notificationSettings = { lowBalanceAlerts: false, transactionConfirmations: false, weeklyUsageSummary: false, serviceUpdates: false, marketingEmails: false };
+  const spendingControls = { dailyLimit: 0, perServiceLimit: 0, enabled: false, requireConfirmation: false, confirmationThreshold: 0 };
+  const appearanceSettings = { theme: 'dark', currency: 'USD', dateFormat: 'MM/DD/YYYY' } as const;
+  const securitySettings = { requireWalletSignature: false, autoLock: false, autoLockMinutes: 0, twoFactorEnabled: false };
+  const connectedServices: any[] = [];
+  const activityHistory: any[] = [];
   const handleDisconnect = () => {
     console.log('Disconnecting wallet...');
     // In a real app, this would disconnect the wallet

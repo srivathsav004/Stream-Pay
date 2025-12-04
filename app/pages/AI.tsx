@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
-import {
-  chatMessages,
-  currentSession,
-  usageHistory,
-  analyticsData,
-  topicData,
-  costBreakdown,
-  aiStats,
-  suggestedPrompts,
-} from './AI/data';
 import { ChatMessage } from './AI/types';
 import AIHeader from './AI/AIHeader';
 import PricingBanner from './AI/PricingBanner';
@@ -21,9 +11,17 @@ import Analytics from './AI/Analytics';
 import CostBreakdown from './AI/CostBreakdown';
 
 const AI: React.FC = () => {
-  const [balance] = useState(2.47);
-  const [messages, setMessages] = useState<ChatMessage[]>(chatMessages);
-  const [session, setSession] = useState(currentSession);
+  const [balance] = useState(0);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [session, setSession] = useState({
+    id: 'session-1',
+    sessionNumber: 1,
+    startTime: new Date().toLocaleString(),
+    calls: 0,
+    cost: 0,
+    topics: [],
+    messages: [],
+  });
 
   // Scroll to top on component mount
   useEffect(() => {
@@ -105,10 +103,10 @@ const AI: React.FC = () => {
       <AIHeader />
       {/* <PricingBanner balance={balance} /> */}
       <AIStats
-        totalSpent={aiStats.totalSpent}
-        totalCalls={aiStats.totalCalls}
-        avgPerCall={aiStats.avgPerCall}
-        thisMonth={aiStats.thisMonth}
+        totalSpent={0}
+        totalCalls={0}
+        avgPerCall={0}
+        thisMonth={0}
       />
       
       <div className="grid grid-cols-1 xl:grid-cols-10 gap-6 mb-8">
@@ -117,7 +115,7 @@ const AI: React.FC = () => {
             messages={messages}
             onSendMessage={handleSendMessage}
             balance={balance}
-            suggestedPrompts={suggestedPrompts}
+            suggestedPrompts={[]}
           />
         </div>
         <div className="xl:col-span-3">
@@ -133,8 +131,8 @@ const AI: React.FC = () => {
         </div>
       </div>
 
-      <UsageHistory history={usageHistory} />
-      <Analytics callsData={analyticsData} topicData={topicData} />
+      <UsageHistory history={[]} />
+      <Analytics callsData={[]} topicData={[]} />
       {/* <CostBreakdown data={costBreakdown} /> */}
     </DashboardLayout>
   );

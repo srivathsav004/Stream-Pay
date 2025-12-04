@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
-import {
-  storageFiles,
-  usageHistory,
-  analyticsData,
-  fileTypeData,
-  costBreakdown,
-  storageStats,
-  maxStorage,
-} from './Storage/data';
 import { StorageFile } from './Storage/types';
 import StorageHeader from './Storage/StorageHeader';
 import PricingBanner from './Storage/PricingBanner';
@@ -21,8 +12,8 @@ import Analytics from './Storage/Analytics';
 import StorageOptimizationTips from './Storage/StorageOptimizationTips';
 
 const Storage: React.FC = () => {
-  const [balance] = useState(2.47);
-  const [files, setFiles] = useState<StorageFile[]>(storageFiles);
+  const [balance] = useState(0);
+  const [files, setFiles] = useState<StorageFile[]>([]);
   const [showUpload, setShowUpload] = useState(false);
 
   // Calculate current costs
@@ -34,6 +25,14 @@ const Storage: React.FC = () => {
   const hourlyCost = totalSizeMB * ratePerMBPerHour;
   const dailyCost = hourlyCost * 24;
   const monthlyCost = hourlyCost * 24 * 30;
+
+  const MAX_STORAGE_GB = 10;
+  const emptyCostBreakdown = {
+    thisWeek: { cost: 0, avgStorage: 0, filesAdded: 0, filesDeleted: 0 },
+    thisMonth: { cost: 0, avgStorage: 0, filesAdded: 0, filesDeleted: 0 },
+    mostExpensiveFile: { name: '-', size: 0, cost: 0 },
+    longestStoredFile: { name: '-', size: 0, hours: 0 },
+  };
 
   const handleUpload = (file: File) => {
     const fileSizeMB = file.size / (1024 * 1024);
@@ -93,14 +92,14 @@ const Storage: React.FC = () => {
       <StorageHeader />
       {/* <PricingBanner balance={balance} /> */}
       <StorageStats
-        totalSpent={storageStats.totalSpent}
-        totalStored={storageStats.totalStored}
-        activeFiles={storageStats.activeFiles}
-        storageTime={storageStats.storageTime}
+        totalSpent={0}
+        totalStored={totalSizeGB}
+        activeFiles={files.length}
+        storageTime={0}
       />
       <StorageOverview
         usedGB={totalSizeGB}
-        maxGB={maxStorage}
+        maxGB={MAX_STORAGE_GB}
         hourlyCost={hourlyCost}
         dailyCost={dailyCost}
         monthlyCost={monthlyCost}
@@ -121,11 +120,11 @@ const Storage: React.FC = () => {
         />
       )}
 
-      <UsageHistory history={usageHistory} />
+      <UsageHistory history={[]} />
       <Analytics
-        storageData={analyticsData}
-        fileTypeData={fileTypeData}
-        costBreakdown={costBreakdown}
+        storageData={[]}
+        fileTypeData={[]}
+        costBreakdown={emptyCostBreakdown as any}
       />
       {/* <StorageOptimizationTips /> */}
     </DashboardLayout>

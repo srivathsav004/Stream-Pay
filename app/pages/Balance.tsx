@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/app/layout/DashboardLayout';
-import {
-  balanceBreakdown,
-  transactions,
-  balanceHistory,
-  transactionBreakdown,
-  serviceTransactionCounts,
-  spendingInsights,
-} from './Balance/data';
 import BalanceHeader from './Balance/BalanceHeader';
 import BalanceOverview from './Balance/BalanceOverview';
 import QuickActions from './Balance/QuickActions';
@@ -18,10 +10,23 @@ import DepositModal from './Balance/DepositModal';
 import WithdrawModal from './Balance/WithdrawModal';
 
 const Balance: React.FC = () => {
-  const [balance] = useState(2.47);
+  const [balance] = useState(0);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [quickDepositAmount, setQuickDepositAmount] = useState<number | null>(null);
+
+  const balanceBreakdown = { available: 0, locked: 0, streaming: 0 } as const;
+  const transactions: any[] = [];
+  const balanceHistory: any[] = [];
+  const transactionBreakdown = { deposits: 0, payments: 0, withdrawals: 0, refunds: 0 };
+  const serviceTransactionCounts: any[] = [];
+  const spendingInsights = {
+    avgDailySpending: 0,
+    largestTransaction: { amount: 0, type: '-', date: '-' },
+    mostActiveDay: '-',
+    avgOnMostActiveDay: 0,
+    spendingTrend: { direction: 'down', percentage: 0 },
+  };
 
   const handleDeposit = () => {
     setShowDepositModal(true);

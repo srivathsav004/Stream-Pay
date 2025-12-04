@@ -30,8 +30,8 @@ const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
     }
   }, [location.pathname]);
 
-  // All items are clickable, we'll handle access control on the service pages
-  const canUse = () => true;
+  // Only disable Services and Account routes when disconnected; keep Dashboard clickable
+  const isDisabled = (itemKey: string, section: string) => !connected && section !== 'MAIN' && itemKey !== 'dashboard';
 
   const sections = ['MAIN', 'SERVICES', 'ACCOUNT'] as const;
 
@@ -83,9 +83,10 @@ const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
         <div className="px-2 mt-2 space-y-1">
           {items.filter(i => i.key === 'dashboard').map((item) => {
             const active = pathname === item.to || (item.to !== '/app' && pathname.startsWith(item.to));
+            const disabled = isDisabled(item.key, item.section);
             const Inner = (
               <motion.div 
-                className={`group/item flex h-10 items-center rounded-r-lg px-3 text-sm gap-3 relative ${active ? 'bg-zinc-800/30 text-white' : 'text-zinc-300 hover:bg-zinc-800/20'}`}
+                className={`group/item flex h-10 items-center rounded-r-lg px-3 text-sm gap-3 relative ${active ? 'bg-zinc-800/30 text-white' : 'text-zinc-300 hover:bg-zinc-800/20'} ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
                 whileHover={!active ? { scale: 1.02 } : {}}
                 whileTap={!active ? { scale: 0.98 } : {}}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
@@ -114,14 +115,12 @@ const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
             
             return (
               <div key={item.key} className="relative">
-              <Link to={item.to}>
-                {collapsed ? (
-                  <Tooltip content={item.label}>
-                    {Inner}
-                  </Tooltip>
-                ) : Inner}
-              </Link>
-            </div>
+                <Link to={item.to}>
+                  {collapsed ? (
+                    <Tooltip content={item.label}>{Inner}</Tooltip>
+                  ) : Inner}
+                </Link>
+              </div>
             );
           })}
         </div>
@@ -132,9 +131,10 @@ const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
         <div className="px-2 space-y-1">
           {items.filter(i => i.section === 'SERVICES').map((item) => {
             const active = pathname === item.to || (item.to !== '/app' && pathname.startsWith(item.to));
+            const disabled = isDisabled(item.key, item.section);
             const Inner = (
               <motion.div 
-                className={`group/item flex h-10 items-center rounded-r-lg px-3 text-sm gap-3 relative ${active ? 'bg-zinc-800/30 text-white' : 'text-zinc-300 hover:bg-zinc-800/20'}`}
+                className={`group/item flex h-10 items-center rounded-r-lg px-3 text-sm gap-3 relative ${active ? 'bg-zinc-800/30 text-white' : 'text-zinc-300 hover:bg-zinc-800/20'} ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
                 whileHover={!active ? { scale: 1.02 } : {}}
                 whileTap={!active ? { scale: 0.98 } : {}}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
@@ -181,9 +181,10 @@ const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
         <div className="px-2 space-y-1 pb-2">
           {items.filter(i => i.section === 'ACCOUNT').map((item) => {
             const active = pathname === item.to || (item.to !== '/app' && pathname.startsWith(item.to));
+            const disabled = isDisabled(item.key, item.section);
             const Inner = (
               <motion.div 
-                className={`group/item flex h-10 items-center rounded-lg px-3 text-sm gap-3 ${active ? 'bg-zinc-800 text-white' : 'text-zinc-300 hover:bg-zinc-800/50'}`}
+                className={`group/item flex h-10 items-center rounded-lg px-3 text-sm gap-3 ${active ? 'bg-zinc-800 text-white' : 'text-zinc-300 hover:bg-zinc-800/50'} ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
                 whileHover={!active ? { scale: 1.02 } : {}}
                 whileTap={!active ? { scale: 0.98 } : {}}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
@@ -204,14 +205,20 @@ const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
             
             return (
               <div key={item.key} className="relative">
-              <Link to={item.to}>
-                {collapsed ? (
-                  <Tooltip content={item.label}>
-                    {Inner}
-                  </Tooltip>
-                ) : Inner}
-              </Link>
-            </div>
+                {disabled ? (
+                  collapsed ? (
+                    <Tooltip content="Connect wallet to unlock">{Inner}</Tooltip>
+                  ) : (
+                    Inner
+                  )
+                ) : (
+                  <Link to={item.to}>
+                    {collapsed ? (
+                      <Tooltip content={item.label}>{Inner}</Tooltip>
+                    ) : Inner}
+                  </Link>
+                )}
+              </div>
             );
           })}
         </div>
