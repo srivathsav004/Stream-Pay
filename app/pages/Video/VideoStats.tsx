@@ -28,11 +28,11 @@ const VideoStats: React.FC<VideoStatsProps> = ({
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Total Watched</div>
-        <div className="text-3xl font-semibold text-white">{totalWatched} hours</div>
+        <div className="text-3xl font-semibold text-white">{totalWatched} seconds</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
-        <div className="text-sm text-[#a1a1a1] mb-2">Sessions</div>
+        <div className="text-sm text-[#a1a1a1] mb-2">Stream Sessions</div>
         <div className="text-3xl font-semibold text-white">{sessions}</div>
       </Card>
     </div>
