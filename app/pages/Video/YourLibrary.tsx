@@ -61,7 +61,12 @@ const YourLibrary: React.FC<YourLibraryProps> = ({ videos, onWatch }) => {
             </div>
             <div className="p-4">
               <h3 className="text-sm font-medium text-white mb-1 line-clamp-2">{video.title}</h3>
-              <div className="text-xs text-[#a1a1a1] mb-3">Watched {video.watchCount}x</div>
+              <div className="text-[11px] text-[#8a8a8a] mb-2 font-mono">
+                ID: {video.id} {video.catalogId != null && (
+                  <span className="ml-2">• Catalog #{video.catalogId}</span>
+                )}
+              </div>
+              {/* <div className="text-xs text-[#a1a1a1] mb-3">Watched {video.watchCount}x</div> */}
               <Button
                 variant="primary"
                 size="sm"
