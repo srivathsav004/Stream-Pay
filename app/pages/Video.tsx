@@ -13,7 +13,7 @@ import PurchaseModal from './Video/PurchaseModal';
 import VideoPlayerModal from './Video/VideoPlayerModal';
 import { useEffect } from 'react';
 import { fetchCatalogVideos } from '@/app/shared/services/web2-services/video';
-import { fetchUserPurchases } from '@/app/shared/services/web2-services/video';
+import { fetchUserPurchases, fetchUserStreamSessions } from '@/app/shared/services/web2-services/video';
 import { fetchOEmbed, getYouTubeId } from './Video/youtube';
 import { useAccount } from 'wagmi';
 
@@ -25,6 +25,10 @@ const VideoPage: React.FC = () => {
   const [userOwnedVideos, setUserOwnedVideos] = useState<OwnedVideo[]>([]);
   const [userAvailableVideos, setUserAvailableVideos] = useState<Video[]>([]);
   const { address, isConnected } = useAccount();
+  const [usageHistory, setUsageHistory] = useState<import('./Video/types').UsageHistoryItem[]>([]);
+  const [analyticsData, setAnalyticsData] = useState<import('./Video/types').AnalyticsData[]>([]);
+  const [purchasesState, setPurchasesState] = useState<Awaited<ReturnType<typeof fetchUserPurchases>>>([]);
+  const [sessionsState, setSessionsState] = useState<Awaited<ReturnType<typeof fetchUserStreamSessions>>>([]);
 
   const handleStream = (video: Video) => {
     setStreamModalVideo(video);
@@ -114,14 +118,20 @@ const VideoPage: React.FC = () => {
     (async () => {
       if (!isConnected || !address) return;
       try {
-        const purchases = await fetchUserPurchases(address);
-        const owned: OwnedVideo[] = purchases.map((p) => {
+        const [purchases, sessions] = await Promise.all([
+          fetchUserPurchases(address),
+          fetchUserStreamSessions(address),
+        ]);
+        setPurchasesState(purchases);
+        setSessionsState(sessions);
+        const owned: OwnedVideo[] = await Promise.all(purchases.map(async (p) => {
           const url = p.video?.url ?? '';
           const ytId = url ? getYouTubeId(url) : String(p.video_id);
           const duration = p.video?.duration_seconds != null ? formatDuration(p.video.duration_seconds) : '00:00';
+          const oembed = url ? await fetchOEmbed(url) : null;
           return {
             id: ytId,
-            title: `Video #${p.video_id}`,
+            title: oembed?.title || `Video #${p.video_id}`,
             duration,
             quality: 'HD',
             thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '',
@@ -131,10 +141,56 @@ const VideoPage: React.FC = () => {
             catalogId: p.video_id,
             watchCount: 0,
           };
-        });
+        }));
         setUserOwnedVideos(owned);
         // Also remove owned from available list
         setUserAvailableVideos((prev) => prev.filter(v => !owned.some(o => o.catalogId === v.catalogId)));
+
+        // Build usage history
+        const formatDateTime = (iso: string) => {
+          try {
+            const d = new Date(iso);
+            return d.toLocaleString();
+          } catch { return iso; }
+        };
+        const toHistoryFromPurchases = purchases.map((p) => ({
+          id: `purchase-${p.id}`,
+          type: 'purchase' as const,
+          videoTitle: `Video #${p.video_id}`,
+          date: formatDateTime(p.purchased_at),
+          duration: undefined,
+          cost: Number(p.amount_usdc || 0),
+        }));
+        const toHistoryFromSessions = sessions.map((s) => ({
+          id: `stream-${s.id}`,
+          type: 'stream' as const,
+          videoTitle: `Video #${s.video_id}`,
+          date: formatDateTime(s.created_at),
+          duration: s.seconds_streamed != null ? formatDuration(s.seconds_streamed) : undefined,
+          cost: Number(s.amount_usdc || 0),
+        }));
+        const mergedHistory = [...toHistoryFromPurchases, ...toHistoryFromSessions]
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setUsageHistory(mergedHistory);
+
+        // Build analytics by day
+        const dayKey = (iso: string) => {
+          const d = new Date(iso);
+          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        };
+        const map: Record<string, { streamingCost: number; purchaseCost: number }> = {};
+        for (const s of sessions) {
+          const k = dayKey(s.created_at);
+          map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 };
+          map[k].streamingCost += Number(s.amount_usdc || 0);
+        }
+        for (const p of purchases) {
+          const k = dayKey(p.purchased_at);
+          map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 };
+          map[k].purchaseCost += Number(p.amount_usdc || 0);
+        }
+        const days = Object.keys(map).sort();
+        setAnalyticsData(days.map(d => ({ date: d, ...map[d] })));
       } catch {}
     })();
   }, [isConnected, address]);
@@ -144,10 +200,13 @@ const VideoPage: React.FC = () => {
       <VideoHeader balance={balance} />
       {/* <PricingBanner /> */}
       <VideoStats
-        totalSpent={0}
+        totalSpent={
+          purchasesState.reduce((s, p) => s + Number(p.amount_usdc || 0), 0) +
+          sessionsState.reduce((s, x) => s + Number(x.amount_usdc || 0), 0)
+        }
         videosOwned={userOwnedVideos.length}
-        totalWatched={0}
-        sessions={0}
+        totalWatched={sessionsState.reduce((s, x) => s + (x.seconds_streamed || 0), 0)}
+        sessions={sessionsState.length}
       />
       <AvailableVideos
         videos={userAvailableVideos}
@@ -165,14 +224,17 @@ const VideoPage: React.FC = () => {
           (async () => {
             try {
               if (isConnected && address) {
-                const purchases = await fetchUserPurchases(address);
-                const owned: OwnedVideo[] = purchases.map((p) => {
+                const [purchases] = await Promise.all([
+                  fetchUserPurchases(address)
+                ]);
+                const owned: OwnedVideo[] = await Promise.all(purchases.map(async (p) => {
                   const url = p.video?.url ?? '';
                   const ytId = url ? getYouTubeId(url) : String(p.video_id);
                   const duration = p.video?.duration_seconds != null ? formatDuration(p.video.duration_seconds) : '00:00';
+                  const oembed = url ? await fetchOEmbed(url) : null;
                   return {
                     id: ytId,
-                    title: `Video #${p.video_id}`,
+                    title: oembed?.title || `Video #${p.video_id}`,
                     duration,
                     quality: 'HD',
                     thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '',
@@ -182,8 +244,44 @@ const VideoPage: React.FC = () => {
                     catalogId: p.video_id,
                     watchCount: 0,
                   };
-                });
+                }));
                 setUserOwnedVideos(owned);
+                setPurchasesState(purchases);
+
+                // Recompute usage and analytics with latest purchases
+                const formatDateTime = (iso: string) => {
+                  try { const d = new Date(iso); return d.toLocaleString(); } catch { return iso; }
+                };
+                const toHistoryFromPurchases = purchases.map((p) => ({
+                  id: `purchase-${p.id}`,
+                  type: 'purchase' as const,
+                  videoTitle: `Video #${p.video_id}`,
+                  date: formatDateTime(p.purchased_at),
+                  duration: undefined,
+                  cost: Number(p.amount_usdc || 0),
+                }));
+                const toHistoryFromSessions = sessionsState.map((s) => ({
+                  id: `stream-${s.id}`,
+                  type: 'stream' as const,
+                  videoTitle: `Video #${s.video_id}`,
+                  date: formatDateTime(s.created_at),
+                  duration: s.seconds_streamed != null ? formatDuration(s.seconds_streamed) : undefined,
+                  cost: Number(s.amount_usdc || 0),
+                }));
+                const mergedHistory = [...toHistoryFromPurchases, ...toHistoryFromSessions]
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                setUsageHistory(mergedHistory);
+
+                const dayKey = (iso: string) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+                const map: Record<string, { streamingCost: number; purchaseCost: number }> = {};
+                for (const s of sessionsState) {
+                  const k = dayKey(s.created_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].streamingCost += Number(s.amount_usdc || 0);
+                }
+                for (const p of purchases) {
+                  const k = dayKey(p.purchased_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].purchaseCost += Number(p.amount_usdc || 0);
+                }
+                const days = Object.keys(map).sort();
+                setAnalyticsData(days.map(d => ({ date: d, ...map[d] })));
               }
             } catch {}
           })();
@@ -192,14 +290,52 @@ const VideoPage: React.FC = () => {
         onWatch={handleWatch}
       />
       <YourLibrary videos={userOwnedVideos} onWatch={handleWatch} />
-      <UsageHistory history={[]} />
-      <VideoAnalytics data={[]} />
+      <UsageHistory history={usageHistory} />
+      <VideoAnalytics data={analyticsData} />
       
       <StreamModal
         video={streamModalVideo}
         isOpen={streamModalVideo !== null}
         onClose={() => setStreamModalVideo(null)}
         onUpgrade={handleUpgrade}
+        onSettled={async () => {
+          if (!isConnected || !address) return;
+          try {
+            const sessions = await fetchUserStreamSessions(address);
+            setSessionsState(sessions);
+
+            // Recompute usage history and analytics with latest sessions
+            const formatDateTime = (iso: string) => {
+              try { const d = new Date(iso); return d.toLocaleString(); } catch { return iso; }
+            };
+            const toHistoryFromPurchases = purchasesState.map((p) => ({
+              id: `purchase-${p.id}`,
+              type: 'purchase' as const,
+              videoTitle: `Video #${p.video_id}`,
+              date: formatDateTime(p.purchased_at),
+              duration: undefined,
+              cost: Number(p.amount_usdc || 0),
+            }));
+            const toHistoryFromSessions = sessions.map((s) => ({
+              id: `stream-${s.id}`,
+              type: 'stream' as const,
+              videoTitle: `Video #${s.video_id}`,
+              date: formatDateTime(s.created_at),
+              duration: s.seconds_streamed != null ? formatDuration(s.seconds_streamed) : undefined,
+              cost: Number(s.amount_usdc || 0),
+            }));
+            const mergedHistory = [...toHistoryFromPurchases, ...toHistoryFromSessions]
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setUsageHistory(mergedHistory);
+
+            const dayKey = (iso: string) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+            const map: Record<string, { streamingCost: number; purchaseCost: number }> = {};
+            for (const s of sessions) { const k = dayKey(s.created_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].streamingCost += Number(s.amount_usdc || 0); }
+            for (const p of purchasesState) { const k = dayKey(p.purchased_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].purchaseCost += Number(p.amount_usdc || 0); }
+            const days = Object.keys(map).sort();
+            setAnalyticsData(days.map(d => ({ date: d, ...map[d] })));
+          } catch {}
+        }}
       />
       
       <PurchaseModal

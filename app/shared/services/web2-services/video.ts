@@ -64,3 +64,19 @@ export async function fetchUserPurchases(address: string) {
     video?: { id: number; url: string; duration_seconds: number; active: boolean } | null;
   }>;
 }
+
+export async function fetchUserStreamSessions(address: string) {
+  const res = await fetch(`${API}/users/${address}/stream-sessions`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || 'Failed to load sessions');
+  return data.sessions as Array<{
+    id: number;
+    user_address: string;
+    video_id: number;
+    seconds_streamed: number | null;
+    amount_usdc: number | null;
+    tx_hash: string | null;
+    created_at: string;
+    video?: { id: number; url: string; duration_seconds: number; active: boolean } | null;
+  }>;
+}
