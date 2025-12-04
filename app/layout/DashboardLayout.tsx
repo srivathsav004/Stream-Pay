@@ -3,23 +3,24 @@ import TopNavbar from './TopNavbar';
 import Sidebar from './Sidebar';
 import { SidebarToggleProvider } from './SidebarToggleContext';
 import { useWallet } from '@/app/state/WalletContext';
-import Button from '@/components/ui/Button';
 import { Lock } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAccount } from 'wagmi';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(true);
   const sidebarRailWidth = '56px';
-  const { connected, connect } = useWallet();
+  const { connected } = useWallet();
+  const { isConnected } = useAccount();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   // Route guard: if disconnected, keep user on dashboard route
   useEffect(() => {
-    if (!connected && pathname !== '/app') {
+    if (!(connected || isConnected) && pathname !== '/app') {
       navigate('/app', { replace: true });
     }
-  }, [connected, pathname, navigate]);
+  }, [connected, isConnected, pathname, navigate]);
   
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
@@ -37,7 +38,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               maxWidth: 'calc(100% - 56px)'
             }}
           >
-            {connected ? (
+            {(connected || isConnected) ? (
               <div className="max-w-7xl mx-auto w-full">{children}</div>
             ) : (
               <div className="w-full h-[calc(100vh-56px-24px)] flex items-center justify-center">
@@ -47,7 +48,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                   </div>
                   <h2 className="text-xl font-semibold text-white mb-2">Connect your wallet to continue</h2>
                   <p className="text-sm text-zinc-400 mb-6">Access to dashboard and services is locked until a wallet is connected.</p>
-                  <Button variant="primary" size="sm" onClick={connect}>Connect Wallet</Button>
+                  {/* Wallet connect is handled in TopNavbar; button removed here */}
                 </div>
               </div>
             )}

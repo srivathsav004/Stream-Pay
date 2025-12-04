@@ -44,7 +44,7 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ sidebarWidth = '56px' }) => {
 
   return (
     <div 
-      className="fixed top-0 right-0 h-14 border-b border-zinc-800/60 bg-zinc-950/95 backdrop-blur-lg"
+      className="fixed top-0 right-0 h-14 border-b border-zinc-800/60 bg-zinc-950/95 backdrop-blur-lg z-50"
       style={{
         left: sidebarWidth,
         transition: 'left 0.3s ease',
