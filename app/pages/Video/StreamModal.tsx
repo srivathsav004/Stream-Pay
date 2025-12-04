@@ -279,6 +279,19 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
                       const err = await resp.json().catch(() => ({}));
                       throw new Error(err?.error || 'Settlement failed');
                     }
+                    const data = await resp.json().catch(() => ({}));
+                    // Record stream session (best effort)
+                    try {
+                      const { recordStreamSession } = await import('@/app/shared/services/web2-services/video');
+                      await recordStreamSession({
+                        user_address: addr,
+                        video_id: video.catalogId,
+                        url: video.sourceUrl,
+                        seconds_streamed: seconds,
+                        amount_usdc: Number((seconds * video.streamPrice).toFixed(6)),
+                        tx_hash: data?.txHash || data?.tx_hash || ''
+                      });
+                    } catch {}
                     setStatus('Settlement confirmed. Finalizing...');
                     setToast('Stream settlement processed successfully');
                     setTimeout(() => { setToast(null); onClose(); }, 1000);

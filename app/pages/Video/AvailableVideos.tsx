@@ -10,11 +10,12 @@ import { readEscrowBalance } from '@/app/shared/contracts/balance';
 interface AvailableVideosProps {
   videos: Video[];
   onStream: (video: Video) => void;
-  onPurchase: (video: Video) => void;
+  onPurchase: (video: Video) => void; // open purchase modal (parent usage elsewhere)
+  onPurchased?: (video: Video) => void; // notified after successful purchase
   hiddenIds?: string[];
 }
 
-const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onPurchase, hiddenIds = [] }) => {
+const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onPurchase, onPurchased, hiddenIds = [] }) => {
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState<number>(0);
@@ -194,7 +195,7 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
                   <div className="text-xs text-[#a1a1a1] mb-1">
                     ~{streamCost.toFixed(4)} USDC total
                   </div>
-                  <div className="text-xs text-[#a1a1a1] mb-3">Escrow Balance: {balance.toFixed(2)} USDC</div>
+                  {/* <div className="text-xs text-[#a1a1a1] mb-3">Escrow Balance: {balance.toFixed(2)} USDC</div> */}
                   <Button
                     variant="outline"
                     size="sm"
@@ -236,7 +237,12 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
         isOpen={!!purchaseVideo}
         balance={balance}
         onClose={() => setPurchaseVideo(null)}
-        onConfirm={async (v) => { if (address) await refreshBalance(address); onPurchase(v); setPurchaseVideo(null); }}
+        onConfirm={async (v) => {
+          // refresh and notify parent that purchase completed
+          if (address) await refreshBalance(address);
+          try { onPurchased && onPurchased(v); } catch {}
+          setPurchaseVideo(null);
+        }}
       />
       <StreamModal
         video={streamVideo}

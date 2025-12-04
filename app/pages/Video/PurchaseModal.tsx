@@ -194,6 +194,18 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
                     const err = await resp.json().catch(() => ({}));
                     throw new Error(err?.error || 'Purchase failed');
                   }
+                  const data = await resp.json().catch(() => ({}));
+                  // Record purchase in Web2 API (best effort)
+                  try {
+                    const { recordVideoPurchase } = await import('@/app/shared/services/web2-services/video');
+                    await recordVideoPurchase({
+                      user_address: addr,
+                      video_id: video.catalogId,
+                      url: video.sourceUrl,
+                      amount_usdc: video.purchasePrice,
+                      tx_hash: data?.txHash || data?.tx_hash || ''
+                    });
+                  } catch {}
                   setStatus('Transaction confirmed. Finalizing...');
                   setToast('Purchase processed successfully');
                   setCompleted(true);

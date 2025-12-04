@@ -7,6 +7,8 @@ export interface Video {
   streamPrice: number; // USDC per second
   purchasePrice: number; // USDC one-time
   description?: string;
+  sourceUrl?: string; // original catalog_videos.url
+  catalogId?: number; // catalog_videos.id
 }
 
 export interface OwnedVideo extends Video {
