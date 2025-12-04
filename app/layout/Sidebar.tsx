@@ -40,7 +40,7 @@ const Sidebar: React.FC<Props> = ({ collapsed = false, setCollapsed }) => {
 
   return (
     <motion.aside
-      className="hidden md:flex fixed left-0 top-0 h-screen z-30 flex-col bg-zinc-900/95 border-r border-zinc-800/60 backdrop-blur-sm will-change-transform"
+      className="hidden md:flex fixed left-0 top-0 h-screen z-[60] flex-col bg-zinc-900/95 border-r border-zinc-800/60 backdrop-blur-sm will-change-transform"
       onMouseEnter={() => setCollapsed && setCollapsed(false)}
       onMouseLeave={() => setCollapsed && setCollapsed(true)}
       initial={false}
