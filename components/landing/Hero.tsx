@@ -219,17 +219,20 @@ const Hero: React.FC = () => {
                 </button>
                 
                 <div className="flex gap-2">
-                  {cards.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentCard(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentCard 
-                          ? 'bg-blue-500 w-8' 
-                          : 'bg-zinc-700 hover:bg-zinc-600'
-                      }`}
-                    />
-                  ))}
+                  {cards.map((_, index) => {
+                    const currentCardData = cards[currentCard];
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentCard(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentCard 
+                            ? `bg-${currentCardData.color}-500 w-8` 
+                            : 'bg-zinc-700 hover:bg-zinc-600'
+                        }`}
+                      />
+                    );
+                  })}
                 </div>
                 
                 <button

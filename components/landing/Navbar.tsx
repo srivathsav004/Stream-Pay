@@ -56,10 +56,10 @@ const Navbar: React.FC = () => {
           {/* CTA Buttons */
           }
           <div className="hidden md:flex items-center space-x-4">
-             <Button variant="ghost" size="sm" className="hidden lg:flex gap-2 text-zinc-400">
+             {/* <Button variant="ghost" size="sm" className="hidden lg:flex gap-2 text-zinc-400">
                 <Wallet className="w-4 h-4" />
                 Connect Wallet
-             </Button>
+             </Button> */}
              <Link to="/app">
                <Button variant="primary" size="sm">
                   Launch App
