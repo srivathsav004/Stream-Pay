@@ -38,9 +38,9 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                   <li>Pay only for time watched</li>
                 </ol>
                 <div className="bg-blue-600/10 border border-blue-500/20 rounded-lg p-3">
-                  <p className="text-blue-400 text-sm font-semibold">Pricing: $0.004/second (~$0.24/hour)</p>
+                  <p className="text-blue-400 text-sm font-semibold">Pricing: 0.001 USDC/second</p>
                 </div>
-                <div className="mt-4 pt-4 border-t border-zinc-800">
+                {/* <div className="mt-4 pt-4 border-t border-zinc-800">
                   <p className="text-zinc-500 text-xs mb-2">Example Costs:</p>
                   <ul className="space-y-1 text-xs text-zinc-400">
                     <li>• 10 minutes: $2.40</li>
@@ -48,7 +48,7 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                     <li>• 1 hour: $14.40</li>
                     <li>• 2 hours: $28.80</li>
                   </ul>
-                </div>
+                </div> */}
                 <div className="mt-4 pt-4 border-t border-zinc-800">
                   <p className="text-green-400 text-sm font-semibold mb-2">Best for:</p>
                   <ul className="space-y-1 text-sm text-zinc-400">
@@ -80,16 +80,16 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                   <li>Watch unlimited times forever</li>
                 </ol>
                 <div className="bg-purple-600/10 border border-purple-500/20 rounded-lg p-3">
-                  <p className="text-purple-400 text-sm font-semibold">Pricing: Varies by video (typically $5-$20)</p>
+                  <p className="text-purple-400 text-sm font-semibold">Pricing: Varies by video (typically 0.5 - 1 USDC)</p>
                 </div>
-                <div className="mt-4 pt-4 border-t border-zinc-800">
+                {/* <div className="mt-4 pt-4 border-t border-zinc-800">
                   <p className="text-zinc-500 text-xs mb-2">Example:</p>
                   <ul className="space-y-1 text-xs text-zinc-400">
                     <li>• Tutorial video: $5.00</li>
                     <li>• Full course: $15.00</li>
                     <li>• Premium content: $20.00</li>
                   </ul>
-                </div>
+                </div> */}
                 <div className="mt-4 pt-4 border-t border-zinc-800">
                   <p className="text-green-400 text-sm font-semibold mb-2">Best for:</p>
                   <ul className="space-y-1 text-sm text-zinc-400">
@@ -156,7 +156,7 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                   <h3 className="font-semibold text-white mb-2">StreamPay</h3>
                   <ul className="space-y-1 text-zinc-400 text-sm">
                     <li>• Pay only for what you watch</li>
-                    <li>• $0.24/hour streaming</li>
+                    <li>• 0.001 USDC/hour streaming</li>
                     <li>• Or buy videos you love</li>
                     <li className="text-green-400 font-semibold">Save money if you watch &lt;67 hours/month</li>
                   </ul>
@@ -283,7 +283,7 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                 <li>Delete anytime to stop charges</li>
               </ol>
               <div className="bg-green-600/10 border border-green-500/20 rounded-lg p-3">
-                <p className="text-green-400 text-sm font-semibold">Pricing: $0.001 per MB per hour</p>
+                <p className="text-green-400 text-sm font-semibold">Pricing: USDC 0.01 per MB per hour</p>
               </div>
               <div className="mt-4 pt-4 border-t border-zinc-800">
                 <div className="bg-zinc-950/50 rounded-lg p-4 border border-zinc-800 overflow-x-auto">
