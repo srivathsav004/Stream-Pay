@@ -59,7 +59,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ callsData, topicData }) => {
       </Card>
 
       <Card className="p-6 xl:col-span-2">
-        <h2 className="text-lg font-semibold text-white mb-6">Most Asked Topics</h2>
+        <h2 className="text-lg font-semibold text-white mb-6">Most Asked Topics (Mock UI)</h2>
         {safeTopics.length === 0 ? (
           <div className="p-8 text-center border border-dashed border-[#262626] rounded-lg text-sm text-[#a1a1a1]">No topics yet</div>
         ) : (
