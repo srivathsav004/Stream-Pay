@@ -42,7 +42,7 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
   });
   const escrowBalance = escrowBalanceData ? Number((formatUnits as any)(escrowBalanceData as bigint, 6)) : 0;
   const formattedEscrow = `${escrowBalance.toFixed(6)} USDC`;
-  const daysRemaining = Math.floor(escrowBalance / dailyCost);
+  const daysRemaining = dailyCost > 0 ? Math.floor(escrowBalance / dailyCost) : 0;
   const [depositOpen, setDepositOpen] = React.useState(false);
   const [amount, setAmount] = React.useState('');
   const [depStatus, setDepStatus] = React.useState<'idle' | 'approving' | 'depositing' | 'success' | 'error'>('idle');
