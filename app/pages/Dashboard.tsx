@@ -9,24 +9,49 @@ import ServiceDetails from './Dashboard/ServiceDetails';
 import ActiveStreams from './Dashboard/ActiveStreams';
 import ActivityTimeline from './Dashboard/ActivityTimeline';
 import QuickInsights from './Dashboard/QuickInsights';
+import { useDashboardData } from './Dashboard/useDashboardData';
 
 const Dashboard: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('30D');
-  const spendingData: any[] = [];
-  const serviceUsageData: any[] = [];
-  const activityData: any[] = [];
+  const {
+    spendingOverTime,
+    serviceUsage,
+    activity,
+    totals,
+    serviceDetails,
+  } = useDashboardData();
   const activeStreams: any[] = [];
 
   return (
     <DashboardLayout>
       <DashboardHeader timeFilter={timeFilter} onTimeFilterChange={setTimeFilter} />
-      <HeroStats />
-      <SpendingOverTime data={spendingData} />
-      <ServiceBreakdown serviceData={serviceUsageData} />
-      <ServiceDetails />
+      <HeroStats
+        spentThisMonth={totals.spentThisMonth}
+        totalApiSessions={totals.totalApiSessions}
+        totalStreams={totals.totalStreams}
+      />
+      <SpendingOverTime data={spendingOverTime} />
+      <ServiceBreakdown serviceData={serviceUsage} activeDays={spendingOverTime.length} />
+      <ServiceDetails
+        videoStreamingTrend={serviceDetails.video.trend}
+        videoTotalSpent={serviceDetails.video.totalSpent}
+        videoSessions={serviceDetails.video.stats.sessions}
+        videoHoursWatched={serviceDetails.video.stats.hoursWatched}
+        videoAvgPerSession={serviceDetails.video.stats.avgPerSession}
+        apiCallsData={serviceDetails.api.data}
+        apiTotalSpent={serviceDetails.api.totalSpent}
+        apiTotalCalls={serviceDetails.api.stats.totalCalls}
+        apiCallsPerDayAvg={serviceDetails.api.stats.callsPerDayAvg}
+        apiAvgPerCall={serviceDetails.api.stats.avgPerCall}
+        storageData={serviceDetails.storage.data}
+        storageTotalSpent={serviceDetails.storage.totalSpent}
+        storageTotalGB={serviceDetails.storage.stats.totalStoredGB}
+        storageActiveFiles={serviceDetails.storage.stats.activeFiles}
+        storageAvgHoursPerFile={serviceDetails.storage.stats.avgHoursPerFile}
+      />
       {/* <ActiveStreams streams={activeStreams} /> */}
-      <ActivityTimeline activities={activityData} />
-      <QuickInsights spendingData={spendingData} serviceUsageData={serviceUsageData} />
+      {/* <ActivityTimeline activities={activity} /> */}
+      <QuickInsights spendingData={spendingOverTime} serviceUsageData={serviceUsage} />
     </DashboardLayout>
   );
 };
