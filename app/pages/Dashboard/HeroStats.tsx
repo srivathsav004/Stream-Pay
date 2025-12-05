@@ -9,7 +9,13 @@ import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 
-const HeroStats: React.FC = () => {
+interface HeroStatsProps {
+  spentThisMonth: number;
+  totalApiSessions: number;
+  totalStreams: number;
+}
+
+const HeroStats: React.FC<HeroStatsProps> = ({ spentThisMonth, totalApiSessions, totalStreams }) => {
   const { isConnected, address, chainId } = useAccount();
 
   const escrowAddress = STREAMPAY_ESCROW_ADDRESS;
@@ -140,22 +146,22 @@ const HeroStats: React.FC = () => {
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Spent This Month</div>
-        <div className="text-3xl font-semibold text-white mb-1">0 USDC</div>
-        <div className="text-sm text-[#a1a1a1] mb-4">—</div>
-        <div className="text-sm text-[#a1a1a1]">No spending data yet</div>
+        <div className="text-3xl font-semibold text-white mb-1">{spentThisMonth?.toFixed(4)} USDC</div>
+        <div className="text-sm text-[#a1a1a1] mb-4">Video, API and Storage combined</div>
+        <div className="text-sm text-[#a1a1a1]">{spentThisMonth > 0 ? 'Based on recorded usage this month' : 'No spending data yet'}</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Total Sessions</div>
-        <div className="text-3xl font-semibold text-white mb-1">0</div>
-        <div className="text-sm text-[#a1a1a1] mb-4">—</div>
-        <div className="text-sm text-[#a1a1a1]">No sessions yet</div>
+        <div className="text-3xl font-semibold text-white mb-1">{totalApiSessions ?? 0}</div>
+        <div className="text-sm text-[#a1a1a1] mb-4">API usage sessions</div>
+        <div className="text-sm text-[#a1a1a1]">{totalApiSessions > 0 ? 'Sessions created from API usage' : 'No sessions yet'}</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
-        <div className="text-sm text-[#a1a1a1] mb-2">Active Streams</div>
-        <div className="text-3xl font-semibold text-white mb-1">0</div>
-        <div className="text-sm text-[#a1a1a1] mb-4">—</div>
+        <div className="text-sm text-[#a1a1a1] mb-2">Total Streams</div>
+        <div className="text-3xl font-semibold text-white mb-1">{totalStreams ?? 0}</div>
+        <div className="text-sm text-[#a1a1a1] mb-4">Video stream sessions</div>
         <Button variant="ghost" size="sm" className="text-blue-600">View Details →</Button>
       </Card>
     </div>
