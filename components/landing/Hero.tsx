@@ -1,10 +1,68 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Play, ArrowRight, Zap, Layers, BookOpen } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, ArrowRight, Zap, Layers, BookOpen, Video, HardDrive, ChevronLeft, ChevronRight, Code } from 'lucide-react';
 import Button from '../ui/Button';
 import { Link } from 'react-router-dom';
 
 const Hero: React.FC = () => {
+  const [currentCard, setCurrentCard] = useState(0);
+
+  const cards = [
+    {
+      id: 0,
+      title: "API Access",
+      description: "Pay per request for premium features",
+      icon: Code,
+      rate: "0.01 USDC/call",
+      duration: "00:15:22",
+      cost: "12.47",
+      progress: 0.85,
+      color: "blue",
+      stats: { label: "Requests", value: "1,247" }
+    },
+    {
+      id: 1,
+      title: "Video Streaming",
+      description: "Pay only for the seconds you watch",
+      icon: Video,
+      rate: "0.001 USDC/sec",
+      duration: "01:23:45",
+      cost: "5.025",
+      progress: 0.65,
+      color: "purple",
+      stats: { label: "Quality", value: "4K HDR" }
+    },
+    {
+      id: 2,
+      title: "File Storage",
+      description: "Storage that scales with your needs",
+      icon: HardDrive,
+      rate: "0.0001 USDC/MB/hr",
+      duration: "72:15:30",
+      cost: "0.026",
+      progress: 0.45,
+      color: "emerald",
+      stats: { label: "Storage", value: "15.7 GB" }
+    }
+  ];
+
+  const nextCard = () => {
+    setCurrentCard((prev) => (prev + 1) % cards.length);
+  };
+
+  const prevCard = () => {
+    setCurrentCard((prev) => (prev - 1 + cards.length) % cards.length);
+  };
+
+  // Auto-slide functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextCard();
+    }, 4000); // Change card every 4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-zinc-950">
       {/* Background Elements - Subtle Professional Gradient */}
@@ -77,82 +135,110 @@ const Hero: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Right Visual - Clean Dashboard */}
+          {/* Right Visual - Interactive Carousel */}
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
             className="relative hidden lg:block"
           >
-            {/* Abstract Card Stack */}
             <div className="relative w-full max-w-lg mx-auto">
-              
-              {/* Back Card */}
-              <motion.div 
-                className="absolute top-4 -right-4 w-full h-80 bg-zinc-900 rounded-xl border border-zinc-800 opacity-60"
-              />
-
-              {/* Main Card */}
-              <motion.div 
-                className="relative bg-zinc-900/90 rounded-xl border border-zinc-800 p-8 shadow-2xl backdrop-blur-xl"
-              >
-                <div className="flex justify-between items-start mb-8">
-                  <div>
-                    <h3 className="text-zinc-500 text-xs font-medium uppercase tracking-wide">Active Session</h3>
-                    <h2 className="text-xl font-semibold text-white mt-1">Premium API Access</h2>
-                  </div>
-                  <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-zinc-400">Duration</span>
-                      <span className="text-zinc-200 font-mono">00:42:15</span>
-                    </div>
-                    <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                      <div className="h-full w-2/3 bg-blue-500 rounded-full" />
-                    </div>
-                  </div>
-
-                  <div className="bg-zinc-950/50 rounded-lg p-4 border border-zinc-800/50 flex justify-between items-center">
-                    <div>
-                        <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Total Cost</p>
-                        <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-semibold text-white tracking-tight">0.0425</span>
-                        <span className="text-xs font-medium text-zinc-500">USDC</span>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Rate</p>
-                        <div className="text-sm text-zinc-300">0.001/s</div>
-                    </div>
-                  </div>
+              <AnimatePresence mode="wait">
+                {cards.map((card, index) => {
+                  if (index !== currentCard) return null;
+                  const Icon = card.icon;
                   
-                  <div className="flex gap-3 pt-2">
-                     <div className="w-full h-8 bg-blue-600/10 border border-blue-500/20 rounded-md flex items-center justify-center text-xs text-blue-400 font-medium">
-                        View Analytics
-                     </div>
-                  </div>
-                </div>
-              </motion.div>
+                  return (
+                    <motion.div
+                      key={card.id}
+                      initial={{ opacity: 0, x: 100 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      className="relative bg-zinc-900/90 rounded-xl border border-zinc-800 p-8 shadow-2xl backdrop-blur-xl"
+                    >
+                      <div className="flex justify-between items-start mb-8">
+                        <div>
+                          <h3 className="text-zinc-500 text-xs font-medium uppercase tracking-wide">Active Session</h3>
+                          <h2 className="text-xl font-semibold text-white mt-1">{card.title}</h2>
+                          <p className="text-zinc-400 text-sm mt-1">{card.description}</p>
+                        </div>
+                        <div className={`h-8 w-8 rounded-full bg-${card.color}-500/10 flex items-center justify-center border border-${card.color}-500/20`}>
+                          <Icon className={`w-4 h-4 text-${card.color}-500`} />
+                        </div>
+                      </div>
 
-              {/* Floating Badge */}
-              <motion.div 
-                animate={{ y: [0, 5, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -bottom-6 -left-6 bg-zinc-900 border border-zinc-800 p-4 rounded-lg shadow-xl flex items-center gap-4 z-20"
-              >
-                <div className="bg-zinc-800 p-2 rounded-md">
-                  <Zap className="w-5 h-5 text-zinc-300" />
+                      <div className="space-y-6">
+                        <div>
+                          <div className="flex justify-between text-sm mb-2">
+                            <span className="text-zinc-400">Duration</span>
+                            <span className="text-zinc-200 font-mono">{card.duration}</span>
+                          </div>
+                          <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                            <motion.div 
+                              className={`h-full bg-${card.color}-500 rounded-full`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${card.progress * 100}%` }}
+                              transition={{ duration: 1, delay: 0.3 }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="bg-zinc-950/50 rounded-lg p-4 border border-zinc-800/50 flex justify-between items-center">
+                          <div>
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Total Cost</p>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-2xl font-semibold text-white tracking-tight">{card.cost}</span>
+                              <span className="text-xs font-medium text-zinc-500">USDC</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Rate</p>
+                            <div className="text-sm text-zinc-300">{card.rate}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3 pt-2">
+                          <div className={`w-full h-8 bg-${card.color}-600/10 border border-${card.color}-500/20 rounded-md flex items-center justify-center text-xs text-${card.color}-400 font-medium`}>
+                            {card.stats.label}: {card.stats.value}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+
+              {/* Carousel Controls */}
+              <div className="flex justify-between items-center mt-6">
+                <button
+                  onClick={prevCard}
+                  className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                <div className="flex gap-2">
+                  {cards.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentCard(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentCard 
+                          ? 'bg-blue-500 w-8' 
+                          : 'bg-zinc-700 hover:bg-zinc-600'
+                      }`}
+                    />
+                  ))}
                 </div>
-                <div>
-                  <p className="text-xs text-zinc-500">Throughput</p>
-                  <p className="text-sm font-semibold text-white">4,500 TPS</p>
-                </div>
-              </motion.div>
+                
+                <button
+                  onClick={nextCard}
+                  className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
 
             </div>
           </motion.div>
