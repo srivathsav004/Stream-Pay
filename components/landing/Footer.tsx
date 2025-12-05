@@ -10,9 +10,9 @@ const Footer: React.FC = () => {
         <div className="bg-zinc-900 rounded-2xl p-8 md:p-12 text-center mb-20 border border-zinc-800">
              <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">Ready to stop wasting money?</h2>
              <p className="text-zinc-400 mb-8 max-w-xl mx-auto font-light">Join the future of usage-based payments. No credit card required. Just connect your wallet.</p>
-             <button className="bg-white text-zinc-950 hover:bg-zinc-200 font-medium py-3 px-8 rounded-lg transition-colors text-base">
+             <a href="/app" className="bg-white text-zinc-950 hover:bg-zinc-200 font-medium py-3 px-8 rounded-lg transition-colors text-base inline-block">
                 Launch App
-             </button>
+             </a>
         </div>
 
         {/* Links */}
@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-zinc-100 font-medium mb-4 text-sm">Resources</h4>
             <ul className="space-y-3 text-sm text-zinc-500">
-              <li><a href="#" className="hover:text-blue-500 transition-colors">Documentation</a></li>
+              <li><a href="/docs" className="hover:text-blue-500 transition-colors">Documentation</a></li>
               <li><a href="#" className="hover:text-blue-500 transition-colors">API Reference</a></li>
               <li><a href="#" className="hover:text-blue-500 transition-colors">Community</a></li>
             </ul>
