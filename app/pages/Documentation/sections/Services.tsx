@@ -158,7 +158,7 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                     <li>• Pay only for what you watch</li>
                     <li>• 0.001 USDC/hour streaming</li>
                     <li>• Or buy videos you love</li>
-                    <li className="text-green-400 font-semibold">Save money if you watch &lt;67 hours/month</li>
+                    <li className="text-green-400 font-semibold">Save money if you watch &lt;100 hours/month</li>
                   </ul>
                 </div>
               </div>
@@ -192,9 +192,9 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                 <li>Pay once for all calls in that session</li>
               </ol>
               <div className="bg-purple-600/10 border border-purple-500/20 rounded-lg p-3">
-                <p className="text-purple-400 text-sm font-semibold">Pricing: $0.04 per API call</p>
+                <p className="text-purple-400 text-sm font-semibold">Pricing: 0.01 USDC per API call</p>
               </div>
-              <div className="mt-4 pt-4 border-t border-zinc-800">
+              {/* <div className="mt-4 pt-4 border-t border-zinc-800">
                 <p className="text-zinc-500 text-xs mb-2">Example Costs:</p>
                 <ul className="space-y-1 text-xs text-zinc-400">
                   <li>• 5 questions: $0.20</li>
@@ -202,7 +202,7 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                   <li>• 25 questions: $1.00</li>
                   <li>• 50 questions: $2.00</li>
                 </ul>
-              </div>
+              </div> */}
             </div>
           </section>
 
@@ -246,11 +246,11 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                 <div>
                   <h3 className="font-semibold text-white mb-2">StreamPay AI</h3>
                   <ul className="space-y-1 text-zinc-400 text-sm">
-                    <li>• $0.04 per call</li>
+                    <li>• 0.01 USDC per call</li>
                     <li>• Pay only for what you use</li>
-                    <li className="text-green-400 font-semibold">Save money if you make &lt;500 calls/month</li>
+                    <li className="text-green-400 font-semibold">Save money if you make &lt;1000 calls/month</li>
                   </ul>
-                  <p className="text-zinc-500 text-xs mt-2">Average user makes 50-100 calls/month = $2-4</p>
+                  {/* <p className="text-zinc-500 text-xs mt-2">Average user makes 50-100 calls/month = $2-4</p> */}
                 </div>
               </div>
             </div>
