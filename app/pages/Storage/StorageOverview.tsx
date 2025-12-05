@@ -29,7 +29,6 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
   onDeposit,
 }) => {
   const percentage = (usedGB / maxGB) * 100;
-  const daysRemaining = Math.floor(balance / dailyCost);
   const { address, chainId } = (useAccount?.() as any) || { address: undefined, chainId: undefined };
   const escrowAddress = STREAMPAY_ESCROW_ADDRESS;
   const usdcAddress = FUJI_USDC_ADDRESS;
@@ -41,7 +40,9 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
     chainId: avalancheFuji.id,
     query: { enabled: !!address && !!escrowAddress },
   });
-  const formattedEscrow = escrowBalanceData ? `${Number((formatUnits as any)(escrowBalanceData as bigint, 6)).toFixed(2)} USDC` : '— USDC';
+  const escrowBalance = escrowBalanceData ? Number((formatUnits as any)(escrowBalanceData as bigint, 6)) : 0;
+  const formattedEscrow = `${escrowBalance.toFixed(6)} USDC`;
+  const daysRemaining = Math.floor(escrowBalance / dailyCost);
   const [depositOpen, setDepositOpen] = React.useState(false);
   const [amount, setAmount] = React.useState('');
   const [depStatus, setDepStatus] = React.useState<'idle' | 'approving' | 'depositing' | 'success' | 'error'>('idle');
@@ -125,7 +126,7 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
       )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="flex flex-col items-center justify-center md:col-span-2">
-          <div className="relative w-72 h-72 mb-4">
+          <div className="relative w-80 h-80 mb-6">
             <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-${getColor()}/20 to-transparent blur-xl ${getGlowColor()}`}></div>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -133,8 +134,8 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={90}
-                  outerRadius={125}
+                  innerRadius={100}
+                  outerRadius={140}
                   startAngle={90}
                   endAngle={-270}
                   dataKey="value"
@@ -172,7 +173,6 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
               <div className="text-xl font-semibold text-white font-mono">~{monthlyCost.toFixed(6)} USDC</div>
             </div>
           </div>
-          {daysRemaining < 10 && (
             <div className="p-3 bg-gradient-to-r from-amber-600/20 to-amber-600/10 border border-amber-600/50 rounded-lg mb-4 backdrop-blur-sm">
               <div className="text-sm text-amber-300 mb-1 flex items-center gap-2">
                 <span className="inline-block w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
@@ -180,7 +180,6 @@ const StorageOverview: React.FC<StorageOverviewProps> = ({
               </div>
               <div className="text-sm font-medium text-white">~{daysRemaining} days</div>
             </div>
-          )}
           {/* <Button variant="primary" size="sm" className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-lg shadow-blue-900/30 border-blue-400/50" onClick={onDeposit}>
             Deposit USDC
           </Button> */}
