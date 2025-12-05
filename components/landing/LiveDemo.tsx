@@ -4,42 +4,144 @@ import { Play, Pause, RotateCcw } from 'lucide-react';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 
-const COST_PER_SECOND = 0.00042; // Example cost
+// YouTube IFrame API types
+declare global {
+  interface Window {
+    onYouTubeIframeAPIReady: () => void;
+    YT: any;
+  }
+}
+
+const COST_PER_SECOND = 0.001; // Example cost
 
 const LiveDemo: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [cost, setCost] = useState(0);
   const [seconds, setSeconds] = useState(0);
-  const requestRef = useRef<number>(0);
-  const startTimeRef = useRef<number>(0);
+  const [isAPIReady, setIsAPIReady] = useState(false);
+  const [isVideoEnded, setIsVideoEnded] = useState(false);
+  const playerRef = useRef<any>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const animate = (time: number) => {
-    if (!startTimeRef.current) startTimeRef.current = time;
-    const deltaTime = (time - startTimeRef.current) / 1000; // seconds
-    
-    // In a real app we'd use exact time, here we simulate accumulation
-    setSeconds(prev => prev + 0.016); // Approx 60fps
-    setCost(prev => prev + (COST_PER_SECOND / 60)); 
-    
-    startTimeRef.current = time;
-    requestRef.current = requestAnimationFrame(animate);
+  // Initialize YouTube API
+  useEffect(() => {
+    // Load YouTube IFrame API
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+    window.onYouTubeIframeAPIReady = () => {
+      setIsAPIReady(true);
+    };
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  // Initialize player when API is ready
+  useEffect(() => {
+    if (isAPIReady && !playerRef.current) {
+      playerRef.current = new window.YT.Player('youtube-player', {
+        videoId: 'CY5WLrSYPzo',
+        playerVars: {
+          controls: 0,
+          showinfo: 0,
+          rel: 0,
+          modestbranding: 1,
+          disablekb: 1,
+          enablejsapi: 1,
+          autoplay: 0,
+          cc_load_policy: 0,
+          iv_load_policy: 3,
+          fs: 0,
+          playsinline: 1,
+          endscreen: 0,
+          widget_referrer: document.location.href,
+        },
+        events: {
+          onReady: (event: any) => {
+            console.log('YouTube player ready');
+          },
+          onStateChange: (event: any) => {
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              setIsPlaying(true);
+            } else if (event.data === window.YT.PlayerState.PAUSED) {
+              setIsPlaying(false);
+            } else if (event.data === window.YT.PlayerState.ENDED) {
+              // Auto-reset when video ends to prevent "more videos" screen
+              setIsPlaying(false);
+              setIsVideoEnded(true);
+              // Explicitly clear the interval to stop cost calculation
+              if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+              }
+              // Don't reset cost and seconds - keep the final values
+              if (playerRef.current) {
+                playerRef.current.seekTo(0, true);
+                playerRef.current.stopVideo();
+              }
+            }
+          },
+        },
+      });
+    }
+  }, [isAPIReady]);
+
+  // Cost tracking
+  useEffect(() => {
+    if (isPlaying && !isVideoEnded) {
+      intervalRef.current = setInterval(() => {
+        setSeconds(s => s + 0.1);
+        setCost(c => c + (COST_PER_SECOND / 10));
+      }, 100);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPlaying, isVideoEnded]);
+
+  const handlePlay = () => {
+    if (playerRef.current) {
+      playerRef.current.playVideo();
+    }
   };
 
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isPlaying) {
-        interval = setInterval(() => {
-            setSeconds(s => s + 0.1);
-            setCost(c => c + (COST_PER_SECOND / 10));
-        }, 100);
+  const handlePause = () => {
+    if (playerRef.current) {
+      playerRef.current.pauseVideo();
     }
-    return () => clearInterval(interval);
-  }, [isPlaying]);
+  };
 
   const handleReset = () => {
+    if (playerRef.current) {
+      playerRef.current.stopVideo();
+      playerRef.current.seekTo(0, true);
+    }
     setIsPlaying(false);
+    setIsVideoEnded(false);
     setCost(0);
     setSeconds(0);
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      handlePause();
+    } else {
+      handlePlay();
+    }
   };
 
   const traditionalCost = 15.00; // Flat rate comparison
@@ -61,32 +163,25 @@ const LiveDemo: React.FC = () => {
               
               {/* Video Player Mockup */}
               <div className="aspect-video bg-zinc-900 relative flex items-center justify-center group overflow-hidden">
-                {/* Simulated Video Content */}
-                <div className={`absolute inset-0 bg-zinc-800 transition-opacity duration-1000 ${isPlaying ? 'opacity-100' : 'opacity-40'}`}>
-                    {isPlaying && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-full h-full opacity-30 bg-[url('https://picsum.photos/seed/tech/800/450')] bg-cover bg-center grayscale"></div>
-                        </div>
-                    )}
-                </div>
+                {/* YouTube Video Embed with API */}
+                <div 
+                  id="youtube-player" 
+                  className="absolute inset-0 w-full h-full"
+                />
                 
-                {/* Center Control */}
-                {!isPlaying && seconds === 0 && (
-                   <button 
-                     onClick={() => setIsPlaying(true)}
-                     className="z-10 w-16 h-16 bg-white/5 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-105 transition-transform cursor-pointer border border-white/10"
-                   >
-                     <Play className="w-6 h-6 text-white ml-1" />
-                   </button>
-                )}
+                {/* Transparent overlay to prevent mouse interactions */}
+                <div className="absolute inset-0 z-10" style={{ pointerEvents: 'auto' }} />
+                
+                {/* Overlay for controls */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 pointer-events-none"></div>
 
                 {/* Overlay UI */}
                 <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-20">
-                  <div className="bg-zinc-900/90 backdrop-blur-md px-4 py-2 rounded border border-zinc-700">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Cost</p>
+                  <div className="px-4 py-2">
+                    {/* <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Cost</p>
                     <p className="text-xl font-mono font-medium text-white">
                       ${cost.toFixed(5)}
-                    </p>
+                    </p> */}
                   </div>
                   <div className="bg-red-500/10 backdrop-blur-md px-3 py-1 rounded-full border border-red-500/20 flex items-center gap-2">
                     <div className={`w-1.5 h-1.5 rounded-full bg-red-500 ${isPlaying ? 'animate-pulse' : ''}`}></div>
@@ -101,7 +196,7 @@ const LiveDemo: React.FC = () => {
                         <Button 
                             variant="secondary" 
                             size="sm"
-                            onClick={() => setIsPlaying(!isPlaying)}
+                            onClick={togglePlayPause}
                             className="bg-zinc-800/80 backdrop-blur border-zinc-700"
                         >
                             {isPlaying ? <Pause className="w-3 h-3 mr-2" /> : <Play className="w-3 h-3 mr-2" />}
@@ -130,7 +225,7 @@ const LiveDemo: React.FC = () => {
                 <div className="p-6 bg-blue-900/5">
                     <p className="text-xs text-blue-500 mb-1 uppercase tracking-wider font-medium">StreamPay</p>
                     <p className="text-2xl font-bold text-white">
-                        ${(cost).toFixed(4)}
+                        {(cost).toFixed(4)} USDC
                     </p>
                     <p className="text-xs text-emerald-500 mt-1 font-medium">Saved ${(traditionalCost - cost).toFixed(2)}</p>
                 </div>
