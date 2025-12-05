@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -33,14 +33,35 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
   const [filterType, setFilterType] = useState<string>('all');
   const [filterService, setFilterService] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
-  const filteredTransactions = transactions.filter(tx => {
-    if (filterType !== 'all' && tx.type !== filterType) return false;
-    if (filterService !== 'all' && tx.service !== filterService) return false;
-    if (searchQuery && !tx.txHash.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !tx.service?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+  const filteredTransactions = useMemo(() => {
+    const list = transactions.filter(tx => {
+      if (filterType !== 'all' && tx.type !== filterType) return false;
+      if (filterService !== 'all' && tx.service !== filterService) return false;
+      if (searchQuery && !tx.txHash.toLowerCase().includes(searchQuery.toLowerCase()) && 
+          !tx.service?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    });
+    return list;
+  }, [transactions, filterType, filterService, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / pageSize));
+
+  const paginatedTransactions = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredTransactions.slice(start, start + pageSize);
+  }, [filteredTransactions, currentPage, pageSize]);
+
+  const handlePageChange = (delta: number) => {
+    setCurrentPage(prev => {
+      const next = prev + delta;
+      if (next < 1) return 1;
+      if (next > totalPages) return totalPages;
+      return next;
+    });
+  };
 
   const handleViewExplorer = (txHash: string) => {
     window.open(`https://testnet.snowtrace.io/tx/${txHash}`, '_blank');
@@ -53,38 +74,39 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
         <Button variant="outline" size="sm">Export CSV</Button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="bg-[#141414] border border-[#262626] text-white text-sm rounded-lg px-3 py-2"
-        >
-          <option value="all">All Types</option>
-          <option value="deposit">Deposits</option>
-          <option value="payment">Payments</option>
-          <option value="withdraw">Withdrawals</option>
-          <option value="refund">Refunds</option>
-        </select>
+      <div className="flex flex-wrap gap-2 mb-4 items-center">
         <select
           value={filterService}
-          onChange={(e) => setFilterService(e.target.value)}
+          onChange={(e) => { setFilterService(e.target.value); setCurrentPage(1); }}
           className="bg-[#141414] border border-[#262626] text-white text-sm rounded-lg px-3 py-2"
         >
           <option value="all">All Services</option>
-          <option value="Video Streaming">Video</option>
-          <option value="AI Assistant">AI</option>
-          <option value="Cloud Storage">Storage</option>
-        </select>
-        <select className="bg-[#141414] border border-[#262626] text-white text-sm rounded-lg px-3 py-2">
-          <option>Last 30 Days</option>
+          <option value="video_stream">Video Stream</option>
+          <option value="video_purchase">Video Purchase</option>
+          <option value="api_session">API Session</option>
+          <option value="storage">Storage</option>
+          <option value="deposit">Deposit</option>
+          <option value="withdraw">Withdraw</option>
         </select>
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search hash or service..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           className="bg-[#141414] border border-[#262626] text-white text-sm rounded-lg px-3 py-2 flex-1 min-w-[200px]"
         />
+        <div className="flex items-center gap-1 text-xs text-[#a1a1a1]">
+          <span>Rows per page:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value) || 5); setCurrentPage(1); }}
+            className="bg-[#141414] border border-[#262626] text-white text-xs rounded-lg px-2 py-1"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+          </select>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -100,7 +122,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.map((tx) => (
+            {paginatedTransactions.map((tx) => (
               <React.Fragment key={tx.id}>
                 <tr
                   className="border-b border-[#262626] hover:bg-[#1a1a1a] cursor-pointer"
@@ -188,9 +210,32 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
 
       <div className="mt-6 flex items-center justify-between">
         <div className="text-sm text-[#a1a1a1]">
-          Showing {filteredTransactions.length} of {transactions.length} transactions
+          Showing {filteredTransactions.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+          {' '}–{' '}
+          {Math.min(currentPage * pageSize, filteredTransactions.length)}
+          {' '}of {filteredTransactions.length} filtered / {transactions.length} total
         </div>
-        <Button variant="outline" size="sm">Load More</Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage <= 1}
+            onClick={() => handlePageChange(-1)}
+          >
+            Previous
+          </Button>
+          <span className="text-xs text-[#a1a1a1]">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage >= totalPages}
+            onClick={() => handlePageChange(1)}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </Card>
   );
