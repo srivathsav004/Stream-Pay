@@ -299,11 +299,11 @@ const Web3Architecture: React.FC = () => {
           <div className="bg-green-600/10 border border-green-500/20 rounded-lg p-4">
             <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
               <Check className="w-5 h-5 text-green-400" />
-              Audited Smart Contract
+              Smart Contract
             </h3>
             <ul className="text-sm text-zinc-400 space-y-1 ml-7">
               <li>• Open source</li>
-              <li>• Verified on Snowtrace</li>
+              <li>• Verifyable on Snowtrace</li>
               <li>• Battle-tested patterns</li>
             </ul>
           </div>
