@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Zap, ChevronRight, Menu, X, Github, ExternalLink } from 'lucide-react';
+import { BookOpen, Zap, ChevronRight, Menu, X, Github, ExternalLink, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Overview from './sections/Overview';
 import QuickStart from './sections/QuickStart';
@@ -91,13 +91,13 @@ const Documentation: React.FC = () => {
             </div>
             <div className="flex items-center gap-4">
               <a
-                href="https://github.com"
+                href="https://github.com/srivathsav004/Stream-Pay"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
+                className="hidden md:flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-500/30 hover:text-yellow-300 transition-all duration-200 group"
               >
-                <Github className="w-4 h-4" />
-                GitHub
+                <Star className="w-4 h-4 group-hover:fill-yellow-400/20 transition-all duration-200" />
+                <span>Star on GitHub</span>
               </a>
               <Link
                 to="/app"

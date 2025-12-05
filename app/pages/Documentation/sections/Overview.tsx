@@ -227,11 +227,11 @@ const Overview: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold text-white mb-3">3. Testnet USDC</h3>
-            <p className="text-zinc-400 text-sm mb-2">Get Free Testnet USDC:</p>
+            <h3 className="font-semibold text-white mb-3">3. Faucets</h3>
+            <p className="text-zinc-400 text-sm mb-2">Get Free Testnet AVAX and USDC here:</p>
             <ul className="space-y-1 text-zinc-400 text-sm ml-4">
               <li>• Get AVAX from <a href="https://faucet.avax.network/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Avalanche Faucet</a></li>
-              <li>• Swap AVAX for USDC on <a href="https://traderjoexyz.com/avalanche/trade" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Trader Joe</a></li>
+              <li>• Get USDC from <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Faucet Circle</a></li>
             </ul>
             <p className="text-zinc-400 text-xs mt-2 font-mono">USDC Contract: 0x5425890298aed601595a70AB815c96711a31Bc65</p>
           </div>
