@@ -152,6 +152,15 @@ const Storage: React.FC = () => {
     } catch {}
   };
 
+  const handleRead = async (fileId: string) => {
+    const f = files.find(x => x.id === fileId);
+    if (!f?.ipfsCid) return;
+    try {
+      const j = await apiGetDownloadUrl(f.ipfsCid);
+      if (j.url) window.open(j.url, '_blank');
+    } catch {}
+  };
+
   const handleViewDetails = (file: StorageFile) => {
     console.log('Viewing details for:', file.name);
     // In a real app, this would open a modal with file details
@@ -214,6 +223,7 @@ const Storage: React.FC = () => {
           onNewFolder={handleNewFolder}
           onDelete={handleDelete}
           onDownload={handleDownload}
+          onRead={handleRead}
           onViewDetails={handleViewDetails}
         />
       )}

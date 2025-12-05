@@ -2,6 +2,7 @@ import React, { useMemo, useState, useRef, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
+import { Eye, Download, Trash2, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { StorageFile } from './types';
 import { useAccount, useReadContract, useSignTypedData } from 'wagmi';
 import { avalancheFuji } from 'wagmi/chains';
@@ -10,7 +11,60 @@ import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { formatUnits, parseUnits, keccak256, toHex } from 'viem';
 import { deleteFile as apiDeleteFile } from '@/app/shared/services/web2-services/storage';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
+
+type Option = { label: string; value: string | number };
+
+const Dropdown: React.FC<{
+  value: string | number;
+  onChange: (val: string | number) => void;
+  options: Option[];
+  className?: string;
+}> = ({ value, onChange, options, className }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
+
+  const current = options.find(o => o.value === value)?.label ?? 'Select';
+
+  return (
+    <div ref={ref} className={`relative ${className ?? ''}`}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full inline-flex items-center justify-between bg-[#0a0a0a] border border-[#262626] hover:border-[#2f2f2f] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/40 focus:border-[#3b82f6] transition"
+      >
+        <span className="truncate">{current}</span>
+        <ChevronDown className={`h-4 w-4 ml-2 text-[#8a8a8a] transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute z-20 mt-1 w-full rounded-lg border border-[#262626] bg-[#0f0f0f] shadow-xl overflow-hidden">
+          <ul className="py-1 max-h-64 overflow-auto">
+            {options.map(opt => (
+              <li key={String(opt.value)}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(opt.value); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 text-sm ${opt.value === value ? 'bg-[#262640] text-white' : 'text-[#e5e5e5] hover:bg-[#151515]'}`}
+                >
+                  {opt.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Format date to IST
 const formatDate = (dateString: string): string => {
@@ -39,6 +93,7 @@ interface FileManagerProps {
   onNewFolder: () => void;
   onDelete: (fileId: string) => void;
   onDownload: (fileId: string) => void;
+  onRead: (fileId: string) => void;
   onViewDetails: (file: StorageFile) => void;
 }
 
@@ -48,11 +103,13 @@ const FileManager: React.FC<FileManagerProps> = ({
   onNewFolder,
   onDelete,
   onDownload,
+  onRead,
   onViewDetails,
 }) => {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
   const [confirmFile, setConfirmFile] = useState<StorageFile | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -71,9 +128,22 @@ const FileManager: React.FC<FileManagerProps> = ({
   const apiBase = (process as any).env?.VITE_BACKEND_URL || 'http://localhost:3001/api';
   const { signTypedDataAsync } = (useSignTypedData as any)();
 
-  const filteredFiles = files.filter(file =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredFiles = useMemo(() => {
+    return files.filter(file =>
+      file.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ).sort((a, b) => {
+      if (sortBy === 'recent') {
+        return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+      } else if (sortBy === 'oldest') {
+        return new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime();
+      } else if (sortBy === 'name-az') {
+        return a.name.localeCompare(b.name);
+      } else if (sortBy === 'name-za') {
+        return b.name.localeCompare(a.name);
+      }
+      return 0;
+    });
+  }, [files, searchQuery, sortBy]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,10 +155,10 @@ const FileManager: React.FC<FileManagerProps> = ({
     return filteredFiles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredFiles, currentPage]);
 
-  // Reset to first page when files change
+  // Reset to first page when files or sort changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredFiles.length]);
+  }, [filteredFiles.length, sortBy]);
 
   // Handle page change
   const goToPage = (page: number) => {
@@ -161,7 +231,7 @@ const FileManager: React.FC<FileManagerProps> = ({
           <Button variant="outline" size="sm" onClick={() => setViewMode(viewMode === 'table' ? 'grid' : 'table')}>
             {viewMode === 'table' ? 'Grid' : 'Table'}
           </Button>
-          <Button variant="outline" size="sm" onClick={onNewFolder}>New Folder</Button>
+          {/* <Button variant="outline" size="sm" onClick={onNewFolder}>New Folder</Button> */}
           <Button variant="primary" size="sm" onClick={onUpload} disabled={escrowBalanceUSDC <= 0}>
             {escrowBalanceUSDC > 0 ? 'Upload File' : 'Deposit to Upload'}
           </Button>
@@ -169,16 +239,31 @@ const FileManager: React.FC<FileManagerProps> = ({
       </div>
 
       <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 bg-[#0a0a0a] border border-[#262626] rounded-lg px-4 py-2 text-sm text-white placeholder:text-[#a1a1a1] outline-none focus:border-blue-600"
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-3 py-2 bg-[#0a0a0a] border border-[#262626] hover:border-[#2f2f2f] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/40 focus:border-[#3b82f6] transition"
+          />
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#a1a1a1] pointer-events-none">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+        <Dropdown
+          value={sortBy}
+          onChange={(val) => setSortBy(val as string)}
+          options={[
+            { label: 'Recent First', value: 'recent' },
+            { label: 'Oldest First', value: 'oldest' },
+            { label: 'Name A-Z', value: 'name-az' },
+            { label: 'Name Z-A', value: 'name-za' }
+          ]}
+          className="min-w-[160px]"
         />
-        <select className="bg-[#141414] border border-[#262626] text-white text-sm rounded-lg px-3 py-2">
-          <option>Filter: All</option>
-        </select>
       </div>
 
       {selectedFiles.length > 0 && (
@@ -257,15 +342,33 @@ const FileManager: React.FC<FileManagerProps> = ({
                       {file.type === 'folder' ? '-' : `${file.costPerHour} USDC`}
                     </td>
                     <td className="py-3 px-2" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-1">
                         {file.type === 'file' && (
                           <>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDownload(file.id)}>
-                              ⬇
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setConfirmFile(file)}>
-                              🗑️
-                            </Button>
+                            <button
+                              type="button"
+                              className="h-8 w-8 p-0 flex items-center justify-center text-[#e5e5e5] hover:text-white hover:bg-[#2a2a2a] rounded transition-colors"
+                              title="Read"
+                              onClick={() => onRead(file.id)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              className="h-8 w-8 p-0 flex items-center justify-center text-[#e5e5e5] hover:text-white hover:bg-[#2a2a2a] rounded transition-colors"
+                              title="Download"
+                              onClick={() => onDownload(file.id)}
+                            >
+                              <Download className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              className="h-8 w-8 p-0 flex items-center justify-center text-[#f97373] hover:text-red-400 hover:bg-[#2a2a2a] rounded transition-colors"
+                              title="Delete"
+                              onClick={() => setConfirmFile(file)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </>
                         )}
                       </div>
@@ -303,17 +406,91 @@ const FileManager: React.FC<FileManagerProps> = ({
               <div className="flex gap-1 justify-center" onClick={(e) => e.stopPropagation()}>
                 {file.type === 'file' && (
                   <>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDownload(file.id)}>
-                      ⬇
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setConfirmFile(file)}>
-                      🗑️
-                    </Button>
+                    <button
+                      type="button"
+                      className="h-8 w-8 p-0 flex items-center justify-center text-[#e5e5e5] hover:text-white hover:bg-[#2a2a2a] rounded transition-colors"
+                      title="Read"
+                      onClick={() => onRead(file.id)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      className="h-8 w-8 p-0 flex items-center justify-center text-[#e5e5e5] hover:text-white hover:bg-[#2a2a2a] rounded transition-colors"
+                      title="Download"
+                      onClick={() => onDownload(file.id)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      className="h-8 w-8 p-0 flex items-center justify-center text-[#f97373] hover:text-red-400 hover:bg-[#2a2a2a] rounded transition-colors"
+                      title="Delete"
+                      onClick={() => setConfirmFile(file)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </>
                 )}
               </div>
             </Card>
           ))}
+        </div>
+      )}
+
+      {filteredFiles.length > 0 && totalPages > 1 && (
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-[#a1a1a1]">
+            Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredFiles.length)}-
+            {Math.min(currentPage * ITEMS_PER_PAGE, filteredFiles.length)} of {filteredFiles.length} files
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? 'default' : 'outline'}
+                  size="sm"
+                  className={`w-8 h-8 p-0 ${currentPage === pageNum ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                  onClick={() => goToPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-2"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
 
