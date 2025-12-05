@@ -18,6 +18,7 @@ const Storage: React.FC = () => {
   const [files, setFiles] = useState<StorageFile[]>([]);
   const [showUpload, setShowUpload] = useState(false);
   const [stats, setStats] = useState({ totalSpentUSDC: 0, totalStoredGB: 0, activeFiles: 0, storageTimeHours: 0 });
+  const [deletedMinutes, setDeletedMinutes] = React.useState<number>(0);
   const [history, setHistory] = useState<any[]>([]);
   const [analyticsData, setAnalyticsData] = useState<any[]>([]);
   const [fileTypeData, setFileTypeData] = useState<any[]>([]);
@@ -59,7 +60,7 @@ const Storage: React.FC = () => {
     refreshingRef.current = true;
     try {
       const [filesJson, statsJson, usageJson] = await Promise.all([
-        apiListFiles(address),
+        apiListFiles(address, true),
         apiGetStats(address),
         apiGetUsage(address),
       ]);
@@ -67,10 +68,17 @@ const Storage: React.FC = () => {
       setStats(statsJson);
       setHistory(usageJson.history || []);
 
+      const now = Date.now();
+      const rows = filesJson.files || [];
+      const deletedSumMin = rows
+        .filter((r: any) => !!r.deleted_at)
+        .reduce((s: number, r: any) => s + Number(r.storage_min || 0), 0);
+      setDeletedMinutes(Math.max(0, Math.round(deletedSumMin)));
+
       // Basic analytics from files list
-      const now = new Date();
+      const nowDate = new Date();
       const last7 = [...Array(7)].map((_, i) => {
-        const d = new Date(now.getTime() - (6 - i) * 24 * 3600 * 1000);
+        const d = new Date(nowDate.getTime() - (6 - i) * 24 * 3600 * 1000);
         const day = d.toISOString().slice(0, 10);
         const totalGB = (filesJson.files || [])
           .filter((f: any) => (!f.deleted_at) && new Date(f.uploaded_at).toISOString().slice(0, 10) <= day)
@@ -167,6 +175,16 @@ const Storage: React.FC = () => {
     console.log('Opening deposit modal...');
   };
 
+  const activeMinutesLiveBaseline = React.useMemo(() => {
+    const now = Date.now();
+    return files
+      .filter(f => f.status === 'active' && f.type === 'file')
+      .reduce((s, f) => {
+        const t = new Date(f.uploadedAt).getTime();
+        return s + (Number.isFinite(t) ? Math.max(0, (now - t) / 60000) : 0);
+      }, 0);
+  }, [files]);
+
   return (
     <DashboardLayout>
       <StorageHeader />
@@ -175,7 +193,7 @@ const Storage: React.FC = () => {
         totalSpent={Number(stats.totalSpentUSDC ?? 0)}
         totalStored={Number(((stats.totalStoredGB ?? 0) * 1024).toFixed(2))}
         activeFiles={stats.activeFiles || files.filter(f=>f.status==='active').length}
-        storageTime={Math.round((stats.storageTimeHours ?? 0) * 60)}
+        storageTime={Math.round(deletedMinutes + activeMinutesLiveBaseline)}
       />
       <StorageOverview
         usedGB={totalSizeGB}
