@@ -70,7 +70,7 @@ const EscrowSystem: React.FC = () => {
                 <p className="text-zinc-400 text-xs">Transfers USDC to escrow • Updates your balance • Gas cost: ~$0.15</p>
               </div>
             </div>
-            <p className="text-green-400 text-sm mt-2">✅ Subsequent deposits only need one transaction!</p>
+            <p className="text-green-400 text-sm mt-2">Subsequent deposits only need one transaction!</p>
           </div>
         </div>
       </section>
@@ -223,7 +223,7 @@ const EscrowSystem: React.FC = () => {
               </table>
             </div>
           </div>
-          <div>
+          {/* <div>
             <h3 className="font-semibold text-white mb-2">Low Balance Warnings</h3>
             <p className="text-zinc-400 text-sm">StreamPay will warn you when:</p>
             <ul className="space-y-1 text-zinc-400 text-sm ml-4 mt-2">
@@ -231,7 +231,7 @@ const EscrowSystem: React.FC = () => {
               <li>• Balance insufficient for current action</li>
               <li>• Balance running low during session</li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </section>
 
