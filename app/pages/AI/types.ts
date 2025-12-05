@@ -9,6 +9,7 @@ export interface ChatMessage {
 
 export interface ChatSession {
   id: string;
+  backendId?: number;
   sessionNumber: number;
   startTime: string;
   endTime?: string;
@@ -25,6 +26,7 @@ export interface UsageHistoryItem {
   date: string;
   calls: number;
   cost: number;
+  txHash?: string | null;
   topics?: string[];
 }
 
