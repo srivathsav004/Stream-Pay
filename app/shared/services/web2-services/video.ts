@@ -9,7 +9,11 @@ export type CatalogVideo = {
 };
 
 export async function fetchCatalogVideos() {
-  const res = await fetch(`${API}/videos`);
+  const res = await fetch(`${API}/videos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Failed to load videos');
   return (data.videos || []) as CatalogVideo[];
@@ -51,7 +55,11 @@ export async function recordVideoPurchase(body: {
 }
 
 export async function fetchUserPurchases(address: string) {
-  const res = await fetch(`${API}/users/${address}/purchases`);
+  const res = await fetch(`${API}/users/purchases`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address }),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Failed to load purchases');
   return data.purchases as Array<{
@@ -66,7 +74,11 @@ export async function fetchUserPurchases(address: string) {
 }
 
 export async function fetchUserStreamSessions(address: string) {
-  const res = await fetch(`${API}/users/${address}/stream-sessions`);
+  const res = await fetch(`${API}/users/stream-sessions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address }),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Failed to load sessions');
   return data.sessions as Array<{
