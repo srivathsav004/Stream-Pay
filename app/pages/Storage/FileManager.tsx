@@ -8,6 +8,7 @@ import { avalancheFuji } from 'wagmi/chains';
 import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { formatUnits, parseUnits, keccak256, toHex } from 'viem';
+import { deleteFile as apiDeleteFile } from '@/app/shared/services/web2-services/storage';
 
 interface FileManagerProps {
   files: StorageFile[];
@@ -57,7 +58,7 @@ const FileManager: React.FC<FileManagerProps> = ({
     query: { enabled: !!address && !!STREAMPAY_ESCROW_ADDRESS },
   });
   const escrowBalanceUSDC = useMemo(() => escBal ? Number((formatUnits as any)(escBal as bigint, 6)) : 0, [escBal]);
-  const formattedEscrow = useMemo(() => (escrowBalanceUSDC ? escrowBalanceUSDC.toFixed(2) : '0.00') + ' USDC', [escrowBalanceUSDC]);
+  const formattedEscrow = useMemo(() => (escrowBalanceUSDC ? escrowBalanceUSDC.toFixed(6) : '0.00') + ' USDC', [escrowBalanceUSDC]);
   const apiBase = (process as any).env?.VITE_BACKEND_URL || 'http://localhost:3001/api';
   const { signTypedDataAsync } = (useSignTypedData as any)();
 
@@ -90,17 +91,21 @@ const FileManager: React.FC<FileManagerProps> = ({
     selectedFiles.forEach(id => onDownload(id));
   };
 
+  const formatLocal = (iso: string) => {
+    try { return new Date(iso).toLocaleString(); } catch { return String(iso); }
+  };
   const calcElapsedMinutes = (f: StorageFile) => {
-    const now = new Date();
-    const t = new Date(f.uploadedAt as any);
-    const mins = Math.max(5, Math.floor((now.getTime() - (isNaN(t.getTime()) ? now.getTime() - 12 * 60 * 1000 : t.getTime())) / 60000));
-    return Math.min(mins, 30);
+    const now = Date.now();
+    const up = new Date(f.uploadedAt as any).getTime();
+    if (!Number.isFinite(up)) return 0;
+    const diffMs = Math.max(0, now - up);
+    return Math.floor(diffMs / 60000);
   };
   const calcOwed = (f: StorageFile) => {
     const mins = calcElapsedMinutes(f);
     const perMin = (f.costPerHour || 0) / 60;
     const owed = mins * perMin;
-    return Number.isFinite(owed) ? Math.min(owed, 0.25) : 0.05;
+    return Number.isFinite(owed) ? owed : 0;
   };
 
   return (
@@ -273,17 +278,17 @@ const FileManager: React.FC<FileManagerProps> = ({
             <div className="p-5 overflow-y-auto">
               <div className="mb-4">
                 <div className="text-sm text-white font-medium">{confirmFile.name}</div>
-                <div className="text-xs text-[#a1a1a1]">Uploaded: {confirmFile.uploadedAt} • Now: {new Date().toLocaleString()}</div>
+                <div className="text-xs text-[#a1a1a1]">Uploaded: {formatLocal(confirmFile.uploadedAt as any)} • Now: {new Date().toLocaleString()}</div>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Elapsed</div><div className="text-sm text-white">{calcElapsedMinutes(confirmFile)} min</div></Card>
                 <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Rate</div><div className="text-sm text-white">{confirmFile.costPerHour} USDC/hr</div></Card>
                 <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Size</div><div className="text-sm text-white">{confirmFile.size} MB</div></Card>
-                <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Owed Now</div><div className="text-sm text-white">{calcOwed(confirmFile).toFixed(4)} USDC</div></Card>
+                <Card className="p-3 bg-[#111111] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Owed Now</div><div className="text-sm text-white">{calcOwed(confirmFile).toFixed(6)} USDC</div></Card>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <Card className="p-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Escrow Balance</div><div className="text-sm font-mono text-white">{formattedEscrow}</div></Card>
-                <Card className="p-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">After Settlement</div><div className="text-sm font-mono text-white">{Math.max(0, escrowBalanceUSDC - calcOwed(confirmFile)).toFixed(2)} USDC</div></Card>
+                <Card className="p-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">Escrow Balance</div><div className="text-sm font-mono text-white">{formattedEscrow} USDC</div></Card>
+                <Card className="p-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1] mb-1">After Settlement</div><div className="text-sm font-mono text-white">{Math.max(0, escrowBalanceUSDC - calcOwed(confirmFile)).toFixed(6)} USDC</div></Card>
               </div>
               <Card className="p-3 mb-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1]">Gas is paid by the relayer. You will only pay the settlement from your escrow.</div></Card>
               {status && (<Card className="p-3 mb-3 bg-[#0a0a0a] border-[#262626]"><div className="text-xs text-[#a1a1a1]">{status}</div></Card>)}
@@ -361,9 +366,19 @@ const FileManager: React.FC<FileManagerProps> = ({
                     }
 
                     const data = await resp.json();
+                    const txHash = data.txHash as string;
+                    setStatus('Recording deletion...');
+                    try {
+                      await apiDeleteFile({
+                        id: Number.isFinite(Number(confirmFile.id)) ? Number(confirmFile.id) : confirmFile.id,
+                        user_address: address,
+                        amount_usdc: Number(owed.toFixed(6)),
+                        tx_hash: txHash,
+                      });
+                    } catch {}
                     setStatus('Deleting file...');
                     onDelete(confirmFile.id);
-                    setToast(`Settled ${owed.toFixed(6)} USDC • Tx ${data.txHash.slice(0, 10)}...`);
+                    setToast(`Settled ${owed.toFixed(6)} USDC • Tx ${txHash?.slice(0, 10)}...`);
                     setTimeout(() => { setToast(null); }, 2000);
                     setConfirmFile(null);
                   } catch (err: any) {
