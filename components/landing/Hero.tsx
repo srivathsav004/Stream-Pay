@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, ArrowRight, Zap, Layers } from 'lucide-react';
+import { Play, ArrowRight, Zap, Layers, BookOpen } from 'lucide-react';
 import Button from '../ui/Button';
 import { Link } from 'react-router-dom';
 
@@ -52,10 +52,16 @@ const Hero: React.FC = () => {
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="group">
+              <Link to="/docs">
+                <Button size="lg" variant="outline" className="group">
+                  <BookOpen className="mr-2 w-4 h-4" />
+                  Documentation
+                </Button>
+              </Link>
+              {/* <Button size="lg" variant="outline" className="group">
                 <Play className="mr-2 w-4 h-4 fill-current" />
                 Watch Demo
-              </Button>
+              </Button> */}
             </div>
 
             <div className="flex items-center gap-6 pt-4 text-sm text-zinc-500 font-medium">
