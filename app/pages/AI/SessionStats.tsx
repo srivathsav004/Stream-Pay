@@ -7,6 +7,7 @@ import { useAccount, useSignTypedData } from 'wagmi';
 import { avalancheFuji } from 'wagmi/chains';
 import { formatUnits, parseUnits } from 'viem';
 import { executePayment, getNonce, makeSessionId } from '@/app/shared/services/streampayApi';
+import { record as recordUsage } from '@/app/shared/services/web2-services/ai';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { useReadContract } from 'wagmi';
 import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
@@ -19,6 +20,8 @@ interface SessionStatsProps {
   onClearChat: () => void;
   onSaveConversation: () => void;
   onDeposit: () => void;
+  onSettledChange?: (settled: boolean) => void;
+  onAfterSettle?: () => void | Promise<void>;
 }
 
 const SessionStats: React.FC<SessionStatsProps> = ({
@@ -29,6 +32,8 @@ const SessionStats: React.FC<SessionStatsProps> = ({
   onClearChat,
   onSaveConversation,
   onDeposit,
+  onSettledChange,
+  onAfterSettle,
 }) => {
   const { address, chainId } = useAccount();
   const { signTypedDataAsync } = useSignTypedData();
@@ -44,6 +49,12 @@ const SessionStats: React.FC<SessionStatsProps> = ({
   const [settling, setSettling] = React.useState(false);
   const [settled, setSettled] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
+
+  // Reset local settled state when a new UI session starts
+  React.useEffect(() => {
+    setSettled(false);
+    setErrorMsg('');
+  }, [session.sessionNumber]);
 
   const displayBalance = escrowBalanceData != null ? Number(escrowBalanceData as bigint) / 1e6 : balance;
   const callsRemaining = Math.floor((displayBalance || 0) / 0.001);
@@ -63,7 +74,9 @@ const SessionStats: React.FC<SessionStatsProps> = ({
       setSettling(true);
 
       // Prepare EIP-712 typed data
-      const sessionId = makeSessionId(address, session.id) as `0x${string}`;
+      // Generate a unique on-chain payment session id per settlement (do not reuse UI session id)
+      const uniqueNumeric = Date.now().toString();
+      const sessionId = makeSessionId(address, uniqueNumeric) as `0x${string}`;
       const { nonce } = await getNonce(address);
       const amount = parseUnits(amountUSDC.toString(), 6);
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 10); // +10 min
@@ -96,7 +109,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
       const signature = await signTypedDataAsync({ account: address, domain, types, primaryType: 'PaymentIntent', message: value });
 
       // Call backend to execute payment (server pays gas)
-      await executePayment({
+      const paymentRes = await executePayment({
         paymentIntent: {
           payer: address,
           sessionId,
@@ -107,13 +120,29 @@ const SessionStats: React.FC<SessionStatsProps> = ({
         },
         serviceType: 'ai_session',
         metadata: {
-          sessionNumber: session.sessionNumber,
           calls: session.calls,
           costUSDC: amountUSDC,
         },
       });
 
+      // Persist a finalized usage record (calls, amount, tx) after successful tx
+      if (paymentRes?.txHash) {
+        try {
+          await recordUsage({
+            user_address: address,
+            calls_count: session.calls,
+            amount_usdc: amountUSDC,
+            tx_hash: paymentRes.txHash,
+          });
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.warn('Failed to record usage', e);
+        }
+      }
+
       setSettled(true);
+      onSettledChange?.(true);
+      try { await onAfterSettle?.(); } catch {}
       await refetchEscrow();
     } catch (e: any) {
       setErrorMsg(e?.message || 'Failed to settle');
@@ -146,7 +175,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
           <div>
             <div className="text-xs text-[#a1a1a1] uppercase mb-1">Cost This Session</div>
             <div className="text-2xl font-semibold text-white font-mono">{session.cost} USDC</div>
-            <div className="text-sm text-[#a1a1a1]">${(session.cost * 40).toFixed(2)} USD</div>
+            {/* <div className="text-sm text-[#a1a1a1]">${(session.cost * 40).toFixed(2)} USD</div> */}
           </div>
           
           <Separator />
