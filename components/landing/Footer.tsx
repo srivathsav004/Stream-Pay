@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Github, Twitter, Disc } from 'lucide-react';
+import { Zap, Github } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -58,12 +58,15 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-zinc-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-zinc-600 text-sm">© 2024 StreamPay Protocol. All rights reserved.</p>
+          <p className="text-zinc-600 text-sm"> 2024 StreamPay Protocol. All rights reserved.</p>
           
           <div className="flex items-center gap-6">
-            <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Github className="w-5 h-5" /></a>
-            <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>
-            <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Disc className="w-5 h-5" /></a>
+            <a href="https://github.com/srivathsav004/Stream-Pay" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-white transition-colors"><Github className="w-5 h-5" /></a>
+            <a href="https://x.com/dumbiriyani5213" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-white transition-colors">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
           </div>
 
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
