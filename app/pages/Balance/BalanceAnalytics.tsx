@@ -28,7 +28,26 @@ const CustomTooltip = ({ active, payload }: any) => {
       <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 shadow-lg">
         <p className="text-sm text-[#a1a1a1] mb-1">{payload[0].payload.date}</p>
         <p className="text-sm font-semibold text-white">
-          Balance: {payload[0].value} USDC
+          Transactions: {payload[0].value}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const ServiceTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const p = payload[0];
+    const name = p.name || p.payload?.name;
+    const value = p.value;
+    const percent = p.percent != null ? (p.percent * 100).toFixed(1) : undefined;
+    return (
+      <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 shadow-lg">
+        <p className="text-sm font-semibold text-white mb-1">{name}</p>
+        <p className="text-xs text-[#a1a1a1]">
+          Transactions: <span className="text-white font-medium">{value}</span>
+          {percent !== undefined && <> · {percent}%</>}
         </p>
       </div>
     );
@@ -44,18 +63,17 @@ const BalanceAnalytics: React.FC<BalanceAnalyticsProps> = ({
   const totalTransactions = transactionBreakdown.deposits + transactionBreakdown.payments + 
                            transactionBreakdown.withdrawals + transactionBreakdown.refunds;
 
-  const pieData = [
-    { name: 'Deposits', value: transactionBreakdown.deposits, color: '#10b981' },
-    { name: 'Payments', value: transactionBreakdown.payments, color: '#3b82f6' },
-    { name: 'Withdrawals', value: transactionBreakdown.withdrawals, color: '#f59e0b' },
-    { name: 'Refunds', value: transactionBreakdown.refunds, color: '#8b5cf6' },
-  ].filter(item => item.value > 0);
+  const SERVICE_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#f97316'];
+
+  const pieData = serviceCounts
+    .filter(s => s.count > 0)
+    .map((s, idx) => ({ name: s.service, value: s.count, color: SERVICE_COLORS[idx % SERVICE_COLORS.length] }));
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-8">
-      <Card className="p-6 xl:col-span-3">
-        <h2 className="text-lg font-semibold text-white mb-6">Balance History</h2>
-        <ResponsiveContainer width="100%" height={300}>
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold text-white mb-6">Transaction History</h2>
+        <ResponsiveContainer width="100%" height={320}>
           <LineChart data={balanceHistory}>
             <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
             <XAxis dataKey="date" stroke="#a1a1a1" style={{ fontSize: '12px' }} />
@@ -72,9 +90,9 @@ const BalanceAnalytics: React.FC<BalanceAnalyticsProps> = ({
         </ResponsiveContainer>
       </Card>
 
-      <Card className="p-6 xl:col-span-2">
+      <Card className="p-6">
         <h2 className="text-lg font-semibold text-white mb-6">Transaction Breakdown</h2>
-        <div className="h-48 mb-4">
+        <div className="h-72 mb-4">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -82,8 +100,8 @@ const BalanceAnalytics: React.FC<BalanceAnalyticsProps> = ({
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
+                label={false}
+                outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -91,24 +109,13 @@ const BalanceAnalytics: React.FC<BalanceAnalyticsProps> = ({
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip />
-              <Legend wrapperStyle={{ color: '#ffffff', fontSize: '12px' }} />
+              <Tooltip content={<ServiceTooltip />} />
+              <Legend wrapperStyle={{ color: '#ffffff', fontSize: '12px', marginTop: 16 }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="text-sm text-[#a1a1a1] text-center mb-4">
-          Total Transactions: {totalTransactions}
-        </div>
-        <Separator className="mb-4" />
-        <div>
-          <div className="text-sm font-medium text-white mb-2">By Service:</div>
-          <div className="space-y-1">
-            {serviceCounts.map((service, index) => (
-              <div key={index} className="text-sm text-[#a1a1a1]">
-                • {service.service}: {service.count} txs
-              </div>
-            ))}
-          </div>
+        <div className="text-sm text-[#a1a1a1] text-center">
+          Total Transactions: <span className="text-white font-medium">{totalTransactions}</span>
         </div>
       </Card>
     </div>
