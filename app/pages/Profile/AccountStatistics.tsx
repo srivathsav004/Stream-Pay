@@ -12,25 +12,21 @@ const AccountStatistics: React.FC<AccountStatisticsProps> = ({ stats }) => {
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Total Spent</div>
         <div className="text-3xl font-semibold text-white font-mono mb-1">{stats.totalSpent} USDC</div>
-        <div className="text-sm text-[#a1a1a1]">${(stats.totalSpent * 40).toFixed(2)}</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Services Used</div>
         <div className="text-3xl font-semibold text-white font-mono mb-1">{stats.servicesUsed} services</div>
-        <div className="text-sm text-[#a1a1a1]">All time</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Active Days</div>
         <div className="text-3xl font-semibold text-white font-mono mb-1">{stats.activeDays} days</div>
-        <div className="text-sm text-[#a1a1a1]">This month</div>
       </Card>
 
       <Card className="p-6" hoverEffect={true}>
         <div className="text-sm text-[#a1a1a1] mb-2">Transactions</div>
         <div className="text-3xl font-semibold text-white font-mono mb-1">{stats.transactions}</div>
-        <div className="text-sm text-[#a1a1a1]">All time</div>
       </Card>
     </div>
   );
