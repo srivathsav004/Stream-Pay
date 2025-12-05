@@ -185,7 +185,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </Button>
           </div>
           <div className="mt-2 text-xs text-[#a1a1a1]">
-            {disabled ? 'This session is settled. Start a new session to continue.' : 'Each message costs 0.001 USDC'}
+            {disabled ? 'This session is settled. Start a new session to continue.' : 'Each message costs 0.01 USDC'}
           </div>
         </div>
       </Card>

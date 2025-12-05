@@ -80,7 +80,7 @@ const AI: React.FC = () => {
     setSession((prev) => ({
       ...prev,
       calls: (prev.calls || 0) + 1,
-      cost: Number(((prev.cost || 0) + 0.001).toFixed(6)),
+      cost: Number(((prev.cost || 0) + 0.01).toFixed(6)),
     }));
   };
 

@@ -57,7 +57,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
   }, [session.sessionNumber]);
 
   const displayBalance = escrowBalanceData != null ? Number(escrowBalanceData as bigint) / 1e6 : balance;
-  const callsRemaining = Math.floor((displayBalance || 0) / 0.001);
+  const callsRemaining = Math.floor((displayBalance || 0) / 0.01);
 
   const escrowAddress = STREAMPAY_ESCROW_ADDRESS;
 
