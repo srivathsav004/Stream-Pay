@@ -3,6 +3,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useBalance, useDisconnect } from 'wagmi';
 import { avalancheFuji } from 'wagmi/chains';
 import { Copy, LogOut, ChevronDown, User as UserIcon, Check } from 'lucide-react';
+import { readEscrowBalance } from '@/app/shared/contracts/balance';
 
 interface TopNavbarProps {
   sidebarWidth?: string;
@@ -21,6 +22,23 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ sidebarWidth = '56px' }) => {
     token: '0x5425890298aed601595a70ab815c96711a31bc65',
     query: { enabled: !!address },
   });
+  
+  // Fetch escrow balance
+  const [escrowBalance, setEscrowBalance] = React.useState<number>(0);
+  
+  React.useEffect(() => {
+    if (address) {
+      readEscrowBalance(address).then(balance => {
+        setEscrowBalance(balance);
+      }).catch(err => {
+        console.error('Failed to fetch escrow balance:', err);
+        setEscrowBalance(0);
+      });
+    } else {
+      setEscrowBalance(0);
+    }
+  }, [address]);
+  
   const { disconnect } = useDisconnect();
 
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -67,6 +85,12 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ sidebarWidth = '56px' }) => {
                     <img src="/usdc-icon.svg" alt="USDC" className="h-5 w-5" />
                   </span>
                   {usdcBalance ? `${Number(usdcBalance.formatted).toFixed(2)} USDC` : '— USDC'}
+                </div>
+                <div className="text-sm font-medium pl-2 pr-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-200 flex items-center gap-2">
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full overflow-hidden">
+                    <img src="/usdc-icon.svg" alt="USDC" className="h-5 w-5 opacity-60" />
+                  </span>
+                  <span className="text-xs text-zinc-400">Escrow:</span> {escrowBalance.toFixed(6)} USDC
                 </div>
               </div>
               <div className="relative">
