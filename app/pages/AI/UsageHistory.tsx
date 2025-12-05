@@ -67,7 +67,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'single' | 'multi'>('all');
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(5);
 
   const filtered = useMemo(() => {
     let data = history;
@@ -122,7 +122,6 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
           onChange={(v) => { setPageSize(Number(v)); setPage(1); }}
           options={[
             { label: '5 rows', value: 5 },
-            { label: '6 rows', value: 6 },
             { label: '10 rows', value: 10 },
           ]}
           className="w-28"
@@ -134,18 +133,18 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
           <thead className="bg-[#0f0f0f] text-[#a1a1a1]">
             <tr>
               <th className="text-left font-medium px-4 py-3">Session</th>
-              <th className="text-left font-medium px-4 py-3">Date/Time</th>
+              <th className="text-left font-medium px-4 py-3">Date/Time (IST)</th>
               <th className="text-left font-medium px-4 py-3">Calls</th>
               <th className="text-left font-medium px-4 py-3">Tx Hash</th>
               <th className="text-right font-medium px-4 py-3">Cost (USDC)</th>
             </tr>
           </thead>
           <tbody>
-            {pageData.map((item) => (
+            {pageData.map((item, idx) => (
               <tr key={item.id} className="border-t border-[#262626] hover:bg-[#121212]">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <div className="text-white font-medium">#{item.sessionNumber}</div>
+                    <div className="text-white font-medium">{start + idx + 1}</div>
                     {item.calls === 1 && (
                       <Badge variant="secondary" className="text-xs">Single</Badge>
                     )}
@@ -157,9 +156,18 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.date}</td>
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.calls}</td>
                 <td className="px-4 py-3">
-                  <div className="font-mono text-xs text-blue-400 hover:text-blue-300 cursor-pointer">
-                    {item.txHash ? `${item.txHash.slice(0, 8)}...${item.txHash.slice(-6)}` : '-'}
-                  </div>
+                  {item.txHash ? (
+                    <a
+                      href={`https://testnet.snowtrace.io/tx/${item.txHash}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-xs text-blue-400 hover:text-blue-300"
+                    >
+                      {`${item.txHash.slice(0, 8)}...${item.txHash.slice(-6)}`}
+                    </a>
+                  ) : (
+                    <span className="font-mono text-xs text-[#a1a1a1]">-</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right text-white">{item.cost}</td>
               </tr>
