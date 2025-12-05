@@ -13,13 +13,17 @@ import { ServiceUsageData } from './types';
 
 interface ServiceBreakdownProps {
   serviceData: ServiceUsageData[];
+  activeDays?: number;
 }
 
-const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
+const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData, activeDays }) => {
   const totalAmount = (serviceData || []).reduce((sum, service) => sum + service.amount, 0);
   const totalSessions = (serviceData || []).reduce((sum, service) => sum + (service.sessions || 0), 0);
   const avgPerSession = totalSessions > 0 ? (totalAmount / totalSessions) : 0;
-  const mostUsed = (serviceData || []).reduce((max, s) => (max && max.percentage > s.percentage) ? max : s, serviceData?.[0]);
+  const mostUsed = (serviceData || []).reduce((max, s) => {
+    if (!max) return s;
+    return (max.sessions || 0) > (s.sessions || 0) ? max : s;
+  }, serviceData?.[0]);
 
   // Prepare data for donut chart
   const chartData = (serviceData || []).map((service) => ({
@@ -40,9 +44,9 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
           </p>
           {service && (
             <>
-              <p className="text-xs text-[#a1a1a1] mt-1">Sessions: {service.sessions}</p>
+              <p className="text-xs text-[#a1a1a1] mt-1">Payments: {service.sessions}</p>
               <p className="text-xs text-[#a1a1a1]">
-                Avg per session: {(service.amount / service.sessions).toFixed(3)} USDC
+                Avg per pay: {(service.amount / service.sessions).toFixed(3)} USDC
               </p>
             </>
           )}
@@ -100,7 +104,7 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
                 height={36}
                 formatter={(value) => {
                   const service = (serviceData || []).find((s) => s.service === value);
-                  return service ? `${value} (${service.percentage}%)` : value;
+                  return service ? `${value} (${Math.round(service.percentage)}%)` : value;
                 }}
                 wrapperStyle={{ color: '#ffffff', fontSize: '12px' }}
                 iconType="circle"
@@ -119,25 +123,27 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData }) => {
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Total Spent (All Time)</div>
             <div className="text-2xl md:text-[28px] font-semibold text-white">{totalAmount.toFixed(2)} USDC</div>
-            <div className="text-sm text-[#a1a1a1]">—</div>
+            {/* <div className="text-sm text-[#a1a1a1]">—</div> */}
           </div>
           <Separator />
           <div>
-            <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Average Per Session</div>
+            <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Avg Per Pay</div>
             <div className="text-2xl md:text-[28px] font-semibold text-white">{avgPerSession.toFixed(3)} USDC</div>
-            <div className="text-sm text-[#a1a1a1]">—</div>
+            <div className="text-sm text-[#a1a1a1]">
+              Average USDC spent per payment transaction
+            </div>
           </div>
           <Separator />
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Most Used Service</div>
             <div className="text-2xl md:text-[28px] font-semibold text-white">{mostUsed ? mostUsed.service : '—'}</div>
-            <div className="text-sm text-[#a1a1a1]">{mostUsed ? `${mostUsed.percentage}% of total usage` : '—'}</div>
+            <div className="text-sm text-[#a1a1a1]">{mostUsed ? `${mostUsed.sessions} payments` : '—'}</div>
           </div>
           <Separator />
           <div>
             <div className="text-xs tracking-wide text-[#a1a1a1] uppercase mb-1">Active Days</div>
-            <div className="text-2xl md:text-[28px] font-semibold text-white">—</div>
-            <div className="text-sm text-[#a1a1a1]">—</div>
+            <div className="text-2xl md:text-[28px] font-semibold text-white">{activeDays ?? 0}</div>
+            <div className="text-sm text-[#a1a1a1]">Days with at least one paid usage</div>
           </div>
         </div>
       </Card>
