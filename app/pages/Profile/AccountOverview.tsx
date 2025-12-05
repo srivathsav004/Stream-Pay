@@ -68,7 +68,6 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ wallet, onDisconnect 
 
           <div>
             <div className="text-sm text-[#a1a1a1] mb-1">Member Since</div>
-            <div className="text-sm text-white">{wallet.memberSince}</div>
             <div className="text-xs text-[#a1a1a1]">{wallet.connectedAt}</div>
           </div>
 
