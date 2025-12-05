@@ -14,6 +14,7 @@ import AI from '@/app/pages/AI';
 import Storage from '@/app/pages/Storage';
 import Balance from '@/app/pages/Balance';
 import Profile from '@/app/pages/Profile';
+import Documentation from '@/app/pages/Documentation/Documentation';
 import { WalletProvider } from '@/app/state/WalletContext';
 import Web3Provider from '@/app/web3/Web3Provider';
 
@@ -46,6 +47,7 @@ function App() {
             <Route path="/app/storage" element={<Storage />} />
             <Route path="/app/balance" element={<Balance />} />
             <Route path="/app/profile" element={<Profile />} />
+            <Route path="/docs" element={<Documentation />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </WalletProvider>
