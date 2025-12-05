@@ -1,12 +1,69 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { Transaction } from './types';
+import { Search, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
 }
+
+const ITEMS_PER_PAGE_OPTIONS = [5, 10, 15];
+const DEFAULT_ITEMS_PER_PAGE = 5;
+
+type Option = { label: string; value: string | number };
+
+const Dropdown: React.FC<{
+  value: string | number;
+  onChange: (val: string | number) => void;
+  options: Option[];
+  className?: string;
+}> = ({ value, onChange, options, className }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
+
+  const current = options.find(o => o.value === value)?.label ?? 'Select';
+
+  return (
+    <div ref={ref} className={`relative ${className ?? ''}`}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full inline-flex items-center justify-between bg-[#0a0a0a] border border-[#262626] hover:border-[#2f2f2f] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/40 focus:border-[#3b82f6] transition"
+      >
+        <span className="truncate">{current}</span>
+        <ChevronDown className={`h-4 w-4 ml-2 text-[#8a8a8a] transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute z-20 mt-1 w-full rounded-lg border border-[#262626] bg-[#0f0f0f] shadow-xl overflow-hidden">
+          <ul className="py-1 max-h-64 overflow-auto">
+            {options.map(opt => (
+              <li key={String(opt.value)}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(opt.value); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 text-sm ${opt.value === value ? 'bg-[#262640] text-white' : 'text-[#e5e5e5] hover:bg-[#151515]'}`}
+                >
+                  {opt.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const getTransactionIcon = (type: Transaction['type']) => {
   switch (type) {
@@ -28,13 +85,25 @@ const getTransactionColor = (type: Transaction['type']) => {
   }
 };
 
+const getServiceName = (service: string) => {
+  switch (service) {
+    case 'video_stream': return 'Video Stream';
+    case 'video_purchase': return 'Video Purchase';
+    case 'api_session': return 'API Session';
+    case 'storage': return 'Storage';
+    case 'deposit': return 'Deposit';
+    case 'withdraw': return 'Withdraw';
+    default: return service || 'N/A';
+  }
+};
+
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions }) => {
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
   const [filterService, setFilterService] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(DEFAULT_ITEMS_PER_PAGE);
 
   const filteredTransactions = useMemo(() => {
     const list = transactions.filter(tx => {
@@ -74,80 +143,87 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
         <Button variant="outline" size="sm">Export CSV</Button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4 items-center">
-        <select
-          value={filterService}
-          onChange={(e) => { setFilterService(e.target.value); setCurrentPage(1); }}
-          className="bg-[#141414] border border-[#262626] text-white text-sm rounded-lg px-3 py-2"
-        >
-          <option value="all">All Services</option>
-          <option value="video_stream">Video Stream</option>
-          <option value="video_purchase">Video Purchase</option>
-          <option value="api_session">API Session</option>
-          <option value="storage">Storage</option>
-          <option value="deposit">Deposit</option>
-          <option value="withdraw">Withdraw</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Search hash or service..."
-          value={searchQuery}
-          onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-          className="bg-[#141414] border border-[#262626] text-white text-sm rounded-lg px-3 py-2 flex-1 min-w-[200px]"
-        />
-        <div className="flex items-center gap-1 text-xs text-[#a1a1a1]">
-          <span>Rows per page:</span>
-          <select
-            value={pageSize}
-            onChange={(e) => { setPageSize(Number(e.target.value) || 5); setCurrentPage(1); }}
-            className="bg-[#141414] border border-[#262626] text-white text-xs rounded-lg px-2 py-1"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
+      <div className="flex flex-wrap gap-2 mb-4">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#a1a1a1] pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search hash or service..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-10 pr-3 py-2 bg-[#0a0a0a] border border-[#262626] hover:border-[#2f2f2f] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/40 focus:border-[#3b82f6] transition"
+          />
         </div>
+        <Dropdown
+          value={filterService}
+          onChange={(val) => { setFilterService(val as string); setCurrentPage(1); }}
+          options={[
+            { label: 'All Services', value: 'all' },
+            { label: 'Video Stream', value: 'video_stream' },
+            { label: 'Video Purchase', value: 'video_purchase' },
+            { label: 'API Session', value: 'api_session' },
+            { label: 'Storage', value: 'storage' },
+            { label: 'Deposit', value: 'deposit' },
+            { label: 'Withdraw', value: 'withdraw' }
+          ]}
+          className="w-40"
+        />
+        <Dropdown
+          value={pageSize}
+          onChange={(val) => { setPageSize(Number(val)); setCurrentPage(1); }}
+          options={ITEMS_PER_PAGE_OPTIONS.map(size => ({ label: `${size} rows`, value: size }))}
+          className="w-28"
+        />
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#262626]">
-              <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Type</th>
+              <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">#</th>
               <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Service</th>
               <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Date/Time</th>
               <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Amount</th>
-              <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Status</th>
-              <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Tx</th>
+              <th className="text-center text-xs text-[#a1a1a1] uppercase py-3 px-6 min-w-[180px]">Transaction</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedTransactions.map((tx) => (
+            {paginatedTransactions.map((tx, idx) => (
               <React.Fragment key={tx.id}>
                 <tr
                   className="border-b border-[#262626] hover:bg-[#1a1a1a] cursor-pointer"
                   onClick={() => setExpandedTx(expandedTx === tx.id ? null : tx.id)}
                 >
-                  <td className="py-3 px-2">
-                    <span className="text-lg">{getTransactionIcon(tx.type)}</span>
-                  </td>
-                  <td className="py-3 px-2 text-sm text-white">{tx.service || '-'}</td>
+                  <td className="py-3 px-2 text-white font-medium">{(currentPage - 1) * pageSize + idx + 1}</td>
+                  <td className="py-3 px-2 text-sm text-white">{getServiceName(tx.service)}</td>
                   <td className="py-3 px-2 text-sm text-[#a1a1a1]">{tx.date}</td>
                   <td className={`py-3 px-2 text-sm font-mono ${getTransactionColor(tx.type)}`}>
                     {tx.amount > 0 ? '+' : ''}{tx.amount} USDC
                   </td>
-                  <td className="py-3 px-2">
-                    <Badge variant={tx.status === 'complete' ? 'success' : 'secondary'}>
-                      {tx.status === 'complete' ? '✓' : '⏳'} {tx.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-2" onClick={(e) => { e.stopPropagation(); handleViewExplorer(tx.txHash); }}>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">→</Button>
+                  <td className="py-3 px-6 text-center min-w-[180px]">
+                    <div className="inline-flex items-center justify-center gap-1">
+                      <a
+                        href={`https://testnet.snowtrace.io/tx/${tx.txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img 
+                          src="/avax-icon.svg" 
+                          alt="Avalanche" 
+                          className="w-4 h-4"
+                        />
+                        <span className="text-base font-mono">
+                          {`${tx.txHash.slice(0, 8)}...${tx.txHash.slice(-6)}`}
+                        </span>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 {expandedTx === tx.id && (
                   <tr>
-                    <td colSpan={6} className="p-4 bg-[#0a0a0a]">
+                    <td colSpan={5} className="p-4 bg-[#0a0a0a]">
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="text-sm font-medium text-white">

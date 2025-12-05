@@ -23,6 +23,7 @@ export interface UsageHistoryItem {
   date: string;
   duration?: string;
   cost: number;
+  tx_hash?: string;
 }
 
 export interface StreamingSession {

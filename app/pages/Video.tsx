@@ -160,6 +160,7 @@ const VideoPage: React.FC = () => {
           date: formatDateTime(p.purchased_at),
           duration: undefined,
           cost: Number(p.amount_usdc || 0),
+          tx_hash: p.tx_hash || undefined,
         }));
         const toHistoryFromSessions = sessions.map((s) => ({
           id: `stream-${s.id}`,
@@ -168,6 +169,7 @@ const VideoPage: React.FC = () => {
           date: formatDateTime(s.created_at),
           duration: s.seconds_streamed != null ? formatDuration(s.seconds_streamed) : undefined,
           cost: Number(s.amount_usdc || 0),
+          tx_hash: s.tx_hash || undefined,
         }));
         const mergedHistory = [...toHistoryFromPurchases, ...toHistoryFromSessions]
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -259,6 +261,7 @@ const VideoPage: React.FC = () => {
                   date: formatDateTime(p.purchased_at),
                   duration: undefined,
                   cost: Number(p.amount_usdc || 0),
+                  tx_hash: p.tx_hash || undefined,
                 }));
                 const toHistoryFromSessions = sessionsState.map((s) => ({
                   id: `stream-${s.id}`,
@@ -267,6 +270,7 @@ const VideoPage: React.FC = () => {
                   date: formatDateTime(s.created_at),
                   duration: s.seconds_streamed != null ? formatDuration(s.seconds_streamed) : undefined,
                   cost: Number(s.amount_usdc || 0),
+                  tx_hash: s.tx_hash || undefined,
                 }));
                 const mergedHistory = [...toHistoryFromPurchases, ...toHistoryFromSessions]
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -315,6 +319,7 @@ const VideoPage: React.FC = () => {
               date: formatDateTime(p.purchased_at),
               duration: undefined,
               cost: Number(p.amount_usdc || 0),
+              tx_hash: p.tx_hash || undefined,
             }));
             const toHistoryFromSessions = sessions.map((s) => ({
               id: `stream-${s.id}`,
@@ -323,6 +328,7 @@ const VideoPage: React.FC = () => {
               date: formatDateTime(s.created_at),
               duration: s.seconds_streamed != null ? formatDuration(s.seconds_streamed) : undefined,
               cost: Number(s.amount_usdc || 0),
+              tx_hash: s.tx_hash || undefined,
             }));
             const mergedHistory = [...toHistoryFromPurchases, ...toHistoryFromSessions]
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -344,6 +350,46 @@ const VideoPage: React.FC = () => {
         balance={balance}
         onClose={() => setPurchaseModalVideo(null)}
         onConfirm={handleConfirmPurchase}
+        onSettled={async () => {
+          if (!isConnected || !address) return;
+          try {
+            const purchases = await fetchUserPurchases(address);
+            setPurchasesState(purchases);
+
+            // Recompute usage history and analytics with latest purchases
+            const formatDateTime = (iso: string) => {
+              try { const d = new Date(iso); return d.toLocaleString(); } catch { return iso; }
+            };
+            const toHistoryFromPurchases = purchases.map((p) => ({
+              id: `purchase-${p.id}`,
+              type: 'purchase' as const,
+              videoTitle: `Video #${p.video_id}`,
+              date: formatDateTime(p.purchased_at),
+              duration: undefined,
+              cost: Number(p.amount_usdc || 0),
+              tx_hash: p.tx_hash || undefined,
+            }));
+            const toHistoryFromSessions = sessionsState.map((s) => ({
+              id: `stream-${s.id}`,
+              type: 'stream' as const,
+              videoTitle: `Video #${s.video_id}`,
+              date: formatDateTime(s.created_at),
+              duration: s.seconds_streamed != null ? formatDuration(s.seconds_streamed) : undefined,
+              cost: Number(s.amount_usdc || 0),
+              tx_hash: s.tx_hash || undefined,
+            }));
+            const mergedHistory = [...toHistoryFromPurchases, ...toHistoryFromSessions]
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setUsageHistory(mergedHistory);
+
+            const dayKey = (iso: string) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+            const map: Record<string, { streamingCost: number; purchaseCost: number }> = {};
+            for (const s of sessionsState) { const k = dayKey(s.created_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].streamingCost += Number(s.amount_usdc || 0); }
+            for (const p of purchases) { const k = dayKey(p.purchased_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].purchaseCost += Number(p.amount_usdc || 0); }
+            const days = Object.keys(map).sort();
+            setAnalyticsData(days.map(d => ({ date: d, ...map[d] })));
+          } catch {}
+        }}
       />
 
       <VideoPlayerModal

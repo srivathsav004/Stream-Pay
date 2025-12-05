@@ -9,7 +9,8 @@ interface UsageHistoryProps {
   history: UsageHistoryItem[];
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE_OPTIONS = [5, 10, 15];
+const DEFAULT_ITEMS_PER_PAGE = 5;
 
 type Option = { label: string; value: string | number };
 
@@ -116,6 +117,7 @@ const formatDetailedDuration = (hours: number | undefined): string => {
 const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     action: 'all',
@@ -144,11 +146,11 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
   }, [history, searchTerm, filters]);
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredHistory.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
   const paginatedHistory = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredHistory.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredHistory, currentPage]);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredHistory.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredHistory, currentPage, itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -198,6 +200,15 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
               ]}
               className="flex-1 min-w-[160px]"
             />
+            <Dropdown
+              value={itemsPerPage}
+              onChange={(val) => {
+                setItemsPerPage(Number(val));
+                setCurrentPage(1);
+              }}
+              options={ITEMS_PER_PAGE_OPTIONS.map(size => ({ label: `${size} rows`, value: size }))}
+              className="w-28"
+            />
             <Button variant="outline" size="sm" className="whitespace-nowrap">
               Export CSV
             </Button>
@@ -213,7 +224,8 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
               <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">File</th>
               <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Date/Time</th>
               <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Duration</th>
-              <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Cost</th>
+              <th className="text-center text-xs text-[#a1a1a1] uppercase py-3 px-6 min-w-[120px]">Cost</th>
+              <th className="text-center text-xs text-[#a1a1a1] uppercase py-3 px-6 min-w-[180px]">Transaction</th>
             </tr>
           </thead>
           <tbody>
@@ -231,11 +243,35 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                   <td className="py-3 px-2 text-sm text-[#a1a1a1]">
                     {formatDuration(item.duration)}
                   </td>
-                  <td className="py-3 px-2 text-sm font-mono text-white">{formatUSDC(item.cost)} USDC</td>
+                  <td className="py-3 px-6 text-sm font-mono text-white text-center min-w-[120px]">{formatUSDC(item.cost)} USDC</td>
+                  <td className="py-3 px-6 text-center min-w-[180px]">
+                    {item.txHash ? (
+                      <div className="inline-flex items-center justify-center gap-1">
+                        <a
+                          href={`https://testnet.snowtrace.io/tx/${item.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <img 
+                            src="/avax-icon.svg" 
+                            alt="Avalanche" 
+                            className="w-4 h-4"
+                          />
+                          <span className="text-base font-mono">
+                            {`${item.txHash.slice(0, 8)}...${item.txHash.slice(-6)}`}
+                          </span>
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-[#6b6b6b] text-xs">-</span>
+                    )}
+                  </td>
                 </tr>
                 {expandedItem === item.id && (
                   <tr>
-                    <td colSpan={5} className="p-4 bg-[#0a0a0a]">
+                    <td colSpan={6} className="p-4 bg-[#0a0a0a]">
                       <div className="space-y-3">
                         <div className="text-sm font-medium text-white mb-2">Storage Details:</div>
                         <div className="space-y-2 text-sm text-[#a1a1a1]">
@@ -257,6 +293,11 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                                 className="ml-2 text-xs text-blue-400 hover:text-blue-300 flex items-center"
                                 onClick={(e) => e.stopPropagation()}
                               >
+                                <img 
+                                  src="/avax-icon.svg" 
+                                  alt="Avalanche" 
+                                  className="w-3 h-3 mr-1"
+                                />
                                 View on Explorer <ExternalLink className="h-3 w-3 ml-1" />
                               </a>
                             </div>
@@ -285,8 +326,8 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
       {filteredHistory.length > 0 ? (
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-sm text-[#a1a1a1]">
-            Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredHistory.length)}-{
-              Math.min(currentPage * ITEMS_PER_PAGE, filteredHistory.length)
+            Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredHistory.length)}-{
+              Math.min(currentPage * itemsPerPage, filteredHistory.length)
             } of {filteredHistory.length} events
           </div>
           

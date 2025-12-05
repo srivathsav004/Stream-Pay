@@ -135,8 +135,8 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
               <th className="text-left font-medium px-4 py-3">Session</th>
               <th className="text-left font-medium px-4 py-3">Date/Time (IST)</th>
               <th className="text-left font-medium px-4 py-3">Calls</th>
-              <th className="text-left font-medium px-4 py-3">Tx Hash</th>
-              <th className="text-right font-medium px-4 py-3">Cost (USDC)</th>
+              <th className="text-center font-medium px-6 py-3 min-w-[120px]">Cost (USDC)</th>
+              <th className="text-center font-medium px-6 py-3 min-w-[180px]">Tx Hash</th>
             </tr>
           </thead>
           <tbody>
@@ -155,21 +155,30 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                 </td>
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.date}</td>
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.calls}</td>
-                <td className="px-4 py-3">
+                <td className="px-6 py-3 text-center text-white min-w-[120px]">{item.cost}</td>
+                <td className="px-6 py-3 text-center min-w-[180px]">
                   {item.txHash ? (
-                    <a
-                      href={`https://testnet.snowtrace.io/tx/${item.txHash}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-mono text-xs text-blue-400 hover:text-blue-300"
-                    >
-                      {`${item.txHash.slice(0, 8)}...${item.txHash.slice(-6)}`}
-                    </a>
+                    <div className="inline-flex items-center justify-center gap-1">
+                      <a
+                        href={`https://testnet.snowtrace.io/tx/${item.txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        <img 
+                          src="/avax-icon.svg" 
+                          alt="Avalanche" 
+                          className="w-4 h-4"
+                        />
+                        <span className="text-base font-mono">
+                          {`${item.txHash.slice(0, 8)}...${item.txHash.slice(-6)}`}
+                        </span>
+                      </a>
+                    </div>
                   ) : (
-                    <span className="font-mono text-xs text-[#a1a1a1]">-</span>
+                    <span className="text-[#6b6b6b] text-xs">-</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right text-white">{item.cost}</td>
               </tr>
             ))}
             {pageData.length === 0 && (

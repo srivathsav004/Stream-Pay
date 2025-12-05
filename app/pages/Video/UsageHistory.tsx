@@ -14,6 +14,11 @@ const getTypeBadgeColor = (type: string) => {
   }
 };
 
+const formatTxHash = (hash: string) => {
+  if (!hash) return '';
+  return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
+};
+
 interface UsageHistoryProps {
   history: UsageHistoryItem[];
 }
@@ -77,7 +82,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'stream' | 'purchase'>('all');
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(5);
 
   const filtered = useMemo(() => {
     let data = history;
@@ -123,8 +128,8 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
           onChange={(v) => { setPageSize(Number(v)); setPage(1); }}
           options={[
             { label: '5 rows', value: 5 },
-            { label: '6 rows', value: 6 },
             { label: '10 rows', value: 10 },
+            { label: '15 rows', value: 15}
           ]}
           className="w-28"
         />
@@ -138,7 +143,8 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
               <th className="text-left font-medium px-4 py-3">Video</th>
               <th className="text-left font-medium px-4 py-3">Date/Time</th>
               <th className="text-left font-medium px-4 py-3">Duration</th>
-              <th className="text-right font-medium px-4 py-3">Cost (USDC)</th>
+              <th className="text-center font-medium px-6 py-3 min-w-[120px]">Cost (USDC)</th>
+              <th className="text-center font-medium px-6 py-3 min-w-[180px]">Transaction</th>
             </tr>
           </thead>
           <tbody>
@@ -161,12 +167,35 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                 <td className="px-4 py-3 text-white">{item.videoTitle}</td>
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.date}</td>
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.duration || '-'}</td>
-                <td className="px-4 py-3 text-right text-white">{item.cost}</td>
+                <td className="px-6 py-3 text-center text-white min-w-[120px]">{item.cost}</td>
+                <td className="px-6 py-3 text-center min-w-[180px]">
+                  {item.tx_hash ? (
+                    <div className="inline-flex items-center justify-center gap-1">
+                      <a
+                        href={`https://testnet.snowtrace.io/tx/${item.tx_hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        <img 
+                          src="/avax-icon.svg" 
+                          alt="Avalanche" 
+                          className="w-4 h-4"
+                        />
+                        <span className="text-base font-mono">
+                          {formatTxHash(item.tx_hash)}
+                        </span>
+                      </a>
+                    </div>
+                  ) : (
+                    <span className="text-[#6b6b6b] text-xs">-</span>
+                  )}
+                </td>
               </tr>
             ))}
             {pageData.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-[#a1a1a1]">No history found.</td>
+                <td colSpan={6} className="px-4 py-8 text-center text-[#a1a1a1]">No history found.</td>
               </tr>
             )}
           </tbody>

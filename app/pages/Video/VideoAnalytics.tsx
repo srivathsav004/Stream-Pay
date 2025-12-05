@@ -37,8 +37,8 @@ const CustomTooltip = ({ active, payload }: any) => {
 const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
   const streamingTotal = (data || []).reduce((sum, d) => sum + d.streamingCost, 0);
   const purchaseTotal = (data || []).reduce((sum, d) => sum + d.purchaseCost, 0);
-  const streamingSessions = 0;
-  const purchaseVideos = 0;
+  const streamingSessions = (data || []).filter(d => d.streamingCost > 0).length;
+  const purchaseVideos = (data || []).filter(d => d.purchaseCost > 0).length;
 
   return (
     <div className="flex flex-col gap-6 mb-8">

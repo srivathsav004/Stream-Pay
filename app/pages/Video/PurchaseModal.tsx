@@ -9,9 +9,10 @@ interface PurchaseModalProps {
   balance: number;
   onClose: () => void;
   onConfirm: (video: Video) => void;
+  onSettled?: () => void;
 }
 
-const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, onClose, onConfirm }) => {
+const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, onClose, onConfirm, onSettled }) => {
   const [submitting, setSubmitting] = React.useState(false);
   const [status, setStatus] = React.useState<string | null>(null);
   const [toast, setToast] = React.useState<string | null>(null);
@@ -210,6 +211,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
                   setToast('Purchase processed successfully');
                   setCompleted(true);
                   onConfirm(video);
+                  try { onSettled && onSettled(); } catch {}
                   setTimeout(() => { onClose(); setToast(null); }, 1000);
                 } catch (e: any) {
                   setStatus(e?.message || 'Purchase failed');
