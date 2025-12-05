@@ -11,7 +11,7 @@ const APIReference: React.FC = () => {
         </p>
       </div>
 
-      <section className="space-y-4">
+      {/* <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-white">Base URL</h2>
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
           <div className="space-y-2">
@@ -25,7 +25,7 @@ const APIReference: React.FC = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-white">Authentication</h2>
