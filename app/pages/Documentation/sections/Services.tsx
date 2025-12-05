@@ -283,7 +283,7 @@ const Services: React.FC<ServicesProps> = ({ activeSubsection, onSubsectionChang
                 <li>Delete anytime to stop charges</li>
               </ol>
               <div className="bg-green-600/10 border border-green-500/20 rounded-lg p-3">
-                <p className="text-green-400 text-sm font-semibold">Pricing: USDC 0.01 per MB per hour</p>
+                <p className="text-green-400 text-sm font-semibold">Pricing: 0.0001 USDC per MB per hour</p>
               </div>
               <div className="mt-4 pt-4 border-t border-zinc-800">
                 <div className="bg-zinc-950/50 rounded-lg p-4 border border-zinc-800 overflow-x-auto">

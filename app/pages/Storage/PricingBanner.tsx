@@ -7,7 +7,7 @@ interface PricingBannerProps {
 
 const PricingBanner: React.FC<PricingBannerProps> = ({ balance }) => {
   // Calculate how many GB can be stored for 1 day
-  const ratePerMBPerHour = 0.00001;
+  const ratePerMBPerHour = 0.0001;
   const gbPerDay = (balance / (ratePerMBPerHour * 1024 * 24)).toFixed(1);
 
   return (
@@ -15,7 +15,7 @@ const PricingBanner: React.FC<PricingBannerProps> = ({ balance }) => {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <span className="text-sm font-medium text-white">
-            💰 Pricing: 0.00001 USDC/MB/hour • ~$0.024/GB/day
+            💰 Pricing: 0.0001 USDC/MB/hour • ~$0.024/GB/day
           </span>
         </div>
         <div className="text-sm text-[#a1a1a1]">

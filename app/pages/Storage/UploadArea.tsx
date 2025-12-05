@@ -35,7 +35,7 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
   const formattedEscrow = useMemo(() => (escrowBalanceUSDC ? escrowBalanceUSDC.toFixed(2) : '0.00') + ' USDC', [escrowBalanceUSDC]);
 
   const calculateCost = (sizeMB: number) => {
-    const ratePerMBPerHour = 0.00001;
+    const ratePerMBPerHour = 0.0001;
     return {
       perHour: sizeMB * ratePerMBPerHour,
       perDay: sizeMB * ratePerMBPerHour * 24,
@@ -157,19 +157,19 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Hour:</span>
-                <span className="text-white font-mono">{costs.perHour.toFixed(6)} USDC (~${(costs.perHour * 40).toFixed(3)})</span>
+                <span className="text-white font-mono">{costs.perHour.toFixed(6)} USDC</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Day:</span>
-                <span className="text-white font-mono">{costs.perDay.toFixed(6)} USDC (~${(costs.perDay * 40).toFixed(3)})</span>
+                <span className="text-white font-mono">{costs.perDay.toFixed(6)} USDC</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Week:</span>
-                <span className="text-white font-mono">{costs.perWeek.toFixed(6)} USDC (~${(costs.perWeek * 40).toFixed(3)})</span>
+                <span className="text-white font-mono">{costs.perWeek.toFixed(6)} USDC </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#a1a1a1]">Per Month:</span>
-                <span className="text-white font-mono">{costs.perMonth.toFixed(6)} USDC (~${(costs.perMonth * 40).toFixed(2)})</span>
+                <span className="text-white font-mono">{costs.perMonth.toFixed(6)} USDC </span>
               </div>
             </div>
           )}

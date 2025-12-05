@@ -38,7 +38,7 @@ const DepositModal: React.FC<DepositModalProps> = ({
     return {
       videoHours: Math.floor(USDC / 0.0001 / 3600),
       aiCalls: Math.floor(USDC / 0.001),
-      storageDays: Math.floor(USDC / (0.00001 * 1024 * 24)),
+      storageDays: Math.floor(USDC / (0.0001 * 1024 * 24)),
     };
   };
 

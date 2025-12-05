@@ -34,7 +34,7 @@ const Storage: React.FC = () => {
       : ct.includes('zip') || ct.includes('tar') ? 'archive'
       : ct.includes('sheet') || ct.includes('excel') || ct.includes('csv') ? 'spreadsheet'
       : 'other';
-    const ratePerMBPerHour = 0.00001;
+    const ratePerMBPerHour = 0.0001;
     return {
       id: String(row.id),
       name: row.filename,
@@ -98,7 +98,7 @@ const Storage: React.FC = () => {
         byType[key].size += Number(f.size_bytes || 0);
       });
       const total = Object.values(byType).reduce((s, v) => s + v.size, 0) || 1;
-      const ftypes = Object.entries(byType).map(([k, v]) => ({ type: k, storageGB: v.size / (1024 ** 3), percentage: Math.round((v.size / total) * 100), cost: (v.size / (1024 * 1024)) * 0.00001 }));
+      const ftypes = Object.entries(byType).map(([k, v]) => ({ type: k, storageGB: v.size / (1024 ** 3), percentage: Math.round((v.size / total) * 100), cost: (v.size / (1024 * 1024)) * 0.0001 }));
       setFileTypeData(ftypes);
     } catch (e) {
       // noop
@@ -119,7 +119,7 @@ const Storage: React.FC = () => {
     .filter(f => f.type === 'file' && f.status === 'active')
     .reduce((sum, f) => sum + f.size, 0);
   const totalSizeGB = totalSizeMB / 1024;
-  const ratePerMBPerHour = 0.00001;
+  const ratePerMBPerHour = 0.0001;
   const hourlyCost = totalSizeMB * ratePerMBPerHour;
   const dailyCost = hourlyCost * 24;
   const monthlyCost = hourlyCost * 24 * 30;
