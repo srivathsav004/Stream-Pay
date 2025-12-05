@@ -50,7 +50,11 @@ export async function settleSession(params: { session_id: number; user_address: 
 }
 
 export async function getStats(user_address: string) {
-  const res = await fetch(`${WEB2}/stats?user_address=${encodeURIComponent(user_address)}`);
+  const res = await fetch(`${WEB2}/stats`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_address }),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch stats');
   return data as { totalCalls: number; totalSpent: number; avgPerCall: number; thisMonth: number };
@@ -58,14 +62,22 @@ export async function getStats(user_address: string) {
 
 export type HistoryItem = { id: string; sessionNumber: number; date: string; calls: number; cost: number; txHash?: string | null };
 export async function getHistory(user_address: string) {
-  const res = await fetch(`${WEB2}/history?user_address=${encodeURIComponent(user_address)}`);
+  const res = await fetch(`${WEB2}/history`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_address }),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch history');
   return data.history as HistoryItem[];
 }
 
 export async function getCost(user_address: string) {
-  const res = await fetch(`${WEB2}/cost?user_address=${encodeURIComponent(user_address)}`);
+  const res = await fetch(`${WEB2}/cost`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_address }),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch cost');
   return data as {
