@@ -6,6 +6,8 @@ import { BalanceBreakdown } from './types';
 interface BalanceOverviewProps {
   balance: number;
   breakdown: BalanceBreakdown;
+  isDepositing?: boolean;
+  isWithdrawing?: boolean;
   onDeposit: () => void;
   onWithdraw: () => void;
 }
@@ -13,6 +15,8 @@ interface BalanceOverviewProps {
 const BalanceOverview: React.FC<BalanceOverviewProps> = ({
   balance,
   breakdown,
+  isDepositing,
+  isWithdrawing,
   onDeposit,
   onWithdraw,
 }) => {
@@ -22,13 +26,30 @@ const BalanceOverview: React.FC<BalanceOverviewProps> = ({
         <div className="text-center">
           <div className="text-sm text-[#a1a1a1] mb-2">Current Balance</div>
           <div className="text-5xl font-semibold text-white mb-2 font-mono">{balance} USDC</div>
-          <div className="text-xl text-[#a1a1a1] mb-6">${(balance * 40).toFixed(2)} USD</div>
+          <div className="text-sm text-[#a1a1a1] mb-6 min-h-[1.25rem]">
+            {(isDepositing || isWithdrawing) && (
+              <span className="text-xs text-[#e5e5e5]">
+                {isDepositing && 'Processing deposit...'}
+                {isWithdrawing && 'Processing withdrawal...'}
+              </span>
+            )}
+          </div>
           <div className="flex justify-center gap-3">
-            <Button variant="primary" size="md" onClick={onDeposit}>
-              Deposit
+            <Button
+              variant="primary"
+              size="md"
+              onClick={onDeposit}
+              disabled={!!isDepositing || !!isWithdrawing}
+            >
+              {isDepositing ? 'Depositing...' : 'Deposit'}
             </Button>
-            <Button variant="outline" size="md" onClick={onWithdraw}>
-              Withdraw
+            <Button
+              variant="outline"
+              size="md"
+              onClick={onWithdraw}
+              disabled={!!isDepositing || !!isWithdrawing}
+            >
+              {isWithdrawing ? 'Withdrawing...' : 'Withdraw'}
             </Button>
           </div>
         </div>
