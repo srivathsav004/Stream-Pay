@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -10,6 +10,29 @@ import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { formatUnits, parseUnits, keccak256, toHex } from 'viem';
 import { deleteFile as apiDeleteFile } from '@/app/shared/services/web2-services/storage';
 
+const ITEMS_PER_PAGE = 10;
+
+// Format date to IST
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '-';
+
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).format(date);
+  } catch (e) {
+    console.error('Error formatting date:', e);
+    return dateString; // Return original if parsing fails
+  }
+};
+
 interface FileManagerProps {
   files: StorageFile[];
   onUpload: () => void;
@@ -18,20 +41,6 @@ interface FileManagerProps {
   onDownload: (fileId: string) => void;
   onViewDetails: (file: StorageFile) => void;
 }
-
-const getFileIcon = (file: StorageFile) => {
-  if (file.type === 'folder') return '📁';
-  switch (file.fileType) {
-    case 'pdf': return '📄';
-    case 'image': return '🖼️';
-    case 'video': return '📹';
-    case 'spreadsheet': return '📊';
-    case 'archive': return '📦';
-    case 'audio': return '🎵';
-    case 'code': return '📝';
-    default: return '📄';
-  }
-};
 
 const FileManager: React.FC<FileManagerProps> = ({
   files,
@@ -65,6 +74,26 @@ const FileManager: React.FC<FileManagerProps> = ({
   const filteredFiles = files.filter(file =>
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(filteredFiles.length / ITEMS_PER_PAGE);
+
+  // Get current files for pagination
+  const currentFiles = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredFiles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredFiles, currentPage]);
+
+  // Reset to first page when files change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredFiles.length]);
+
+  // Handle page change
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
 
   const handleSelectAll = () => {
     if (selectedFiles.length === filteredFiles.length) {
@@ -106,6 +135,20 @@ const FileManager: React.FC<FileManagerProps> = ({
     const perMin = (f.costPerHour || 0) / 60;
     const owed = mins * perMin;
     return Number.isFinite(owed) ? owed : 0;
+  };
+
+  const getFileIcon = (file: StorageFile) => {
+    if (file.type === 'folder') return '📁';
+    switch (file.fileType) {
+      case 'pdf': return '📄';
+      case 'image': return '🖼️';
+      case 'video': return '📹';
+      case 'spreadsheet': return '📊';
+      case 'archive': return '📦';
+      case 'audio': return '🎵';
+      case 'code': return '📝';
+      default: return '📄';
+    }
   };
 
   return (
@@ -177,65 +220,71 @@ const FileManager: React.FC<FileManagerProps> = ({
                 </th>
                 <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Name</th>
                 <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Size</th>
-                <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Uploaded</th>
+                <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Uploaded (IST)</th>
                 <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Cost/Hour</th>
-                <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Total</th>
                 <th className="text-left text-xs text-[#a1a1a1] uppercase py-3 px-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredFiles.map((file) => (
-                <tr
-                  key={file.id}
-                  className="border-b border-[#262626] hover:bg-[#1a1a1a] cursor-pointer"
-                  onClick={() => onViewDetails(file)}
-                >
-                  <td className="py-3 px-2" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selectedFiles.includes(file.id)}
-                      onChange={() => handleSelectFile(file.id)}
-                      className="rounded border-[#262626]"
-                    />
-                  </td>
-                  <td className="py-3 px-2">
-                    <div className="flex items-center gap-2">
-                      <span>{getFileIcon(file)}</span>
-                      <span className="text-sm text-white">{file.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-2 text-sm text-[#a1a1a1]">
-                    {file.type === 'folder' ? '-' : `${file.size} MB`}
-                  </td>
-                  <td className="py-3 px-2 text-sm text-[#a1a1a1]">{file.uploadedAt}</td>
-                  <td className="py-3 px-2 text-sm font-mono text-[#a1a1a1]">
-                    {file.type === 'folder' ? '-' : `${file.costPerHour} USDC`}
-                  </td>
-                  <td className="py-3 px-2 text-sm font-mono text-white">
-                    {file.type === 'folder' ? '-' : `${file.totalCost} USDC`}
-                  </td>
-                  <td className="py-3 px-2" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex gap-2">
-                      {file.type === 'file' && (
-                        <>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDownload(file.id)}>
-                            ⬇
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setConfirmFile(file)}>
-                            🗑️
-                          </Button>
-                        </>
-                      )}
-                    </div>
+              {currentFiles.length > 0 ? (
+                currentFiles.map((file) => (
+                  <tr
+                    key={file.id}
+                    className="border-b border-[#262626] hover:bg-[#1a1a1a] cursor-pointer"
+                    onClick={() => onViewDetails(file)}
+                  >
+                    <td className="py-3 px-2" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedFiles.includes(file.id)}
+                        onChange={() => handleSelectFile(file.id)}
+                        className="rounded border-[#262626]"
+                      />
+                    </td>
+                    <td className="py-3 px-2">
+                      <div className="flex items-center gap-2">
+                        <span>{getFileIcon(file)}</span>
+                        <span className="text-sm text-white">{file.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 text-sm text-[#a1a1a1]">
+                      {file.type === 'folder' ? '-' : `${file.size} MB`}
+                    </td>
+                    <td className="py-3 px-2 text-sm text-[#a1a1a1]">
+                      {formatDate(file.uploadedAt)}
+                    </td>
+                    <td className="py-3 px-2 text-sm font-mono text-[#a1a1a1]">
+                      {file.type === 'folder' ? '-' : `${file.costPerHour} USDC`}
+                    </td>
+                    <td className="py-3 px-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex gap-2">
+                        {file.type === 'file' && (
+                          <>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDownload(file.id)}>
+                              ⬇
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setConfirmFile(file)}>
+                              🗑️
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-[#a1a1a1] text-sm">
+                    No files found
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {filteredFiles.map((file) => (
+          {currentFiles.map((file) => (
             <Card
               key={file.id}
               className="p-4 hover:border-blue-600 cursor-pointer"
