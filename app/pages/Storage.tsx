@@ -218,7 +218,7 @@ const Storage: React.FC = () => {
         <UploadArea onUpload={handleUpload} balance={balance} />
       ) : (
         <FileManager
-          files={files}
+          files={files.filter(f => f.status === 'active')}
           onUpload={() => setShowUpload(true)}
           onNewFolder={handleNewFolder}
           onDelete={handleDelete}
