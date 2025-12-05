@@ -75,11 +75,11 @@ const QuickStart: React.FC = () => {
                 <li><strong className="text-white">Sign message</strong> (no gas!)</li>
                 <li>Payment processed automatically</li>
               </ol>
-              <div className="mt-4 bg-blue-600/10 border border-blue-500/20 rounded-lg p-3">
+              {/* <div className="mt-4 bg-blue-600/10 border border-blue-500/20 rounded-lg p-3">
                 <p className="text-blue-400 text-sm">
                   <strong>Cost:</strong> ~$0.24/hour of streaming
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -120,7 +120,7 @@ const QuickStart: React.FC = () => {
           </div>
         </div>
       </section>
-
+{/* 
       <section className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-lg p-6">
         <h2 className="text-xl font-semibold text-white mb-3">Video Tutorial</h2>
         <p className="text-zinc-400 text-sm mb-4">
@@ -129,7 +129,7 @@ const QuickStart: React.FC = () => {
         <div className="bg-zinc-950/50 rounded-lg p-8 border border-zinc-800 flex items-center justify-center">
           <p className="text-zinc-500 text-sm">[Video Player Embed]</p>
         </div>
-      </section>
+      </section> */}
 
       <section className="space-y-4 pt-8 border-t border-zinc-800">
         <h2 className="text-2xl font-semibold text-white">What's Next?</h2>
