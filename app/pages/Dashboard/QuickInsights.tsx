@@ -20,7 +20,7 @@ const QuickInsights: React.FC<QuickInsightsProps> = ({ spendingData, serviceUsag
   const hasService = (serviceUsageData && serviceUsageData.length > 0);
   return (
     <Card className="p-6">
-      <h2 className="text-lg font-semibold text-white mb-6">Insights</h2>
+      <h2 className="text-lg font-semibold text-white mb-6">Insights (Mock UI)</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-4 border-blue-600">
           <div className="text-sm font-medium text-white mb-2"> Spending Trend</div>
