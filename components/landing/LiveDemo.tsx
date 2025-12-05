@@ -225,9 +225,9 @@ const LiveDemo: React.FC = () => {
                 <div className="p-6 bg-blue-900/5">
                     <p className="text-xs text-blue-500 mb-1 uppercase tracking-wider font-medium">StreamPay</p>
                     <p className="text-2xl font-bold text-white">
-                        {(cost).toFixed(4)} USDC
+                        ${cost.toFixed(4)}
                     </p>
-                    <p className="text-xs text-emerald-500 mt-1 font-medium">Saved ${(traditionalCost - cost).toFixed(2)}</p>
+                    <p className="text-xs text-emerald-500 mt-1 font-medium">Saved ${traditionalCost - cost}</p>
                 </div>
               </div>
 

@@ -13,7 +13,12 @@ const ProblemSolution: React.FC = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">The Subscription Trap</h2>
             <p className="text-zinc-400 max-w-2xl mx-auto font-light">
-              Americans waste an average of <span className="text-rose-400 font-medium">$1,800/year</span> on subscriptions they barely use.
+              Americans waste an average of <span className="text-rose-400 font-medium">$1,100/year</span> on subscriptions they barely use.
+            </p>
+            <p className="text-zinc-600 text-xs mt-2">
+              <a href="https://thedesk.net/2025/05/cnet-subscription-survey-2025/" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-500 transition-colors underline decoration-zinc-700">
+                Source: CNET Subscription Survey 2025
+              </a>
             </p>
           </div>
 
