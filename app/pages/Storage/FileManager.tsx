@@ -125,7 +125,7 @@ const FileManager: React.FC<FileManagerProps> = ({
   });
   const escrowBalanceUSDC = useMemo(() => escBal ? Number((formatUnits as any)(escBal as bigint, 6)) : 0, [escBal]);
   const formattedEscrow = useMemo(() => (escrowBalanceUSDC ? escrowBalanceUSDC.toFixed(6) : '0.00') + ' USDC', [escrowBalanceUSDC]);
-  const apiBase = (process as any).env?.VITE_BACKEND_URL || 'http://localhost:3001/api';
+  const apiBase = ((import.meta as any).env?.VITE_BACKEND_URL?.replace(/\/$/, '')) + '/api';
   const { signTypedDataAsync } = (useSignTypedData as any)();
 
   const filteredFiles = useMemo(() => {
