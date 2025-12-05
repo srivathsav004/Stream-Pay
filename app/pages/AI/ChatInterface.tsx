@@ -9,6 +9,7 @@ interface ChatInterfaceProps {
   onSendMessage: (message: string) => void;
   balance: number;
   suggestedPrompts?: string[];
+  disabled?: boolean;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -16,6 +17,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onSendMessage,
   balance,
   suggestedPrompts = [],
+  disabled = false,
 }) => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -41,7 +43,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }, [input]);
 
   const handleSend = () => {
-    if (input.trim() && balance >= 0.001) {
+    if (disabled) return;
+    if (input.trim()) {
       onSendMessage(input.trim());
       setInput('');
       setIsTyping(true);
@@ -167,21 +170,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
-              className="flex-1 min-h-[44px] max-h-[200px] bg-[#0a0a0a] border border-[#262626] rounded-lg px-4 py-3 text-sm text-white placeholder:text-[#a1a1a1] resize-none outline-none focus:border-blue-600"
+              className="flex-1 min-h-[44px] max-h-[200px] bg-[#0a0a0a] border border-[#262626] rounded-lg px-4 py-3 text-sm text-white placeholder:text-[#a1a1a1] resize-none outline-none focus:border-blue-600 disabled:opacity-60"
               rows={1}
+              disabled={disabled}
             />
             <Button
               variant="primary"
               size="sm"
               onClick={handleSend}
-              disabled={!input.trim() || balance < 0.001}
+              disabled={!input.trim() || disabled}
               className="self-end"
             >
               Send
             </Button>
           </div>
           <div className="mt-2 text-xs text-[#a1a1a1]">
-            💡 Each message costs 0.001 USDC (~$0.04)
+            {disabled ? 'This session is settled. Start a new session to continue.' : 'Each message costs 0.001 USDC'}
           </div>
         </div>
       </Card>
