@@ -7,6 +7,7 @@ import { avalancheFuji } from 'wagmi/chains';
 import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { formatUnits } from 'viem';
+import { uploadFileWithProgress } from '@/app/shared/services/web2-services/storage';
 
 interface UploadAreaProps {
   onUpload: (file: File) => void;
@@ -18,6 +19,8 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [customName, setCustomName] = useState('');
+  const [toast, setToast] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { address } = (useAccount?.() as any) || { address: undefined };
   const { data: escBal } = (useReadContract as any)({
@@ -67,24 +70,27 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          setSelectedFile(null);
-          onUpload(selectedFile);
-          return 0;
-        }
-        return prev + 10;
+    if (!selectedFile || !address || isUploading) return;
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      const res = await uploadFileWithProgress({
+        user_address: address,
+        file: selectedFile,
+        name: customName.trim() || undefined,
+        onProgress: (p) => setUploadProgress(p),
       });
-    }, 200);
+      setToast(`Uploaded ${res?.file?.filename || selectedFile.name}`);
+      setTimeout(() => setToast(null), 2000);
+      setSelectedFile(null);
+      onUpload(selectedFile);
+    } catch (e: any) {
+      setToast(e?.message || 'Upload failed');
+      setTimeout(() => setToast(null), 3000);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
   const fileSizeMB = selectedFile ? selectedFile.size / (1024 * 1024) : 0;
@@ -139,6 +145,13 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
         </div>
 
         <div className="border-t border-[#262626] pt-6 mb-6">
+          <div className="text-sm font-semibold text-white mb-2">Optional Name</div>
+          <input
+            value={customName}
+            onChange={(e) => setCustomName(e.target.value)}
+            placeholder="Enter a display name (optional)"
+            className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-600 mb-4"
+          />
           <div className="text-sm font-semibold text-white mb-4">Estimated Costs</div>
           {costs && (
             <div className="space-y-2 text-sm">
@@ -178,13 +191,16 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => setSelectedFile(null)}>
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => !isUploading && setSelectedFile(null)} disabled={isUploading}>
             Cancel
           </Button>
-          <Button variant="primary" size="sm" className="flex-1" onClick={handleUpload}>
-            Upload & Start Paying
+          <Button variant="primary" size="sm" className="flex-1" onClick={handleUpload} disabled={isUploading}>
+            {isUploading ? `Uploading… ${uploadProgress}%` : 'Upload & Start Paying'}
           </Button>
         </div>
+        {toast && (
+          <div className="mt-3 bg-[#0a0a0a] border border-[#262626] text-white text-sm px-4 py-2 rounded">{toast}</div>
+        )}
       </Card>
     );
   }
