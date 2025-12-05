@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Zap, ChevronRight, Menu, X, Github, ExternalLink, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Overview from './sections/Overview';
 import QuickStart from './sections/QuickStart';
 import DemoVideo from './sections/DemoVideo';
@@ -48,9 +48,41 @@ const sections: Section[] = [
 ];
 
 const Documentation: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<SectionId>('overview');
-  const [activeSubsection, setActiveSubsection] = useState<string | null>(null);
+  const { section, subsection } = useParams<{ section?: SectionId; subsection?: string }>();
+  const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState<SectionId>(() => {
+    return (section as SectionId) || 'overview';
+  });
+  const [activeSubsection, setActiveSubsection] = useState<string | null>(() => {
+    return subsection || null;
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (section) {
+      setActiveSection(section as SectionId);
+      setActiveSubsection(subsection || null);
+    }
+  }, [section, subsection]);
+
+  const updateURL = (section: SectionId, subsection: string | null = null) => {
+    if (subsection) {
+      navigate(`/docs/${section}/${subsection}`);
+    } else {
+      navigate(`/docs/${section}`);
+    }
+  };
+
+  const handleSectionChange = (section: SectionId) => {
+    setActiveSection(section);
+    setActiveSubsection(null);
+    updateURL(section);
+  };
+
+  const handleSubsectionChange = (subsection: string) => {
+    setActiveSubsection(subsection);
+    updateURL(activeSection, subsection);
+  };
 
   const renderContent = () => {
     switch (activeSection) {
@@ -65,7 +97,7 @@ const Documentation: React.FC = () => {
       case 'escrow':
         return <EscrowSystem />;
       case 'services':
-        return <Services activeSubsection={activeSubsection} onSubsectionChange={setActiveSubsection} />;
+        return <Services activeSubsection={activeSubsection} onSubsectionChange={handleSubsectionChange} />;
       case 'api':
         return <APIReference />;
       case 'faq':
@@ -99,13 +131,15 @@ const Documentation: React.FC = () => {
                 <Star className="w-4 h-4 group-hover:fill-yellow-400/20 transition-all duration-200" />
                 <span>Star on GitHub</span>
               </a>
-              <Link
-                to="/app"
+              <a
+                href="/app"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hidden md:flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
               >
                 Launch App
                 <ExternalLink className="w-4 h-4" />
-              </Link>
+              </a>
               <button
                 className="md:hidden text-zinc-400 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -128,10 +162,7 @@ const Documentation: React.FC = () => {
             {sections.map((section) => (
               <div key={section.id}>
                 <button
-                  onClick={() => {
-                    setActiveSection(section.id);
-                    setActiveSubsection(null);
-                  }}
+                  onClick={() => handleSectionChange(section.id)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                     activeSection === section.id
                       ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20'
@@ -150,7 +181,7 @@ const Documentation: React.FC = () => {
                     {section.subsections.map((sub) => (
                       <button
                         key={sub.id}
-                        onClick={() => setActiveSubsection(sub.id)}
+                        onClick={() => handleSubsectionChange(sub.id)}
                         className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors ${
                           activeSubsection === sub.id
                             ? 'text-blue-400 bg-blue-600/10'
@@ -179,8 +210,7 @@ const Documentation: React.FC = () => {
                 <div key={section.id}>
                   <button
                     onClick={() => {
-                      setActiveSection(section.id);
-                      setActiveSubsection(null);
+                      handleSectionChange(section.id);
                       setIsMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
@@ -202,7 +232,7 @@ const Documentation: React.FC = () => {
                         <button
                           key={sub.id}
                           onClick={() => {
-                            setActiveSubsection(sub.id);
+                            handleSubsectionChange(sub.id);
                             setIsMobileMenuOpen(false);
                           }}
                           className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors ${

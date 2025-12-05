@@ -48,6 +48,8 @@ function App() {
             <Route path="/app/balance" element={<Balance />} />
             <Route path="/app/profile" element={<Profile />} />
             <Route path="/docs" element={<Documentation />} />
+            <Route path="/docs/:section" element={<Documentation />} />
+            <Route path="/docs/:section/:subsection" element={<Documentation />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </WalletProvider>
