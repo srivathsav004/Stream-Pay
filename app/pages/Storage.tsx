@@ -80,9 +80,14 @@ const Storage: React.FC = () => {
       setAnalyticsData(last7);
       const byType: Record<string, { size: number }> = {};
       (filesJson.files || []).forEach((f: any) => {
-        const t = String(f.content_type || 'other').split('/')[0];
-        byType[t] = byType[t] || { size: 0 };
-        byType[t].size += Number(f.size_bytes || 0);
+        const ct = String(f.content_type || '').toLowerCase();
+        let key = ct.split('/')[0] || 'other';
+        // Group all application/* types under Documents for display
+        if (ct.startsWith('application/')) {
+          key = 'Documents';
+        }
+        byType[key] = byType[key] || { size: 0 };
+        byType[key].size += Number(f.size_bytes || 0);
       });
       const total = Object.values(byType).reduce((s, v) => s + v.size, 0) || 1;
       const ftypes = Object.entries(byType).map(([k, v]) => ({ type: k, storageGB: v.size / (1024 ** 3), percentage: Math.round((v.size / total) * 100), cost: (v.size / (1024 * 1024)) * 0.00001 }));
