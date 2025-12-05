@@ -37,6 +37,38 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
+// Pretty format numbers with unit MB
+const formatMB = (mb: number) => {
+  if (!isFinite(mb)) return '0 MB';
+  return `${mb.toLocaleString('en-IN', { maximumFractionDigits: 0 })} MB`;
+};
+
+// Tooltip for Pie (Storage by File Type)
+const CustomPieTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const p = payload[0];
+    const name = p?.name ?? p?.payload?.name ?? '';
+    const valueGB = Number(p?.value ?? 0);
+    const valueMB = Math.round(valueGB * 1024);
+    const percent = p?.payload?.percentage ?? undefined;
+    return (
+      <div className="bg-[#0f0f0f]/95 border border-[#262626] rounded-lg px-3 py-2 shadow-xl">
+        <div className="text-xs text-[#a1a1a1]">{name}</div>
+        <div className="text-sm font-semibold text-white">
+          {formatMB(valueMB)}{typeof percent === 'number' ? ` • ${percent}%` : ''}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+// Format USDC to 6 decimals
+const formatUSDC6 = (n: number) => {
+  const num = Number(n) || 0;
+  return num.toLocaleString('en-IN', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+};
+
 const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBreakdown }) => {
   const COLORS = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981'];
 
@@ -50,6 +82,20 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
     name: ft.type,
     cost: ft.cost,
   }));
+
+  // Sort cost data in decreasing order for better visualization
+  const sortedCostData = React.useMemo(() => 
+    [...costData].sort((a, b) => b.cost - a.cost),
+    [costData]
+  );
+
+  // Current total storage in MB (prefer latest time series point; fallback to sum of file types)
+  const currentTotalMB = React.useMemo(() => {
+    const latestGB = storageData && storageData.length ? Number(storageData[storageData.length - 1].storageGB) : null;
+    const sumGB = chartData.reduce((acc, d) => acc + Number(d.value || 0), 0);
+    const gb = isFinite(Number(latestGB)) && latestGB !== null ? Number(latestGB) : sumGB;
+    return Math.round((gb || 0) * 1024);
+  }, [storageData, chartData]);
 
   return (
     <div className="space-y-6 mb-8">
@@ -80,10 +126,10 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
       </Card>
 
       {/* File Type Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <Card className="p-6 md:col-span-3">
           <h3 className="text-base font-semibold text-white mb-6">Storage by File Type</h3>
-          <div className="h-64 mb-4">
+          <div className="h-80 mb-4">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -92,7 +138,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
                   cy="50%"
                   labelLine={false}
                   label={({ name, percentage }) => `${name}: ${percentage}%`}
-                  outerRadius={80}
+                  outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -100,37 +146,35 @@ const Analytics: React.FC<AnalyticsProps> = ({ storageData, fileTypeData, costBr
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<CustomPieTooltip />} />
                 <Legend wrapperStyle={{ color: '#ffffff' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="text-sm text-[#a1a1a1] text-center">Total: 1.2 GB</div>
+          <div className="text-sm text-[#a1a1a1] text-center">Total: {formatMB(currentTotalMB)}</div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-5 md:col-span-2">
           <h3 className="text-base font-semibold text-white mb-6">Cost by File Type</h3>
-          <div className="space-y-4">
-            {costData.map((item, index) => {
-              const maxCost = Math.max(...costData.map(d => d.cost));
+          <div className="space-y-5">
+            {sortedCostData.map((item, index) => {
+              const maxCost = Math.max(...sortedCostData.map(d => d.cost));
               const percentage = (item.cost / maxCost) * 100;
               return (
                 <div key={index}>
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <span className="text-sm text-white">{item.name}</span>
-                    <span className="text-sm text-[#a1a1a1] font-mono">{item.cost} USDC</span>
+                    <span className="text-sm text-[#a1a1a1] font-mono">{formatUSDC6(item.cost)} USDC</span>
                   </div>
-                  <div className="h-6 bg-[#262626] rounded overflow-hidden">
+                  <div className="h-8 bg-[#262626] rounded overflow-hidden">
                     <div
-                      className="h-full flex items-center justify-end pr-2"
+                      className="h-full"
                       style={{
                         width: `${percentage}%`,
                         backgroundColor: COLORS[index % COLORS.length],
                       }}
                     >
-                      {percentage > 20 && (
-                        <span className="text-xs text-white font-medium">{item.cost}</span>
-                      )}
+                      {/* Intentionally no text inside the bar */}
                     </div>
                   </div>
                 </div>
