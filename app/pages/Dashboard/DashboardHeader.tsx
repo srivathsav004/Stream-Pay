@@ -39,7 +39,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ timeFilter, onTimeFil
           <p className="text-sm text-[#a1a1a1] mb-4">Overview of your usage and spending</p>
         </div>
       </div>
-      <div className="flex gap-2 mt-2">
+      {/* <div className="flex gap-2 mt-2">
         {(['Today', '7D', '30D', 'All'] as TimeFilter[]).map((filter) => (
           <button
             key={filter}
@@ -53,7 +53,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ timeFilter, onTimeFil
             {filter}
           </button>
         ))}
-      </div>
+      </div> */}
       {toast && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}

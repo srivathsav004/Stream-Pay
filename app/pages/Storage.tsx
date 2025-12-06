@@ -12,6 +12,7 @@ import Analytics from './Storage/Analytics';
 import StorageOptimizationTips from './Storage/StorageOptimizationTips';
 import { useAccount } from 'wagmi';
 import { uploadFile as apiUploadFile, listFiles as apiListFiles, getStats as apiGetStats, getUsage as apiGetUsage, getDownloadUrl as apiGetDownloadUrl } from '@/app/shared/services/web2-services/storage';
+import { useToast } from '@/components/ui/use-toast';
 
 const Storage: React.FC = () => {
   const [balance] = useState(0);
@@ -22,6 +23,8 @@ const Storage: React.FC = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [analyticsData, setAnalyticsData] = useState<any[]>([]);
   const [fileTypeData, setFileTypeData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   const { address } = (useAccount as any)() || { address: undefined };
 
   const mapRowToStorageFile = (row: any): StorageFile => {
@@ -108,10 +111,14 @@ const Storage: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (!address) return;
+    if (!address) {
+      setIsLoading(false);
+      return;
+    }
     if (loadedForAddrRef.current === address) return; // guard React StrictMode double-invoke
     loadedForAddrRef.current = address;
-    refreshAll();
+    setIsLoading(true);
+    refreshAll().finally(() => setIsLoading(false));
   }, [address]);
 
   // Calculate current costs
@@ -134,13 +141,40 @@ const Storage: React.FC = () => {
 
   const handleUpload = async (_file: File) => {
     // Upload is handled inside UploadArea with progress; this just refreshes after completion.
-    await refreshAll();
-    setShowUpload(false);
+    try {
+      setShowUpload(false);
+      // Refresh in background without showing loading
+      refreshAll().catch(console.error);
+      toast({
+        title: "File uploaded",
+        description: "File uploaded successfully",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Upload failed",
+        description: e?.message || 'Failed to upload file',
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = (fileId: string) => {
-    setFiles(files.filter(f => f.id !== fileId));
-    refreshAll();
+  const handleDelete = async (fileId: string) => {
+    try {
+      // Optimistically remove file from list
+      setFiles(files.filter(f => f.id !== fileId));
+      toast({
+        title: "File deleted",
+        description: "File deleted and settled successfully",
+      });
+      // Refresh in background without showing loading
+      refreshAll().catch(console.error);
+    } catch (e: any) {
+      toast({
+        title: "Deletion failed",
+        description: e?.message || 'Failed to delete file',
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownload = async (fileId: string) => {

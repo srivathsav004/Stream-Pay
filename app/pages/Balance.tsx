@@ -16,6 +16,8 @@ import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { ERC20_ABI, FUJI_USDC_ADDRESS } from '@/app/shared/contracts/erc20';
 import { readEscrowBalance } from '@/app/shared/contracts/balance';
+import { useToast } from '@/components/ui/use-toast';
+import { balanceRefreshEmitter } from '@/app/layout/TopNavbar';
 import type {
   Transaction as UITransaction,
   BalanceHistoryData,
@@ -28,12 +30,10 @@ const Balance: React.FC = () => {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [quickDepositAmount, setQuickDepositAmount] = useState<number | null>(null);
-  const [depositLoading, setDepositLoading] = useState(false);
-  const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [txRows, setTxRows] = useState<TxRow[]>([]);
-  const { address, chainId } = (useAccount as any)() || { address: undefined, chainId: undefined };
-  const { writeContractAsync } = (useWriteContract as any)();
-  const config = (useConfig as any)();
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const { address } = (useAccount as any)() || { address: undefined };
 
   const balanceBreakdown = { available: balance, locked: 0, streaming: 0 } as const;
   const transactions: UITransaction[] = useMemo(() => {
@@ -96,8 +96,12 @@ const Balance: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      if (!address) return;
+      if (!address) {
+        setIsLoading(false);
+        return;
+      }
       try {
+        setIsLoading(true);
         // Fetch transactions
         const { items } = await listTransactions({ user_address: address, page: 1, page_size: 100, sort: 'recent' });
         setTxRows(items);
@@ -107,6 +111,8 @@ const Balance: React.FC = () => {
         setBalance(contractBalance);
       } catch (error) {
         console.error('Error fetching balance data:', error);
+      } finally {
+        setIsLoading(false);
       }
     })();
   }, [address]);
@@ -136,86 +142,73 @@ const Balance: React.FC = () => {
     setShowDepositModal(true);
   };
 
-  const handleConfirmDeposit = async (amount: number) => {
-    if (!address) return;
-    try {
-      setDepositLoading(true);
-      if (!STREAMPAY_ESCROW_ADDRESS) throw new Error('Escrow not configured');
-      if (!amount || amount <= 0) throw new Error('Enter a valid amount');
-      if (chainId !== avalancheFuji.id) throw new Error('Switch to Avalanche Fuji');
-
-      const value = (parseUnits as any)(String(amount), 6);
-      const escrowAddress = STREAMPAY_ESCROW_ADDRESS as `0x${string}`;
-      const usdcAddress = FUJI_USDC_ADDRESS as `0x${string}`;
-
-      // Approve USDC spending
-      const approveHash = await writeContractAsync({
-        address: usdcAddress,
-        abi: ERC20_ABI,
-        functionName: 'approve',
-        args: [escrowAddress, value],
-      });
-      const { waitForTransactionReceipt } = await import('wagmi/actions');
-      await waitForTransactionReceipt(config, { hash: approveHash });
-
-      // Deposit into escrow
-      const depositHash = await writeContractAsync({
-        address: escrowAddress,
-        abi: STREAMPAY_ESCROW_ABI,
-        functionName: 'deposit',
-        args: [value],
-      });
-      await waitForTransactionReceipt(config, { hash: depositHash });
-
-      // Record transaction in web2 DB
-      await recordDepositTx({
-        user_address: address,
-        amount_usdc: amount,
-        tx_hash: String(depositHash),
-      });
-
-      await refreshData();
-    } catch (err) {
-      console.error('Deposit failed', err);
-    } finally {
-      setDepositLoading(false);
-      setShowDepositModal(false);
-      setQuickDepositAmount(null);
+  const handleDepositComplete = async (amount: number, newBalance: number) => {
+    // Optimistically update balance
+    setBalance(newBalance);
+    
+    // Emit balance refresh event to update TopNavbar
+    balanceRefreshEmitter.emit();
+    
+    // Optimistically add transaction to list
+    const optimisticTx: TxRow = {
+      id: Date.now(),
+      user_id: 1, // Placeholder - will be updated when actual data is fetched
+      service: 'deposit',
+      amount_usdc: amount,
+      tx_hash: 'pending',
+      created_at: new Date().toISOString(),
+    };
+    setTxRows(prev => [optimisticTx, ...prev]);
+    
+    // Refresh transaction list in background without showing loading
+    if (address) {
+      try {
+        const { items } = await listTransactions({ user_address: address, page: 1, page_size: 100, sort: 'recent' });
+        setTxRows(items);
+        // Also update balance from contract to ensure accuracy
+        const contractBalance = await readEscrowBalance(address);
+        setBalance(contractBalance);
+        // Emit another refresh event to ensure TopNavbar shows final balance
+        balanceRefreshEmitter.emit();
+      } catch (error) {
+        console.error('Error refreshing data:', error);
+        // Still keep optimistic update
+      }
     }
   };
 
-  const handleConfirmWithdraw = async (amount: number) => {
-    if (!address) return;
-    try {
-      setWithdrawLoading(true);
-      if (!STREAMPAY_ESCROW_ADDRESS) throw new Error('Escrow not configured');
-      if (!amount || amount <= 0) throw new Error('Enter a valid amount');
-      if (chainId !== avalancheFuji.id) throw new Error('Switch to Avalanche Fuji');
-
-      const value = (parseUnits as any)(String(amount), 6);
-      const escrowAddress = STREAMPAY_ESCROW_ADDRESS as `0x${string}`;
-
-      const withdrawHash = await writeContractAsync({
-        address: escrowAddress,
-        abi: STREAMPAY_ESCROW_ABI,
-        functionName: 'withdraw',
-        args: [value],
-      });
-      const { waitForTransactionReceipt } = await import('wagmi/actions');
-      await waitForTransactionReceipt(config, { hash: withdrawHash });
-
-      await recordWithdrawTx({
-        user_address: address,
-        amount_usdc: amount,
-        tx_hash: String(withdrawHash),
-      });
-
-      await refreshData();
-    } catch (err) {
-      console.error('Withdraw failed', err);
-    } finally {
-      setWithdrawLoading(false);
-      setShowWithdrawModal(false);
+  const handleWithdrawComplete = async (amount: number, newBalance: number) => {
+    // Optimistically update balance
+    setBalance(newBalance);
+    
+    // Emit balance refresh event to update TopNavbar
+    balanceRefreshEmitter.emit();
+    
+    // Optimistically add transaction to list
+    const optimisticTx: TxRow = {
+      id: Date.now(),
+      user_id: 1, // Placeholder - will be updated when actual data is fetched
+      service: 'withdraw',
+      amount_usdc: amount,
+      tx_hash: 'pending',
+      created_at: new Date().toISOString(),
+    };
+    setTxRows(prev => [optimisticTx, ...prev]);
+    
+    // Refresh transaction list in background without showing loading
+    if (address) {
+      try {
+        const { items } = await listTransactions({ user_address: address, page: 1, page_size: 100, sort: 'recent' });
+        setTxRows(items);
+        // Also update balance from contract to ensure accuracy
+        const contractBalance = await readEscrowBalance(address);
+        setBalance(contractBalance);
+        // Emit another refresh event to ensure TopNavbar shows final balance
+        balanceRefreshEmitter.emit();
+      } catch (error) {
+        console.error('Error refreshing data:', error);
+        // Still keep optimistic update
+      }
     }
   };
 
@@ -251,8 +244,7 @@ const Balance: React.FC = () => {
       <BalanceOverview
         balance={balance}
         breakdown={balanceBreakdown}
-        isDepositing={depositLoading}
-        isWithdrawing={withdrawLoading}
+        isLoading={isLoading}
         onDeposit={handleDeposit}
         onWithdraw={handleWithdraw}
       />
@@ -263,7 +255,7 @@ const Balance: React.FC = () => {
         onExport={handleExport}
         onQuickDeposit={handleQuickDeposit}
       /> */}
-      <TransactionHistory transactions={transactions} />
+      <TransactionHistory transactions={transactions} isLoading={isLoading} />
       <BalanceAnalytics
         balanceHistory={balanceHistory}
         transactionBreakdown={transactionBreakdown}
@@ -279,7 +271,7 @@ const Balance: React.FC = () => {
           setShowDepositModal(false);
           setQuickDepositAmount(null);
         }}
-        onDeposit={handleConfirmDeposit}
+        onDepositComplete={handleDepositComplete}
       />
 
       <WithdrawModal
@@ -287,7 +279,7 @@ const Balance: React.FC = () => {
         availableBalance={balanceBreakdown.available}
         lockedBalance={balanceBreakdown.locked}
         onClose={() => setShowWithdrawModal(false)}
-        onWithdraw={handleConfirmWithdraw}
+        onWithdrawComplete={handleWithdrawComplete}
       />
     </DashboardLayout>
   );

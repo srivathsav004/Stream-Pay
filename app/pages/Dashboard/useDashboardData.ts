@@ -5,6 +5,17 @@ import { fetchUserStreamSessions } from '@/app/shared/services/web2-services/vid
 import { getStats as getStorageStats } from '@/app/shared/services/web2-services/storage';
 import { ActivityData, ServiceUsageData, SpendingData } from './types';
 
+type StreamSession = {
+  id: number;
+  user_address: string;
+  video_id: number;
+  seconds_streamed: number | null;
+  amount_usdc: number | null;
+  tx_hash: string | null;
+  created_at: string;
+  video?: { id: number; url: string; duration_seconds: number; active: boolean } | null;
+};
+
 function isSpendingService(service: ServiceType) {
   return service === 'video_stream' || service === 'video_purchase' || service === 'api_session' || service === 'storage';
 }
@@ -39,16 +50,36 @@ export function useDashboardData() {
       try {
         setLoading(true);
         setError(null);
-        const [txRes, streamSessions, storage] = await Promise.all([
-          listTransactions({ user_address: address, page: 1, page_size: 500, sort: 'recent' }),
-          fetchUserStreamSessions(address).catch(() => []),
+        
+        // Fetch all transactions using pagination
+        let allTxs: TxRow[] = [];
+        let page = 1;
+        const pageSize = 100;
+        let hasMore = true;
+        
+        while (hasMore && !cancelled) {
+          const txRes = await listTransactions({ 
+            user_address: address, 
+            page, 
+            page_size: pageSize, 
+            sort: 'recent' 
+          });
+          
+          allTxs = allTxs.concat(txRes.items || []);
+          hasMore = txRes.items && txRes.items.length === pageSize;
+          page++;
+        }
+        
+        const [streamSessions, storage] = await Promise.all([
+          fetchUserStreamSessions(address).catch(() => [] as StreamSession[]),
           getStorageStats(address).catch(() => null),
         ]);
+        
         if (!cancelled) {
-          setTxs(txRes.items || []);
+          setTxs(allTxs);
           if (Array.isArray(streamSessions)) {
             const count = streamSessions.length;
-            const totalSeconds = streamSessions.reduce((sum, s) => sum + (s.seconds_streamed || 0), 0);
+            const totalSeconds = streamSessions.reduce((sum: number, s: StreamSession) => sum + (s.seconds_streamed || 0), 0);
             setVideoSessionsMeta({ count, totalSeconds });
           } else {
             setVideoSessionsMeta(null);
@@ -116,12 +147,13 @@ export function useDashboardData() {
     }
 
     const grand = videoTotal + apiTotal + storageTotal;
+    const totalSessions = videoSessions + apiSessions + storageSessions;
     if (grand <= 0) return [];
 
     const mk = (service: string, amount: number, sessions: number, color: string): ServiceUsageData => ({
       service,
       amount,
-      percentage: grand > 0 ? (amount / grand) * 100 : 0,
+      percentage: totalSessions > 0 ? (sessions / totalSessions) * 100 : 0,
       sessions,
       color,
     });

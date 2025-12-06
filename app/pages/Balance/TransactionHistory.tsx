@@ -5,12 +5,16 @@ import Badge from '@/components/ui/Badge';
 import { Transaction } from './types';
 import { Search, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 
+import Skeleton from '@/components/ui/Skeleton';
+
 interface TransactionHistoryProps {
   transactions: Transaction[];
+  isLoading?: boolean;
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 15];
 const DEFAULT_ITEMS_PER_PAGE = 5;
+
 
 type Option = { label: string; value: string | number };
 
@@ -97,7 +101,7 @@ const getServiceName = (service: string) => {
   }
 };
 
-const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions }) => {
+const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, isLoading }) => {
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
   const [filterService, setFilterService] = useState<string>('all');
@@ -135,6 +139,22 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
   const handleViewExplorer = (txHash: string) => {
     window.open(`https://testnet.snowtrace.io/tx/${txHash}`, '_blank');
   };
+
+  if (isLoading) {
+    return (
+      <Card className="p-6 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-9 w-24" />
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6 mb-8">
@@ -225,12 +245,12 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
                   <tr>
                     <td colSpan={5} className="p-4 bg-[#0a0a0a]">
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between">
+                        {/* <div className="flex items-center justify-between">
                           <div className="text-sm font-medium text-white">
                             {getTransactionIcon(tx.type)} {tx.type === 'payment' ? 'Payment' : tx.type === 'deposit' ? 'Deposit' : tx.type === 'withdraw' ? 'Withdraw' : 'Refund'}: {tx.service || 'N/A'}
                           </div>
                           <div className="text-xs text-[#a1a1a1]">{tx.date}</div>
-                        </div>
+                        </div> */}
 
                         <div className="border-t border-[#262626] pt-4">
                           <div className="text-sm font-medium text-white mb-3">Transaction Details:</div>
@@ -271,7 +291,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
                           <Button variant="outline" size="sm" onClick={() => handleViewExplorer(tx.txHash)}>
                             View on Explorer
                           </Button>
-                          <Button variant="outline" size="sm">Download Receipt</Button>
+                          {/* <Button variant="outline" size="sm">Download Receipt</Button> */}
                           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedTx(null); }}>Close</Button>
                         </div>
                       </div>

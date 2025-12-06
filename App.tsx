@@ -17,12 +17,14 @@ import Profile from '@/app/pages/Profile';
 import Documentation from '@/app/pages/Documentation/Documentation';
 import { WalletProvider } from '@/app/state/WalletContext';
 import Web3Provider from '@/app/web3/Web3Provider';
+import { Toaster } from '@/components/ui/Toaster';
 
 function App() {
   return (
     <BrowserRouter>
       <Web3Provider>
         <WalletProvider>
+          <Toaster />
           <Routes>
             <Route
               path="/"

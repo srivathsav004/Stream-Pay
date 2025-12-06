@@ -16,6 +16,7 @@ import { fetchCatalogVideos } from '@/app/shared/services/web2-services/video';
 import { fetchUserPurchases, fetchUserStreamSessions } from '@/app/shared/services/web2-services/video';
 import { fetchOEmbed, getYouTubeId } from './Video/youtube';
 import { useAccount } from 'wagmi';
+import { useToast } from '@/components/ui/use-toast';
 
 const VideoPage: React.FC = () => {
   const [balance] = useState(0);
@@ -29,6 +30,9 @@ const VideoPage: React.FC = () => {
   const [analyticsData, setAnalyticsData] = useState<import('./Video/types').AnalyticsData[]>([]);
   const [purchasesState, setPurchasesState] = useState<Awaited<ReturnType<typeof fetchUserPurchases>>>([]);
   const [sessionsState, setSessionsState] = useState<Awaited<ReturnType<typeof fetchUserStreamSessions>>>([]);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(true);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
+  const { toast } = useToast();
 
   const handleStream = (video: Video) => {
     setStreamModalVideo(video);
@@ -88,6 +92,7 @@ const VideoPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
+        setIsLoadingVideos(true);
         const catalog = await fetchCatalogVideos();
         const mapped: Video[] = await Promise.all(
           catalog.map(async (c) => {
@@ -108,7 +113,9 @@ const VideoPage: React.FC = () => {
         );
         setUserAvailableVideos(mapped);
       } catch (e) {
-        // ignore for now
+        console.error('Error loading videos:', e);
+      } finally {
+        setIsLoadingVideos(false);
       }
     })();
   }, []);
@@ -118,6 +125,7 @@ const VideoPage: React.FC = () => {
     (async () => {
       if (!isConnected || !address) return;
       try {
+        setIsLoadingUserData(true);
         const [purchases, sessions] = await Promise.all([
           fetchUserPurchases(address),
           fetchUserStreamSessions(address),
@@ -193,7 +201,11 @@ const VideoPage: React.FC = () => {
         }
         const days = Object.keys(map).sort();
         setAnalyticsData(days.map(d => ({ date: d, ...map[d] })));
-      } catch {}
+      } catch (e) {
+        console.error('Error loading user data:', e);
+      } finally {
+        setIsLoadingUserData(false);
+      }
     })();
   }, [isConnected, address]);
 
@@ -307,6 +319,11 @@ const VideoPage: React.FC = () => {
           try {
             const sessions = await fetchUserStreamSessions(address);
             setSessionsState(sessions);
+            toast({
+              title: "Stream session settled",
+              description: "Stream session settled successfully",
+            });
+            // Update analytics optimistically without showing loading
 
             // Recompute usage history and analytics with latest sessions
             const formatDateTime = (iso: string) => {
@@ -340,7 +357,13 @@ const VideoPage: React.FC = () => {
             for (const p of purchasesState) { const k = dayKey(p.purchased_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].purchaseCost += Number(p.amount_usdc || 0); }
             const days = Object.keys(map).sort();
             setAnalyticsData(days.map(d => ({ date: d, ...map[d] })));
-          } catch {}
+          } catch (e: any) {
+            toast({
+              title: "Error",
+              description: e?.message || 'Failed to refresh data',
+              variant: "destructive",
+            });
+          }
         }}
       />
       
@@ -355,6 +378,11 @@ const VideoPage: React.FC = () => {
           try {
             const purchases = await fetchUserPurchases(address);
             setPurchasesState(purchases);
+            toast({
+              title: "Purchase completed",
+              description: "Purchase completed successfully",
+            });
+            // Update analytics optimistically without showing loading
 
             // Recompute usage history and analytics with latest purchases
             const formatDateTime = (iso: string) => {
@@ -388,7 +416,13 @@ const VideoPage: React.FC = () => {
             for (const p of purchases) { const k = dayKey(p.purchased_at); map[k] = map[k] || { streamingCost: 0, purchaseCost: 0 }; map[k].purchaseCost += Number(p.amount_usdc || 0); }
             const days = Object.keys(map).sort();
             setAnalyticsData(days.map(d => ({ date: d, ...map[d] })));
-          } catch {}
+          } catch (e: any) {
+            toast({
+              title: "Error",
+              description: e?.message || 'Failed to refresh data',
+              variant: "destructive",
+            });
+          }
         }}
       />
 

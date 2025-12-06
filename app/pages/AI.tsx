@@ -10,6 +10,7 @@ import UsageHistory from './AI/UsageHistory';
 import Analytics from './AI/Analytics';
 import { useAccount } from 'wagmi';
 import { getStats, getHistory, getCost } from '@/app/shared/services/web2-services/ai';
+import { useToast } from '@/components/ui/use-toast';
 
 const AI: React.FC = () => {
   const { address } = useAccount();
@@ -28,6 +29,8 @@ const AI: React.FC = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [costData, setCostData] = useState<any | null>(null);
   const [settled, setSettled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   // Scroll to top on component mount
   useEffect(() => {
@@ -37,8 +40,12 @@ const AI: React.FC = () => {
   // Fetch stats/history/cost when wallet connects
   useEffect(() => {
     const init = async () => {
-      if (!address) return;
+      if (!address) {
+        setIsLoading(false);
+        return;
+      }
       try {
+        setIsLoading(true);
         const [st, hist, cost] = await Promise.all([
           getStats(address),
           getHistory(address),
@@ -55,6 +62,8 @@ const AI: React.FC = () => {
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('init session failed', e);
+      } finally {
+        setIsLoading(false);
       }
     };
     init();
@@ -172,7 +181,17 @@ const AI: React.FC = () => {
                 });
                 setHistory(hist);
                 setCostData(cost);
-              } catch (e) {
+                toast({
+                  title: "Session settled",
+                  description: "Session settled successfully",
+                });
+                // Stats updated optimistically without showing loading
+              } catch (e: any) {
+                toast({
+                  title: "Error",
+                  description: e?.message || 'Failed to refresh data',
+                  variant: "destructive",
+                });
                 // eslint-disable-next-line no-console
                 console.error('refresh after settle failed', e);
               }

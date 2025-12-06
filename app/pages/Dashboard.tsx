@@ -19,6 +19,7 @@ const Dashboard: React.FC = () => {
     activity,
     totals,
     serviceDetails,
+    loading,
   } = useDashboardData();
   const activeStreams: any[] = [];
 
