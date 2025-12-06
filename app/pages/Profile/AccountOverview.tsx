@@ -63,7 +63,14 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ wallet, onDisconnect 
 
           <div>
             <div className="text-sm text-[#a1a1a1] mb-1">Network</div>
-            <Badge variant="secondary">{wallet.network}</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{wallet.network}</Badge>
+              <img 
+                src="/avax-icon.svg" 
+                alt="AVAX" 
+                className="w-5 h-5"
+              />
+            </div>
           </div>
 
           <div>
