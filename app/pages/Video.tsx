@@ -105,7 +105,7 @@ const VideoPage: React.FC = () => {
               quality: 'HD',
               thumbnail: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
               streamPrice: 0.001, // default rate
-              purchasePrice: 0.1, // default price
+              purchasePrice: 0.5, // default price
               sourceUrl: c.url,
               catalogId: c.id,
             };

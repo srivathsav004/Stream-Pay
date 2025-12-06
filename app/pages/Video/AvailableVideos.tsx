@@ -158,7 +158,7 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
           <Card className="col-span-full p-8 text-center border-dashed">
             <div className="text-4xl mb-2">🎞️</div>
             <div className="text-white font-medium mb-1">No videos available</div>
-            <div className="text-sm text-[#a1a1a1] mb-4">Check back later or add new content.</div>
+            <div className="text-sm text-[#a1a1a1] mb-4">Check back later.</div>
           </Card>
         )}
         {list.map((video) => {
@@ -189,22 +189,21 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
                   {video.duration} • {video.quality}
                 </div>
                 {/* Stream Option */}
-                <Card className="p-3 mb-3 bg-[#0a0a0a] border-[#262626]">
-                  <div className="flex items-center gap-2 mb-2">
+                <Card className="p-4 mb-3 bg-[#1A1A1A] border border-[#2D2D2D] rounded-lg">
+                  <div className="flex items-center gap-2 mb-3">
                     <span className="text-lg">🎬</span>
-                    <span className="text-sm font-medium text-white">Stream</span>
+                    <span className="text-sm font-semibold text-white">Stream</span>
                   </div>
-                  <div className="text-xs text-[#a1a1a1] mb-1">
+                  <div className="text-sm text-[#A1A1A1] mb-1">
                     {video.streamPrice} USDC/sec
                   </div>
-                  <div className="text-xs text-[#a1a1a1] mb-1">
+                  <div className="text-sm text-[#A1A1A1] mb-4">
                     ~{streamCost.toFixed(4)} USDC total
                   </div>
-                  {/* <div className="text-xs text-[#a1a1a1] mb-3">Escrow Balance: {balance.toFixed(2)} USDC</div> */}
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full"
+                    className="w-full border border-gray-400 hover:bg-white hover:text-black font-medium py-2 transition-colors"
                     onClick={() => startStream(video)}
                   >
                     Stream Now
@@ -212,21 +211,21 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
                 </Card>
 
                 {/* Purchase Option */}
-                <Card className="p-3 bg-[#0a0a0a] border-[#262626]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">💎</span>
-                    <span className="text-sm font-medium text-white">Buy Once</span>
+                <Card className="p-4 bg-[#1A1A1A] border border-[#2D2D2D] rounded-lg">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">🛒</span>
+                    <span className="text-sm font-semibold text-white">Buy Once</span>
                   </div>
-                  <div className="text-xs text-[#a1a1a1] mb-1">
+                  <div className="text-sm text-[#A1A1A1] mb-1">
                     {video.purchasePrice} USDC
                   </div>
-                  <div className="text-xs text-[#a1a1a1] mb-3">
+                  <div className="text-sm text-[#A1A1A1] mb-4">
                     Own forever
                   </div>
                   <Button
-                    variant="primary"
+                    variant="outline"
                     size="sm"
-                    className="w-full"
+                    className="w-full border border-white text-white hover:bg-white hover:text-black font-medium py-2 transition-colors"
                     onClick={() => openPurchase(video)}
                   >
                     Buy Now
