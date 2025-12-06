@@ -59,6 +59,14 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB in bytes
+        toast({
+          title: "File too large",
+          description: "Maximum file size is 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
       setSelectedFile(file);
     }
   };
@@ -66,6 +74,14 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB in bytes
+        toast({
+          title: "File too large",
+          description: "Maximum file size is 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
       setSelectedFile(file);
     }
   };
@@ -223,7 +239,7 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
         <div className="text-lg font-semibold text-white mb-2">Drag & Drop Files</div>
         <div className="text-sm text-[#a1a1a1] mb-4">or click to browse</div>
         <div className="text-xs text-[#a1a1a1] mb-4">
-          Max file size: 100 MB • Supported: All file types
+          Max file size: 10 MB • Supported: All file types
         </div>
         <Button
           variant="outline"
