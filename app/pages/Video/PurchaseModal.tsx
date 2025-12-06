@@ -158,7 +158,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
           <div className="border-t border-[#262626] pt-6 mb-6">
             <div className="flex justify-between mb-2">
               <span className="text-sm text-[#a1a1a1]">Your Balance:</span>
-              <span className="text-sm font-semibold text-white">{balance} USDC</span>
+              <span className="text-sm font-semibold text-white">{balance.toFixed(2)} USDC</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-[#a1a1a1]">After Purchase:</span>

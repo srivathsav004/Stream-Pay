@@ -85,7 +85,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
   const [pageSize, setPageSize] = useState(5);
 
   const filtered = useMemo(() => {
-    let data = history;
+    let data = [...history]; // Create a copy to avoid mutating the original array
     if (filterType !== 'all') data = data.filter(i => i.type === filterType);
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -93,6 +93,47 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
     }
     return data;
   }, [history, filterType, search]);
+
+  const exportToCSV = () => {
+    if (filtered.length === 0) return;
+    
+    // Define CSV headers
+    const headers = ['Type', 'Video Title', 'Date/Time', 'Duration', 'Cost (USDC)', 'Transaction Hash'];
+    
+    // Convert data to CSV rows
+    const csvRows = [
+      headers.join(','),
+      ...filtered.map(item => {
+        const row = [
+          `"${item.type === 'stream' ? 'Stream' : 'Purchase'}"`,
+          `"${item.videoTitle.replace(/"/g, '""')}"`,
+          `"${item.date}"`,
+          `"${item.duration || '-'}"`,
+          `"${item.cost}"`,
+          `"${item.tx_hash || ''}"`
+        ];
+        return row.join(',');
+      })
+    ];
+    
+    // Create CSV content
+    const csvContent = csvRows.join('\n');
+    
+    // Create a Blob with the CSV data
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create a download link and trigger it
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `usage-history-${timestamp}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -103,7 +144,14 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
     <Card className="p-6 mb-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-white">Usage History</h2>
-        <Button variant="outline" size="sm">Export CSV</Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={exportToCSV}
+          disabled={filtered.length === 0}
+        >
+          Export CSV
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">

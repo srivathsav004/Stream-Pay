@@ -140,6 +140,54 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
     window.open(`https://testnet.snowtrace.io/tx/${txHash}`, '_blank');
   };
 
+  const exportToCSV = () => {
+    if (filteredTransactions.length === 0) return;
+    
+    // Define CSV headers
+    const headers = [
+      'Date/Time',
+      'Type',
+      'Service',
+      'Amount (USDC)',
+      'Status',
+      'Transaction Hash'
+    ];
+    
+    // Convert data to CSV rows
+    const csvRows = [
+      headers.join(','),
+      ...filteredTransactions.map(tx => {
+        const row = [
+          `"${new Date(tx.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}"`,
+          `"${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}"`,
+          `"${getServiceName(tx.service || '')}"`,
+          `"${tx.amount.toFixed(6)}"`,
+          `"${tx.status || 'Completed'}"`,
+          `"${tx.txHash}"`
+        ];
+        return row.join(',');
+      })
+    ];
+    
+    // Create CSV content
+    const csvContent = csvRows.join('\n');
+    
+    // Create a Blob with the CSV data
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create a download link and trigger it
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `transaction-history-${timestamp}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (isLoading) {
     return (
       <Card className="p-6 mb-8">
@@ -160,7 +208,14 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, i
     <Card className="p-6 mb-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-white">Transaction History</h2>
-        <Button variant="outline" size="sm">Export CSV</Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={exportToCSV}
+          disabled={filteredTransactions.length === 0}
+        >
+          Export CSV
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">

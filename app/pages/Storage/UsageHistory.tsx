@@ -126,7 +126,7 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
 
   // Filter and sort logic
   const filteredHistory = useMemo(() => {
-    return history.filter(item => {
+    return [...history].filter(item => {
       const matchesSearch = item.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.ipfsCid?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesFilter = filters.action === 'all' || item.action === filters.action;
@@ -145,6 +145,60 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
     });
   }, [history, searchTerm, filters]);
 
+  const exportToCSV = () => {
+    if (filteredHistory.length === 0) return;
+    
+    // Define CSV headers
+    const headers = [
+      'Action', 
+      'File Name', 
+      'IPFS CID', 
+      'Date/Time (IST)', 
+      'Duration', 
+      'Size (MB)', 
+      'Cost (USDC)', 
+      'Status',
+      'Transaction Hash'
+    ];
+    
+    // Convert data to CSV rows
+    const csvRows = [
+      headers.join(','),
+      ...filteredHistory.map(item => {
+        const row = [
+          `"${item.action.charAt(0).toUpperCase() + item.action.slice(1)}"`,
+          `"${item.fileName.replace(/"/g, '""')}"`,
+          `"${item.ipfsCid || ''}"`,
+          `"${formatDate(item.date)}"`,
+          `"${formatDuration(item.durationHours)}"`,
+          `"${item.sizeMB?.toFixed(2) || '0.00'}"`,
+          `"${formatUSDC(item.cost)}"`,
+          `"${item.status || 'Completed'}"`,
+          `"${item.txHash || ''}"`
+        ];
+        return row.join(',');
+      })
+    ];
+    
+    // Create CSV content
+    const csvContent = csvRows.join('\n');
+    
+    // Create a Blob with the CSV data
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create a download link and trigger it
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `storage-history-${timestamp}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Pagination logic
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
   const paginatedHistory = useMemo(() => {
@@ -161,6 +215,15 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
     <Card className="p-6 mb-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h2 className="text-lg font-semibold text-white">Storage History</h2>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={exportToCSV}
+          disabled={filteredHistory.length === 0}
+          className="hidden sm:flex"
+        >
+          Export CSV
+        </Button>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#a1a1a1] pointer-events-none" />

@@ -188,9 +188,9 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
         <div className="flex items-center justify-between p-6 border-b border-[#262626]">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold text-white">Stream: {video.title}</h2>
-            {typeof balance === 'number' && (
+            {/* {typeof balance === 'number' && (
               <div className="text-xs text-[#a1a1a1]">Escrow Balance: {balance.toFixed(2)} USDC</div>
-            )}
+            )} */}
           </div>
           <button
             onClick={onClose}
