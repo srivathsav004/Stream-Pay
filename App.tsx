@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/landing/Navbar';
 import Hero from './components/landing/Hero';
 import ProblemSolution from './components/landing/ProblemSolution';
@@ -54,6 +55,7 @@ function App() {
             <Route path="/docs/:section/:subsection" element={<Documentation />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <Analytics />
         </WalletProvider>
       </Web3Provider>
     </BrowserRouter>
