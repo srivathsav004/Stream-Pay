@@ -6,11 +6,11 @@ import { UsageHistoryItem } from './types';
 const getTypeBadgeColor = (type: string) => {
   switch (type) {
     case 'stream':
-      return '#3b82f6'; // blue-500
+      return '#00B4D8'; // Vivid Cyan Blue for streaming
     case 'purchase':
-      return '#8b5cf6'; // purple-500
+      return '#2ECC71'; // Emerald Green for purchases
     default:
-      return '#6b7280'; // gray-500
+      return '#6b7280'; // gray-500 for other types
   }
 };
 

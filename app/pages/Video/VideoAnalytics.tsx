@@ -55,12 +55,12 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorStreaming" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#00B4D8" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#0077B6" stopOpacity={0.2} />
                 </linearGradient>
                 <linearGradient id="colorPurchase" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#2ECC71" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#27AE60" stopOpacity={0.2} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
@@ -72,7 +72,7 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
                 type="monotone"
                 dataKey="streamingCost"
                 stackId="1"
-                stroke="#3b82f6"
+                stroke="#00B4D8"
                 fillOpacity={1}
                 fill="url(#colorStreaming)"
                 name="Streaming"
@@ -81,7 +81,7 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
                 type="monotone"
                 dataKey="purchaseCost"
                 stackId="1"
-                stroke="#8b5cf6"
+                stroke="#2ECC71"
                 fillOpacity={1}
                 fill="url(#colorPurchase)"
                 name="Purchases"
@@ -104,8 +104,21 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
             <div className="p-6 border border-dashed border-[#262626] rounded text-center text-[#a1a1a1] text-sm">No streaming data</div>
           ) : (
             <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={data}>
-                <Bar dataKey="streamingCost" fill="#3b82f6" />
+              <BarChart 
+                data={data}
+                margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+              >
+                <defs>
+                  <linearGradient id="streamingBarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#00B4D8" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#0077B6" stopOpacity={0.8} />
+                  </linearGradient>
+                </defs>
+                <Bar 
+                  dataKey="streamingCost" 
+                  fill="url(#streamingBarGradient)" 
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -123,8 +136,21 @@ const VideoAnalytics: React.FC<VideoAnalyticsProps> = ({ data }) => {
             <div className="p-6 border border-dashed border-[#262626] rounded text-center text-[#a1a1a1] text-sm">No purchase data</div>
           ) : (
             <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={data}>
-                <Bar dataKey="purchaseCost" fill="#8b5cf6" />
+              <BarChart 
+                data={data}
+                margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+              >
+                <defs>
+                  <linearGradient id="purchaseBarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2ECC71" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#27AE60" stopOpacity={0.8} />
+                  </linearGradient>
+                </defs>
+                <Bar 
+                  dataKey="purchaseCost" 
+                  fill="url(#purchaseBarGradient)" 
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}

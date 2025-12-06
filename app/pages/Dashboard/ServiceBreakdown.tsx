@@ -25,11 +25,23 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData, active
     return (max.sessions || 0) > (s.sessions || 0) ? max : s;
   }, serviceData?.[0]);
 
-  // Prepare data for donut chart
-  const chartData = (serviceData || []).map((service) => ({
+  // Define a vibrant color palette
+  const colorPalette = [
+    '#3B82F6', // Blue-500
+    '#10B981', // Emerald-500
+    '#F59E0B', // Amber-500
+    '#8B5CF6', // Violet-500
+    '#EC4899', // Pink-500
+    '#14B8A6', // Teal-500
+    '#F97316', // Orange-500
+    '#6366F1'  // Indigo-500
+  ];
+
+  // Prepare data for donut chart with new colors
+  const chartData = (serviceData || []).map((service, index) => ({
     name: service.service,
     value: service.sessions || 0,
-    color: service.color,
+    color: colorPalette[index % colorPalette.length],
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {

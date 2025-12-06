@@ -182,8 +182,23 @@ const Storage: React.FC = () => {
     if (!f?.ipfsCid) return;
     try {
       const j = await apiGetDownloadUrl(f.ipfsCid);
-      if (j.url) window.open(j.url, '_blank');
-    } catch {}
+      if (j.url) {
+        // Create a temporary anchor element to trigger the download
+        const link = document.createElement('a');
+        link.href = j.url;
+        link.download = f.name || 'download';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (e) {
+      console.error('Download failed:', e);
+      toast({
+        title: 'Download failed',
+        description: 'Could not download the file. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleRead = async (fileId: string) => {
