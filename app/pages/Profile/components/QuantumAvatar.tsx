@@ -62,41 +62,11 @@ const QuantumAvatar: React.FC<QuantumAvatarProps> = ({ wallet }) => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.98 }}
         >
-          {/* Water ripple effect */}
-          <motion.div 
-            className="absolute inset-0 overflow-hidden rounded-full"
-            initial={false}
-          >
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="absolute inset-0 rounded-full"
-                style={{
-                  border: `2px solid ${identiconColor}`,
-                  opacity: 0,
-                  scale: 0.5,
-                }}
-                animate={{
-                  scale: isHovered ? [0.5, 1.5] : 0.5,
-                  opacity: isHovered ? [0.6, 0] : 0,
-                  borderWidth: isHovered ? ['2px', '0px'] : '2px',
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: isHovered ? Infinity : 0,
-                  delay: i * 0.3,
-                  ease: 'easeOut',
-                }}
-              />
-            ))}
-          </motion.div>
-          
-          {/* Water surface distortion */}
+          {/* Removed water ripple effect */}
           <motion.div 
             className="absolute inset-0 rounded-full overflow-hidden"
             animate={{
-              scale: isHovered ? [1, 1.02, 0.98, 1] : 1,
-              opacity: isHovered ? [1, 0.9, 1] : 1,
+              scale: isHovered ? 1.05 : 1,
             }}
             transition={{
               duration: 2,
