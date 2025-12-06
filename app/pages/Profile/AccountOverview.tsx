@@ -3,24 +3,15 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { WalletInfo } from './types';
+import QuantumAvatar from './components/QuantumAvatar';
+import './components/styles/quantum.css';
 
 interface AccountOverviewProps {
   wallet: WalletInfo;
   onDisconnect: () => void;
 }
 
-// Simple identicon generator (creates a colorful pattern from address)
-const generateIdenticon = (address: string) => {
-  // Use address to generate colors
-  const hash = address.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const hue = hash % 360;
-  const saturation = 60 + (hash % 20);
-  const lightness = 50 + (hash % 20);
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-};
-
 const AccountOverview: React.FC<AccountOverviewProps> = ({ wallet, onDisconnect }) => {
-  const identiconColor = generateIdenticon(wallet.address);
   const shortAddress = `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`;
 
   const handleCopy = () => {
@@ -35,16 +26,8 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ wallet, onDisconnect 
     <Card className="p-6 mb-8">
       <h2 className="text-lg font-semibold text-white mb-6">Account Information</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="flex flex-col items-center justify-center">
-          <div
-            className="w-32 h-32 rounded-full mb-4 flex items-center justify-center text-4xl font-bold text-white shadow-lg"
-            style={{
-              background: `linear-gradient(135deg, ${identiconColor}, ${identiconColor}dd)`,
-            }}
-          >
-            {wallet.address.slice(2, 4).toUpperCase()}
-          </div>
-          <div className="text-sm text-[#a1a1a1]">Wallet Identicon</div>
+        <div className="flex flex-col items-center justify-center relative">
+          <QuantumAvatar wallet={wallet} />
         </div>
 
         <div className="space-y-4">
