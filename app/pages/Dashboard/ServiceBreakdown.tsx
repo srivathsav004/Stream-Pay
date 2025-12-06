@@ -28,7 +28,7 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData, active
   // Prepare data for donut chart
   const chartData = (serviceData || []).map((service) => ({
     name: service.service,
-    value: service.amount,
+    value: service.sessions || 0,
     color: service.color,
   }));
 
@@ -40,11 +40,11 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData, active
         <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 shadow-lg">
           <p className="text-sm font-semibold text-white mb-1">{data.name}</p>
           <p className="text-sm text-[#a1a1a1]">
-            Total spent: {data.value} USDC
+            Transactions: {data.value}
           </p>
           {service && (
             <>
-              <p className="text-xs text-[#a1a1a1] mt-1">Payments: {service.sessions}</p>
+              <p className="text-xs text-[#a1a1a1] mt-1">Total spent: {service.amount.toFixed(3)} USDC</p>
               <p className="text-xs text-[#a1a1a1]">
                 Avg per pay: {(service.amount / service.sessions).toFixed(3)} USDC
               </p>
@@ -67,8 +67,8 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData, active
         x={x}
         y={y}
         fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central"
+        textAnchor="middle"
+        dominantBaseline="middle"
         className="text-xs font-medium"
       >
         {`${(percent * 100).toFixed(0)}%`}
@@ -104,7 +104,9 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData, active
                 height={36}
                 formatter={(value) => {
                   const service = (serviceData || []).find((s) => s.service === value);
-                  return service ? `${value} (${Math.round(service.percentage)}%)` : value;
+                  const totalTx = (serviceData || []).reduce((sum, s) => sum + (s.sessions || 0), 0);
+                  const percentage = service && totalTx > 0 ? (service.sessions / totalTx) * 100 : 0;
+                  return service ? `${value} (${Math.round(percentage)}%)` : value;
                 }}
                 wrapperStyle={{ color: '#ffffff', fontSize: '12px' }}
                 iconType="circle"
@@ -113,7 +115,7 @@ const ServiceBreakdown: React.FC<ServiceBreakdownProps> = ({ serviceData, active
           </ResponsiveContainer>
         </div>
         <div className="pt-4 border-t border-[#262626]">
-          <div className="text-sm text-[#a1a1a1]">Total: {totalAmount.toFixed(2)} USDC</div>
+          <div className="text-sm text-[#a1a1a1]">Total: {totalSessions} transactions</div>
         </div>
       </Card>
 
