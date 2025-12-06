@@ -61,9 +61,9 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({ wallet, onDisconnect 
             <div className="text-xs text-[#a1a1a1]">{wallet.connectedAt}</div>
           </div>
 
-          <Button variant="outline" size="sm" onClick={onDisconnect}>
+          {/* <Button variant="outline" size="sm" onClick={onDisconnect}>
             Disconnect Wallet
-          </Button>
+          </Button> */}
         </div>
       </div>
     </Card>
