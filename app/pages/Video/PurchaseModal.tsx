@@ -1,7 +1,9 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Video } from './types';
+import { useToast } from '@/components/ui/use-toast';
 
 interface PurchaseModalProps {
   video: Video | null;
@@ -15,7 +17,7 @@ interface PurchaseModalProps {
 const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, onClose, onConfirm, onSettled }) => {
   const [submitting, setSubmitting] = React.useState(false);
   const [status, setStatus] = React.useState<string | null>(null);
-  const [toast, setToast] = React.useState<string | null>(null);
+  const { toast } = useToast();
   const [completed, setCompleted] = React.useState(false);
   const backend = (path: string) => `${(import.meta as any).env?.VITE_BACKEND_URL ?? 'http://localhost:3001'}/api${path}`;
   const ensureWallet = async () => {
@@ -71,19 +73,32 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
     if (isOpen) {
       setSubmitting(false);
       setStatus(null);
-      setToast(null);
       setCompleted(false);
     }
   }, [isOpen]);
 
-  if (!isOpen || !video) return null;
 
-  const afterPurchase = balance - video.purchasePrice;
-  const breakEvenMinutes = Math.ceil((video.purchasePrice / video.streamPrice) / 60);
+  const afterPurchase = video ? balance - video.purchasePrice : balance;
+  const breakEvenMinutes = video ? Math.ceil((video.purchasePrice / video.streamPrice) / 60) : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={onClose}>
-      <div className="relative bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-2xl max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+    <AnimatePresence>
+      {isOpen && video && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="relative bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-2xl max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
         <div className="flex items-center justify-between p-6 border-b border-[#262626] flex-shrink-0">
           <h2 className="text-lg font-semibold text-white">Purchase Video</h2>
           <button
@@ -118,7 +133,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
               <div className="flex justify-between">
                 <span className="text-sm text-[#a1a1a1]">One-Time Cost:</span>
                 <span className="text-sm font-semibold text-white">
-                  {video.purchasePrice} USDC (${(video.purchasePrice * 40).toFixed(2)})
+                  {video.purchasePrice} USDC
                 </span>
               </div>
             </div>
@@ -133,11 +148,11 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
               </ul>
             </div>
 
-            <Card className="p-3 bg-blue-600/10 border-blue-600/50 mb-6">
+            {/* <Card className="p-3 bg-blue-600/10 border-blue-600/50 mb-6">
               <div className="text-xs text-[#a1a1a1]">
                 💡 Break-even: Watch more than {breakEvenMinutes} minutes to save vs streaming
               </div>
-            </Card>
+            </Card> */}
           </div>
 
           <div className="border-t border-[#262626] pt-6 mb-6">
@@ -208,13 +223,27 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
                     });
                   } catch {}
                   setStatus('Transaction confirmed. Finalizing...');
-                  setToast('Purchase processed successfully');
+                  toast({
+                    title: "Purchase successful",
+                    description: `Purchase processed successfully • ${video.purchasePrice} USDC`,
+                  });
                   setCompleted(true);
                   onConfirm(video);
                   try { onSettled && onSettled(); } catch {}
-                  setTimeout(() => { onClose(); setToast(null); }, 1000);
+                  setTimeout(() => { 
+                    onClose(); 
+                    setSubmitting(false);
+                    setStatus(null);
+                    setCompleted(false);
+                  }, 1500);
                 } catch (e: any) {
-                  setStatus(e?.message || 'Purchase failed');
+                  const errorMsg = e?.message || 'Purchase failed';
+                  setStatus(errorMsg);
+                  toast({
+                    title: "Purchase failed",
+                    description: errorMsg,
+                    variant: "destructive",
+                  });
                 } finally {
                   setSubmitting(false);
                 }
@@ -224,14 +253,10 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ video, isOpen, balance, o
               {submitting ? 'Processing...' : `Confirm Purchase - ${video.purchasePrice} USDC`}
             </Button>
         </div>
-
-        {toast && (
-          <div className="absolute top-4 right-4 bg-[#0a0a0a] border border-[#262626] text-white text-sm px-4 py-2 rounded shadow-lg">
-            {toast}
-          </div>
-        )}
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
