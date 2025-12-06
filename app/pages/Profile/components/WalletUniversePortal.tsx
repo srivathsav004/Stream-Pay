@@ -209,7 +209,7 @@ const WalletUniversePortal: React.FC<WalletUniversePortalProps> = ({
               </motion.div>
 
               {/* Info Panel */}
-              {phase === 'interactive' && (
+              {/* {phase === 'interactive' && (
                 <motion.div
                   className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-zinc-900/80 border border-zinc-700 rounded-lg p-4 max-w-md"
                   initial={{ opacity: 0, y: 20 }}
@@ -226,7 +226,7 @@ const WalletUniversePortal: React.FC<WalletUniversePortalProps> = ({
                     </div>
                   </div>
                 </motion.div>
-              )}
+              )} */}
             </motion.div>
           )}
         </div>
