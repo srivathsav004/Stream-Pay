@@ -52,7 +52,10 @@ const DemoVideo: React.FC = () => {
               muted
               playsInline
             >
-              <source src="/demo.mp4" type="video/mp4" />
+              <source 
+                src="https://github.com/srivathsav004/Stream-Pay/releases/download/video-release/demo.mp4" 
+                type="video/mp4" 
+              />
               Your browser does not support the video tag.
             </video>
           </div>
