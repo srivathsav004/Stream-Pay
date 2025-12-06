@@ -5,6 +5,24 @@ import { avalancheFuji } from 'wagmi/chains';
 import { Copy, LogOut, ChevronDown, User as UserIcon, Check } from 'lucide-react';
 import { readEscrowBalance } from '@/app/shared/contracts/balance';
 
+// Global event emitter for balance refreshes
+class BalanceRefreshEmitter {
+  private listeners: (() => void)[] = [];
+  
+  subscribe(listener: () => void) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
+    };
+  }
+  
+  emit() {
+    this.listeners.forEach(listener => listener());
+  }
+}
+
+export const balanceRefreshEmitter = new BalanceRefreshEmitter();
+
 interface TopNavbarProps {
   sidebarWidth?: string;
 }
@@ -14,17 +32,34 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ sidebarWidth = '56px' }) => {
   const { data: balance } = useBalance({
     address,
     chainId: avalancheFuji.id,
-    query: { enabled: !!address },
+    query: { 
+      enabled: !!address,
+      refetchInterval: 30000, // Refetch every 30 seconds
+    },
   });
-  const { data: usdcBalance } = useBalance({
+  const { data: usdcBalance, refetch: refetchUsdcBalance } = useBalance({
     address,
     chainId: avalancheFuji.id,
     token: '0x5425890298aed601595a70ab815c96711a31bc65',
-    query: { enabled: !!address },
+    query: { 
+      enabled: !!address,
+      refetchInterval: 30000, // Refetch every 30 seconds
+    },
   });
   
   // Fetch escrow balance
   const [escrowBalance, setEscrowBalance] = React.useState<number>(0);
+  const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+  
+  // Listen for balance refresh events
+  React.useEffect(() => {
+    const unsubscribe = balanceRefreshEmitter.subscribe(() => {
+      setRefreshTrigger(prev => prev + 1);
+      // Also refetch wallet balances
+      refetchUsdcBalance();
+    });
+    return unsubscribe;
+  }, [refetchUsdcBalance]);
   
   React.useEffect(() => {
     if (address) {
@@ -37,7 +72,7 @@ const TopNavbar: React.FC<TopNavbarProps> = ({ sidebarWidth = '56px' }) => {
     } else {
       setEscrowBalance(0);
     }
-  }, [address]);
+  }, [address, refreshTrigger]);
   
   const { disconnect } = useDisconnect();
 
