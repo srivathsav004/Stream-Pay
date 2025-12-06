@@ -148,107 +148,104 @@ const DepositModal: React.FC<DepositModalProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-2xl"
+            className="bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-        <div className="flex items-center justify-between p-6 border-b border-[#262626]">
-          <h2 className="text-lg font-semibold text-white">Deposit USDC</h2>
-          <button
-            onClick={onClose}
-            className="text-[#a1a1a1] hover:text-white text-2xl"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="p-6">
-          <div className="mb-6">
-            <label className="block text-sm text-[#a1a1a1] mb-2">Amount (USDC)</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                className="flex-1 bg-[#0a0a0a] border border-[#262626] rounded-lg px-4 py-3 text-lg text-white font-mono"
-                step="0.1"
-                min="0"
-              />
-              <span className="text-lg text-white font-mono">USDC</span>
+            <div className="flex items-center justify-between p-4 border-b border-[#262626] flex-shrink-0">
+              <h2 className="text-lg font-semibold text-white">Deposit USDC</h2>
+              <button
+                onClick={onClose}
+                className="text-[#a1a1a1] hover:text-white text-2xl"
+              >
+                ✕
+              </button>
             </div>
-            {/* <div className="text-sm text-[#a1a1a1] mt-2">
-              ≈ ${(amount * 40).toFixed(2)} USD
-            </div> */}
-          </div>
 
-          <div className="mb-6">
-            <div className="text-sm text-[#a1a1a1] mb-3">Quick amounts:</div>
-            <div className="flex flex-wrap gap-2">
-              {quickAmounts.map((quickAmount) => (
-                <Button
-                  key={quickAmount}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setAmount(quickAmount)}
-                  className={amount === quickAmount ? 'border-blue-600' : ''}
-                >
-                  {quickAmount}
-                </Button>
-              ))}
-            </div>
-          </div>
+            <div className="overflow-y-auto p-6">
+              <div className="mb-6">
+                <label className="block text-sm text-[#a1a1a1] mb-2">Amount (USDC)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                    className="flex-1 bg-[#0a0a0a] border border-[#262626] rounded-lg px-4 py-2 text-lg text-white font-mono"
+                    step="0.1"
+                    min="0"
+                  />
+                  <span className="text-lg text-white font-mono">USDC</span>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="text-sm text-[#a1a1a1] mb-3">Quick amounts:</div>
+                <div className="flex flex-wrap gap-2">
+                  {quickAmounts.map((quickAmount) => (
+                    <Button
+                      key={quickAmount}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAmount(quickAmount)}
+                      className={amount === quickAmount ? 'border-blue-600' : ''}
+                    >
+                      {quickAmount}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <Separator className="my-6" />
+
+              <div className="mb-6">
+                <div className="text-sm font-medium text-white mb-3">This will last approximately:</div>
+                <div className="space-y-2 text-sm text-[#a1a1a1]">
+                  <div>• Video Streaming: ~{usage.videoHours} hours</div>
+                  <div>• AI Assistant: ~{usage.aiCalls.toLocaleString()} calls</div>
+                  <div>• Cloud Storage: ~{usage.storageDays} days (1GB)</div>
+                </div>
+              </div>
 
           <Separator className="mb-6" />
 
-          <div className="mb-6">
-            <div className="text-sm font-medium text-white mb-3">This will last approximately:</div>
-            <div className="space-y-2 text-sm text-[#a1a1a1]">
-              <div>• Video Streaming: ~{usage.videoHours} hours</div>
-              <div>• AI Assistant: ~{usage.aiCalls.toLocaleString()} calls</div>
-              <div>• Cloud Storage: ~{usage.storageDays} days (1GB)</div>
-            </div>
-          </div>
-
-          <Separator className="mb-6" />
-
-          <div className="mb-6">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm text-[#a1a1a1]">Current Balance:</span>
-              <span className="text-sm font-semibold text-white">{currentBalance} USDC</span>
+          <div className="mb-6 bg-[#1A1A1A] p-4 rounded-lg">
+            <div className="flex justify-between mb-3">
+              <span className="text-sm text-[#a1a1a1]">Current Balance</span>
+              <span className="text-sm font-mono text-white">{currentBalance.toFixed(3)} USDC</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-[#a1a1a1]">After Deposit:</span>
-              <span className="text-sm font-semibold text-white">{currentBalance + amount} USDC</span>
+              <span className="text-sm text-[#a1a1a1]">After Deposit</span>
+              <span className="text-sm font-mono text-white">{(currentBalance + amount).toFixed(3)} USDC</span>
             </div>
           </div>
 
-            {status && (
-              <div className="mb-4 p-3 bg-blue-600/10 border border-blue-600/50 rounded-lg">
-                <div className="text-sm text-blue-300">{status}</div>
+          {status && (
+            <div className="mb-4 p-3 bg-[#1A1A1A] border border-[#262626] rounded-lg">
+              <div className="text-sm text-[#a1a1a1] flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                {status}
               </div>
-            )}
-
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex-1" 
-                onClick={onClose}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Button 
-                variant="primary" 
-                size="sm" 
-                className="flex-1" 
-                onClick={handleDeposit}
-                loading={loading}
-                disabled={loading}
-              >
-                Deposit
-              </Button>
             </div>
-        </div>
+          )}
+
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+              className="flex-1 border-[#262626] hover:bg-[#262626]"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleDeposit} 
+              loading={loading}
+              disabled={loading || amount <= 0}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+                  {status || 'Deposit USDC'}
+                </Button>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       )}
