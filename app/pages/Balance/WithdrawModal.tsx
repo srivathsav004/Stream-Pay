@@ -33,6 +33,8 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
   const { address, chainId } = (useAccount as any)() || { address: undefined, chainId: undefined };
   const { writeContractAsync } = (useWriteContract as any)();
   const config = (useConfig as any)();
+  
+  const quickAmounts = [0.5, 1.0, 2.0, 5.0];
 
   useEffect(() => {
     if (!isOpen) {
@@ -177,6 +179,20 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
           </div>
 
           <div className="mb-6">
+            <div className="text-sm text-[#a1a1a1] mb-3">Quick amounts:</div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {quickAmounts.map((quickAmount) => (
+                <Button
+                  key={quickAmount}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAmount(quickAmount)}
+                  className={amount === quickAmount ? 'border-blue-600' : ''}
+                >
+                  {quickAmount}
+                </Button>
+              ))}
+            </div>
             <Button variant="outline" size="sm" onClick={handleWithdrawAll}>
               Withdraw All Available
             </Button>
@@ -195,14 +211,14 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
 {/* 
           <Separator className="mb-6" /> */}
 
-          <div className="mb-6">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm text-[#a1a1a1]">Available Balance:</span>
-              <span className="text-sm font-semibold text-white">{availableBalance} USDC</span>
+          <div className="mb-6 bg-[#1A1A1A] p-4 rounded-lg">
+            <div className="flex justify-between mb-3">
+              <span className="text-sm text-[#a1a1a1]">Available Balance</span>
+              <span className="text-sm font-mono text-white">{availableBalance.toFixed(3)} USDC</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-[#a1a1a1]">After Withdrawal:</span>
-              <span className="text-sm font-semibold text-white">{availableBalance - amount} USDC</span>
+              <span className="text-sm text-[#a1a1a1]">After Withdrawal</span>
+              <span className="text-sm font-mono text-white">{(availableBalance - amount).toFixed(3)} USDC</span>
             </div>
           </div>
 
