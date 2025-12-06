@@ -11,6 +11,7 @@ import { record as recordUsage } from '@/app/shared/services/web2-services/ai';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { useReadContract } from 'wagmi';
 import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
+import { useToast } from '@/components/ui/use-toast';
 
 interface SessionStatsProps {
   session: ChatSession;
@@ -49,6 +50,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
   const [settling, setSettling] = React.useState(false);
   const [settled, setSettled] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
+  const { toast } = useToast();
 
   // Reset local settled state when a new UI session starts
   React.useEffect(() => {
@@ -144,8 +146,18 @@ const SessionStats: React.FC<SessionStatsProps> = ({
       onSettledChange?.(true);
       try { await onAfterSettle?.(); } catch {}
       await refetchEscrow();
+      toast({
+        title: "Session settled",
+        description: `Settled ${amountUSDC.toFixed(4)} USDC successfully`,
+      });
     } catch (e: any) {
-      setErrorMsg(e?.message || 'Failed to settle');
+      const errorMsg = e?.message || 'Failed to settle';
+      setErrorMsg(errorMsg);
+      toast({
+        title: "Settlement failed",
+        description: errorMsg,
+        variant: "destructive",
+      });
     } finally {
       setSettling(false);
     }
@@ -160,7 +172,7 @@ const SessionStats: React.FC<SessionStatsProps> = ({
         <div className="space-y-6">
           <div>
             <div className="text-xs text-[#a1a1a1] uppercase mb-1">Status</div>
-            <div className="text-sm font-medium text-white">{settled ? '✅ Settled' : '🟢 Active'}</div>
+            <div className="text-sm font-medium text-white">{settled ? 'Settled' : 'Active'}</div>
           </div>
           
           <Separator />
