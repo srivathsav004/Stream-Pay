@@ -8,6 +8,7 @@ import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { formatUnits } from 'viem';
 import { uploadFileWithProgress } from '@/app/shared/services/web2-services/storage';
+import { useToast } from '@/components/ui/use-toast';
 
 interface UploadAreaProps {
   onUpload: (file: File) => void;
@@ -20,7 +21,7 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [customName, setCustomName] = useState('');
-  const [toast, setToast] = useState<string | null>(null);
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { address } = (useAccount?.() as any) || { address: undefined };
   const { data: escBal } = (useReadContract as any)({
@@ -80,13 +81,19 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
         name: customName.trim() || undefined,
         onProgress: (p) => setUploadProgress(p),
       });
-      setToast(`Uploaded ${res?.file?.filename || selectedFile.name}`);
-      setTimeout(() => setToast(null), 2000);
+      toast({
+        title: "File uploaded",
+        description: `Uploaded ${res?.file?.filename || selectedFile.name} successfully`,
+      });
       setSelectedFile(null);
       onUpload(selectedFile);
     } catch (e: any) {
-      setToast(e?.message || 'Upload failed');
-      setTimeout(() => setToast(null), 3000);
+      const errorMsg = e?.message || 'Upload failed';
+      toast({
+        title: "Upload failed",
+        description: errorMsg,
+        variant: "destructive",
+      });
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -198,9 +205,6 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onUpload, balance }) => {
             {isUploading ? `Uploading… ${uploadProgress}%` : 'Upload & Start Paying'}
           </Button>
         </div>
-        {toast && (
-          <div className="mt-3 bg-[#0a0a0a] border border-[#262626] text-white text-sm px-4 py-2 rounded">{toast}</div>
-        )}
       </Card>
     );
   }
