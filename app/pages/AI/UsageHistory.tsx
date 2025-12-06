@@ -4,6 +4,30 @@ import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { UsageHistoryItem } from './types';
 
+// Format date to IST (UTC+5:30)
+const formatToIST = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    // Add 5 hours and 30 minutes to convert to IST
+    const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+    const istTime = new Date(date.getTime() + istOffset);
+    
+    // Format: DD/MM/YYYY, HH:MM:SS AM/PM
+    return istTime.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  } catch (e) {
+    console.error('Error formatting date:', e);
+    return dateString; // Return original if there's an error
+  }
+};
+
 interface UsageHistoryProps {
   history: UsageHistoryItem[];
 }
@@ -153,7 +177,9 @@ const UsageHistory: React.FC<UsageHistoryProps> = ({ history }) => {
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-[#a1a1a1]">{item.date}</td>
+                <td className="px-4 py-3 text-[#a1a1a1]" title={item.date}>
+                  {formatToIST(item.date)}
+                </td>
                 <td className="px-4 py-3 text-[#a1a1a1]">{item.calls}</td>
                 <td className="px-6 py-3 text-center text-white min-w-[120px]">{item.cost}</td>
                 <td className="px-6 py-3 text-center min-w-[180px]">

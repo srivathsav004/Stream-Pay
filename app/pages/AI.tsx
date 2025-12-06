@@ -32,6 +32,28 @@ const AI: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  // Extract topics from history data
+  const extractTopics = (history: any[]): { topic: string; calls: number }[] => {
+    if (!history?.length) return [];
+    
+    // Group by topic and count calls
+    const topicMap = history.reduce<Record<string, number>>((acc, item) => {
+      const topic = item.topic || 'General Questions';
+      const calls = typeof item.calls === 'number' ? item.calls : 1;
+      acc[topic] = (acc[topic] || 0) + calls;
+      return acc;
+    }, {});
+
+    // Convert to array, sort by call count (descending), and take top 5
+    return Object.entries(topicMap)
+      .map(([topic, calls]) => ({ 
+        topic, 
+        calls: typeof calls === 'number' ? calls : 0 
+      }))
+      .sort((a, b) => (b.calls || 0) - (a.calls || 0))
+      .slice(0, 5);
+  };
+
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -202,14 +224,11 @@ const AI: React.FC = () => {
 
       <UsageHistory history={history} />
       <Analytics
-        callsData={history.map((h: any) => ({ date: String(h.date).split(',')[0], calls: h.calls }))}
-        topicData={[
-          { topic: 'General Questions', calls: 12 },
-          { topic: 'Pricing', calls: 8 },
-          { topic: 'Integrations', calls: 5 },
-          { topic: 'Troubleshooting', calls: 4 },
-          { topic: 'Docs', calls: 3 },
-        ]}
+        callsData={history.map((h: any) => ({ 
+          date: h.date || new Date().toISOString(), 
+          calls: h.calls || 1 
+        }))}
+        topicData={extractTopics(history)}
       />
     </DashboardLayout>
   );

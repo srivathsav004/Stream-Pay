@@ -13,9 +13,11 @@ interface AvailableVideosProps {
   onPurchase: (video: Video) => void; // open purchase modal (parent usage elsewhere)
   onPurchased?: (video: Video) => void; // notified after successful purchase
   hiddenIds?: string[];
+  onSettled?: () => void | Promise<void>; // called after any transaction is settled
+  onWatch?: (video: Video) => void;
 }
 
-const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onPurchase, onPurchased, hiddenIds = [] }) => {
+const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onPurchase, onPurchased, hiddenIds = [], onSettled, onWatch }) => {
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState<number>(0);
@@ -247,6 +249,10 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
           try { onPurchased && onPurchased(v); } catch {}
           setPurchaseVideo(null);
         }}
+        onSettled={async () => {
+          if (address) await refreshBalance(address);
+          if (onSettled) await onSettled();
+        }}
       />
       <StreamModal
         video={streamVideo}
@@ -254,6 +260,10 @@ const AvailableVideos: React.FC<AvailableVideosProps> = ({ videos, onStream, onP
         onClose={async () => { setStreamVideo(null); if (address) await refreshBalance(address); }}
         onUpgrade={(v) => { setStreamVideo(null); setPurchaseVideo(v); }}
         balance={balance}
+        onSettled={async () => {
+          if (address) await refreshBalance(address);
+          if (onSettled) await onSettled();
+        }}
       />
     </div>
   );
