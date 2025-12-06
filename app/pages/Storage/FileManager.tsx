@@ -10,6 +10,7 @@ import { STREAMPAY_ESCROW_ABI } from '@/app/shared/contracts/streampayEscrow';
 import { STREAMPAY_ESCROW_ADDRESS } from '@/app/shared/contracts/config';
 import { formatUnits, parseUnits, keccak256, toHex } from 'viem';
 import { deleteFile as apiDeleteFile } from '@/app/shared/services/web2-services/storage';
+import { useToast } from '@/components/ui/use-toast';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -113,7 +114,7 @@ const FileManager: React.FC<FileManagerProps> = ({
   const [confirmFile, setConfirmFile] = useState<StorageFile | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const { toast } = useToast();
   const { address } = (useAccount?.() as any) || { address: undefined };
   const { data: escBal } = (useReadContract as any)({
     address: STREAMPAY_ESCROW_ADDRESS || undefined,
@@ -187,7 +188,19 @@ const FileManager: React.FC<FileManagerProps> = ({
   };
 
   const handleBulkDownload = () => {
+    if (selectedFiles.length === 0) {
+      toast({
+        title: "No files selected",
+        description: "Please select files to download",
+        variant: "destructive",
+      });
+      return;
+    }
     selectedFiles.forEach(id => onDownload(id));
+    toast({
+      title: "Download started",
+      description: `Downloading ${selectedFiles.length} file(s)...`,
+    });
   };
 
   const formatLocal = (iso: string) => {
@@ -604,11 +617,19 @@ const FileManager: React.FC<FileManagerProps> = ({
                     } catch {}
                     setStatus('Deleting file...');
                     onDelete(confirmFile.id);
-                    setToast(`Settled ${owed.toFixed(6)} USDC • Tx ${txHash?.slice(0, 10)}...`);
-                    setTimeout(() => { setToast(null); }, 2000);
+                    toast({
+                      title: "File deleted",
+                      description: `Settled ${owed.toFixed(6)} USDC • Tx ${txHash?.slice(0, 10)}...`,
+                    });
                     setConfirmFile(null);
                   } catch (err: any) {
-                    setStatus(err?.message || 'Failed to process deletion');
+                    const errorMsg = err?.message || 'Failed to process deletion';
+                    setStatus(errorMsg);
+                    toast({
+                      title: "Deletion failed",
+                      description: errorMsg,
+                      variant: "destructive",
+                    });
                   } finally {
                     setSubmitting(false);
                     setTimeout(() => setStatus(null), 1500);
@@ -618,9 +639,6 @@ const FileManager: React.FC<FileManagerProps> = ({
                 Settle & Delete
               </Button>
             </div>
-            {toast && (
-              <div className="absolute top-4 right-4 bg-[#0a0a0a] border border-[#262626] text-white text-sm px-4 py-2 rounded shadow-lg">{toast}</div>
-            )}
           </div>
         </div>
       )}
