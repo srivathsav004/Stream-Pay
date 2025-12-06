@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Progress from '@/components/ui/Progress';
 import { Video } from './types';
 import { loadYouTubeIframeAPI } from './youtube';
+import { useToast } from '@/components/ui/use-toast';
 
 interface StreamModalProps {
   video: Video | null;
@@ -20,7 +22,7 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
   const [cost, setCost] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const { toast } = useToast();
   const playerRef = useRef<any>(null);
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
   const backend = (path: string) => `${(import.meta as any).env?.VITE_BACKEND_URL ?? 'http://localhost:3001'}/api${path}`;
@@ -37,7 +39,6 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
     if (isOpen) {
       setSubmitting(false);
       setStatus(null);
-      setToast(null);
     }
   }, [isOpen]);
   const getNonce = async (addr: string) => {
@@ -147,7 +148,6 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
     };
   }, [isOpen, video]);
 
-  if (!isOpen || !video) return null;
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -156,7 +156,7 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const parts = video.duration.split(':').map(Number);
+  const parts = video?.duration?.split(':').map(Number) || [];
   let totalSeconds = 0;
   if (parts.length === 3) {
     const [h, m, s] = parts;
@@ -165,23 +165,33 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
     const [m, s] = parts;
     totalSeconds = m * 60 + s;
   }
-  const progress = (duration / totalSeconds) * 100;
+  const progress = totalSeconds > 0 ? (duration / totalSeconds) * 100 : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={onClose}>
-      <div className="bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <AnimatePresence>
+      {isOpen && video && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="bg-[#0a0a0a] border border-[#262626] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
         <div className="flex items-center justify-between p-6 border-b border-[#262626]">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold text-white">Stream: {video.title}</h2>
             {typeof balance === 'number' && (
               <div className="text-xs text-[#a1a1a1]">Escrow Balance: {balance.toFixed(2)} USDC</div>
             )}
-            {toast && (
-          <div className="absolute top-4 right-4 bg-[#0a0a0a] border border-[#262626] text-white text-sm px-4 py-2 rounded shadow-lg">
-            {toast}
           </div>
-        )}
-      </div>
           <button
             onClick={onClose}
             className="text-[#a1a1a1] hover:text-white text-2xl"
@@ -294,11 +304,24 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
                       });
                     } catch {}
                     setStatus('Settlement confirmed. Finalizing...');
-                    setToast('Stream settlement processed successfully');
+                    toast({
+                      title: "Settlement successful",
+                      description: `Stream settlement processed successfully • ${cost.toFixed(4)} USDC`,
+                    });
                     try { onSettled && onSettled(); } catch {}
-                    setTimeout(() => { setToast(null); onClose(); }, 1000);
+                    setTimeout(() => { 
+                      onClose(); 
+                      setSubmitting(false);
+                      setStatus(null);
+                    }, 1500);
                   } catch (e: any) {
-                    setStatus(e?.message || 'Settlement failed');
+                    const errorMsg = e?.message || 'Settlement failed';
+                    setStatus(errorMsg);
+                    toast({
+                      title: "Settlement failed",
+                      description: errorMsg,
+                      variant: "destructive",
+                    });
                   } finally {
                     setSubmitting(false);
                   }
@@ -330,8 +353,10 @@ const StreamModal: React.FC<StreamModalProps> = ({ video, isOpen, onClose, onUpg
             </div>
           </Card>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
