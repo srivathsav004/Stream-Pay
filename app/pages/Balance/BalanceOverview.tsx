@@ -6,17 +6,17 @@ import { BalanceBreakdown } from './types';
 interface BalanceOverviewProps {
   balance: number;
   breakdown: BalanceBreakdown;
-  isDepositing?: boolean;
-  isWithdrawing?: boolean;
+  isLoading?: boolean;
   onDeposit: () => void;
   onWithdraw: () => void;
 }
 
+import Skeleton from '@/components/ui/Skeleton';
+
 const BalanceOverview: React.FC<BalanceOverviewProps> = ({
   balance,
   breakdown,
-  isDepositing,
-  isWithdrawing,
+  isLoading,
   onDeposit,
   onWithdraw,
 }) => {
@@ -25,31 +25,27 @@ const BalanceOverview: React.FC<BalanceOverviewProps> = ({
       <Card className="p-8 mb-6">
         <div className="text-center">
           <div className="text-sm text-[#a1a1a1] mb-2">Current Balance</div>
-          <div className="text-5xl font-semibold text-white mb-2 font-mono">{balance} USDC</div>
-          <div className="text-sm text-[#a1a1a1] mb-6 min-h-[1.25rem]">
-            {(isDepositing || isWithdrawing) && (
-              <span className="text-xs text-[#e5e5e5]">
-                {isDepositing && 'Processing deposit...'}
-                {isWithdrawing && 'Processing withdrawal...'}
-              </span>
-            )}
-          </div>
-          <div className="flex justify-center gap-3">
+          {isLoading ? (
+            <Skeleton className="h-16 w-48 mx-auto mb-2" />
+          ) : (
+            <div className="text-5xl font-semibold text-white mb-2 font-mono">{balance.toFixed(2)} USDC</div>
+          )}
+          <div className="flex justify-center gap-3 mt-6">
             <Button
               variant="primary"
               size="md"
               onClick={onDeposit}
-              disabled={!!isDepositing || !!isWithdrawing}
+              disabled={isLoading}
             >
-              {isDepositing ? 'Depositing...' : 'Deposit'}
+              Deposit
             </Button>
             <Button
               variant="outline"
               size="md"
               onClick={onWithdraw}
-              disabled={!!isDepositing || !!isWithdrawing}
+              disabled={isLoading}
             >
-              {isWithdrawing ? 'Withdrawing...' : 'Withdraw'}
+              Withdraw
             </Button>
           </div>
         </div>
